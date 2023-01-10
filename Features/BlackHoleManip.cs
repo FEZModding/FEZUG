@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    internal class BlackHoleManip : IConsoleCommand
+    internal class BlackHoleManip : IFezugCommand
     {
         public string Name => "blackholes";
 
@@ -41,16 +41,16 @@ namespace FEZUG.Features
             LevelManager.LevelChanged += OnLevelChange;
         }
 
-        public List<string> Autocomplete(string args)
+        public List<string> Autocomplete(string[] args)
         {
-            return new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args)).ToList();
+            return new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args[0])).ToList();
         }
 
         public bool Execute(string[] args)
         {
             if (args.Length != 1)
             {
-                FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return false;
             }
 
@@ -58,23 +58,23 @@ namespace FEZUG.Features
             {
                 case "on":
                     EnableBlackHoles();
-                    FEZUG.Console.Print($"Black holes have been enabled.");
+                    FezugConsole.Print($"Black holes have been enabled.");
                     break;
                 case "off":
                     DisableBlackHoles();
-                    FEZUG.Console.Print($"Black holes have been disabled.");
+                    FezugConsole.Print($"Black holes have been disabled.");
                     break;
                 case "lock":
                     Locked = true;
                     cachedState = AreBlackHolesEnabled();
-                    FEZUG.Console.Print($"Black holes have been locked in {(cachedState ? "enabled" : "disabled")} state.");
+                    FezugConsole.Print($"Black holes have been locked in {(cachedState ? "enabled" : "disabled")} state.");
                     break;
                 case "unlock":
                     Locked = false;
-                    FEZUG.Console.Print($"Black holes state has been unlocked.");
+                    FezugConsole.Print($"Black holes state has been unlocked.");
                     break;
                 default:
-                    FEZUG.Console.Print($"Unknown parameter: '{args[0]}'", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Unknown parameter: '{args[0]}'", FezugConsole.OutputType.Warning);
                     return false;
             }
 

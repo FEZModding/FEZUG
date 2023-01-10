@@ -16,21 +16,20 @@ using System.Threading.Tasks;
 
 namespace FEZUG
 {
-    public class FEZUG : DrawableGameComponent
+    public class Fezug : DrawableGameComponent
     {
         public static string Version = "v0.1.0";
 
-        public static ConsoleLine Console;
-        public static TextHud TextHud;
+        public List<IFezugFeature> Features { get; private set; }
 
-        public FEZUG(Game game) : base(game)
+        public static Fezug Instance;
+
+        public Fezug(Game game) : base(game)
         {
+            Instance = this;
             Enabled = true;
             Visible = true;
             DrawOrder = 10000;
-
-            Console = new ConsoleLine();
-            TextHud = new TextHud();
 
             Initialize();
         }
@@ -41,8 +40,19 @@ namespace FEZUG
 
             DrawingTools.Init();
 
+            Features = new List<IFezugFeature>();
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t)))
+            {
+                IFezugFeature feature = (IFezugFeature)Activator.CreateInstance(type);
+                ServiceHelper.InjectServices(feature);
+                Features.Add(feature);
+            }
+
+
             var screenField = typeof(Intro).GetField("screen", BindingFlags.NonPublic | BindingFlags.Instance);
             var phaseField = typeof(Intro).GetField("phase", BindingFlags.NonPublic | BindingFlags.Instance);
+
             // skip to FEZ logo whenever possible
             Waiters.Wait(delegate {
                 return (bool) typeof(Intro).GetField("PreloadComplete", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
@@ -74,15 +84,20 @@ namespace FEZUG
 
         public override void Update(GameTime gameTime)
         {
-            Console.Update(gameTime);
+            foreach (var feature in Features)
+            {
+                feature.Update(gameTime);
+            }
         }
 
         public override void Draw(GameTime gameTime)
         {
             DrawingTools.BeginBatch();
 
-            TextHud.Draw(gameTime);
-            Console.Draw(gameTime);
+            foreach(var feature in Features)
+            {
+                feature.Draw(gameTime);
+            }
 
             DrawingTools.EndBatch();
         }

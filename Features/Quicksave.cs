@@ -26,7 +26,7 @@ namespace FEZUG.Features
         {
             if (args.Length != 1)
             {
-                FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return null;
             }
 
@@ -34,14 +34,14 @@ namespace FEZUG.Features
 
             if(saveFileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                FEZUG.Console.Print($"Given save file name contains invalid characters.", ConsoleLine.OutputType.Error);
+                FezugConsole.Print($"Given save file name contains invalid characters.", FezugConsole.OutputType.Error);
                 return null;
             }
 
             return $"{SaveDirectory}\\{saveFileName}";
         }
 
-        internal class Quicksave : IConsoleCommand
+        internal class Quicksave : IFezugCommand
         {
             public string Name => "save";
             public string HelpText => "save <name> - creates a quick save file with given name";
@@ -56,7 +56,7 @@ namespace FEZUG.Features
             {
                 if (GameState.ActiveSaveDevice == null)
                 {
-                    FEZUG.Console.Print($"Can't save while the game is loading.", ConsoleLine.OutputType.Error);
+                    FezugConsole.Print($"Can't save while the game is loading.", FezugConsole.OutputType.Error);
                     return false;
                 }
 
@@ -88,21 +88,21 @@ namespace FEZUG.Features
 
                 if (!success)
                 {
-                    FEZUG.Console.Print($"An error occurred when trying to create a quicksave.", ConsoleLine.OutputType.Error);
+                    FezugConsole.Print($"An error occurred when trying to create a quicksave.", FezugConsole.OutputType.Error);
                     return false;
                 }
 
-                FEZUG.Console.Print($"Saved quicksave \"{args[0]}\".");
+                FezugConsole.Print($"Saved quicksave \"{args[0]}\".");
 
                 return true;
             }
 
-            public List<string> Autocomplete(string args) => null;
+            public List<string> Autocomplete(string[] args) => null;
         }
 
 
 
-        internal class Quickload : IConsoleCommand
+        internal class Quickload : IFezugCommand
         {
             public string Name => "load";
             public string HelpText => "load <name> - loads a quick save file with given name";
@@ -114,7 +114,7 @@ namespace FEZUG.Features
             {
                 if (GameState.ActiveSaveDevice == null)
                 {
-                    FEZUG.Console.Print($"Can't load while the game is loading.", ConsoleLine.OutputType.Error);
+                    FezugConsole.Print($"Can't load while the game is loading.", FezugConsole.OutputType.Error);
                     return false;
                 }
 
@@ -123,7 +123,7 @@ namespace FEZUG.Features
 
                 if (!GameState.ActiveSaveDevice.FileExists(saveFilePath))
                 {
-                    FEZUG.Console.Print($"Quicksave file \"{args[0]}\" not found.", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Quicksave file \"{args[0]}\" not found.", FezugConsole.OutputType.Warning);
                     return false;
                 }
 
@@ -134,24 +134,24 @@ namespace FEZUG.Features
 
                 if (!success)
                 {
-                    FEZUG.Console.Print($"An error occurred when trying to load a quicksave.", ConsoleLine.OutputType.Error);
+                    FezugConsole.Print($"An error occurred when trying to load a quicksave.", FezugConsole.OutputType.Error);
                     return false;
                 }
 
                 WarpLevel.Warp(GameState.SaveData.Level, WarpLevel.WarpType.SaveChange);
 
-                FEZUG.Console.Print($"Loaded quicksave \"{args[0]}\".");
+                FezugConsole.Print($"Loaded quicksave \"{args[0]}\".");
                 return true;
             }
 
-            public List<string> Autocomplete(string args)
+            public List<string> Autocomplete(string[] args)
             {
                 if (GameState.ActiveSaveDevice == null) return null;
 
                 var quicksaveDir = $"{((PCSaveDevice)GameState.ActiveSaveDevice).RootDirectory}\\{SaveDirectory}";
 
                 return Directory.GetFiles(quicksaveDir).Select(path => Path.GetFileName(path))
-                    .Where(name => name.StartsWith(args)).ToList();
+                    .Where(name => name.StartsWith(args[0])).ToList();
             }
         }
     }

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace FEZUG.Features
 {
-    internal class ProgressSet : IConsoleCommand
+    internal class ProgressSet : IFezugCommand
     {
         public string Name => "progress";
         public string HelpText => "progress <flag/level/all> <name> <unlock/reset> - changes progress state for given flag or level.";
@@ -49,7 +49,7 @@ namespace FEZUG.Features
         {
             if (args.Length < 1 || args.Length > 3)
             {
-                FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return false;
             }
 
@@ -59,7 +59,7 @@ namespace FEZUG.Features
 
             if (!isLevel && !isFlag && !isAll)
             {
-                FEZUG.Console.Print($"Invalid first parameter: '{args[1]}'. Should be either 'flag', 'level' or 'all'.", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Invalid first parameter: '{args[1]}'. Should be either 'flag', 'level' or 'all'.", FezugConsole.OutputType.Warning);
                 return false;
             }
 
@@ -67,13 +67,13 @@ namespace FEZUG.Features
             {
                 if (isFlag)
                 {
-                    FEZUG.Console.Print($"List of available flags:");
-                    FEZUG.Console.Print(String.Join(", ", AllowedFlagNames));
+                    FezugConsole.Print($"List of available flags:");
+                    FezugConsole.Print(String.Join(", ", AllowedFlagNames));
                     return true;
                 }
                 else
                 {
-                    FEZUG.Console.Print($"Incorrect number of parameters.", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Incorrect number of parameters.", FezugConsole.OutputType.Warning);
                     return false;
                 }
             }
@@ -89,7 +89,7 @@ namespace FEZUG.Features
                 }
                 else
                 {
-                    FEZUG.Console.Print($"Invalid usage of command.", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Invalid usage of command.", FezugConsole.OutputType.Warning);
                     return false;
                 }
             }
@@ -97,12 +97,12 @@ namespace FEZUG.Features
             {
                 if (isAll)
                 {
-                    FEZUG.Console.Print($"Incorrect number of parameters.", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Incorrect number of parameters.", FezugConsole.OutputType.Warning);
                     return false;
                 }
                 if (args[2] != "reset" && args[2] != "unlock")
                 {
-                    FEZUG.Console.Print($"Invalid last parameter: '{args[0]}'. Should be either 'reset' or 'unlock'.", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Invalid last parameter: '{args[0]}'. Should be either 'reset' or 'unlock'.", FezugConsole.OutputType.Warning);
                     return false;
                 }
                 propertyName = args[1];
@@ -123,7 +123,7 @@ namespace FEZUG.Features
                 SetEveryLevelState(!reset);
                 SetEveryFlagState(!reset);
 
-                FEZUG.Console.Print($"Everything has been {(reset ? "reset" : "unlocked")}!");
+                FezugConsole.Print($"Everything has been {(reset ? "reset" : "unlocked")}!");
             }
 
             return false;
@@ -133,7 +133,7 @@ namespace FEZUG.Features
         {
             if (!MemoryContentManager.AssetExists("Levels\\" + levelName.Replace('/', '\\')))
             {
-                FEZUG.Console.Print($"Level with name '{levelName}' does not exist.", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Level with name '{levelName}' does not exist.", FezugConsole.OutputType.Warning);
                 return;
             }
 
@@ -143,18 +143,18 @@ namespace FEZUG.Features
         {
             if (!MemoryContentManager.AssetExists("Levels\\" + levelName.Replace('/', '\\')))
             {
-                FEZUG.Console.Print($"Level with name '{levelName}' does not exist.", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Level with name '{levelName}' does not exist.", FezugConsole.OutputType.Warning);
                 return false;
             }
 
             if (!unlock)
             {
                 GameState.SaveData.World.Remove(LevelManager.Name);
-                FEZUG.Console.Print($"Progress in level '{levelName}' has been reset.");
+                FezugConsole.Print($"Progress in level '{levelName}' has been reset.");
             }
             else
             {
-                FEZUG.Console.Print($"Unlocking levels hasn't been fully implemented yet.",  ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Unlocking levels hasn't been fully implemented yet.",  FezugConsole.OutputType.Warning);
                 UnlockLevel(levelName);
             }
             return true;
@@ -164,7 +164,7 @@ namespace FEZUG.Features
         {
             if (!AllowedFlagNames.Contains(flagName))
             {
-                if(output) FEZUG.Console.Print($"Invalid flag: {flagName}!");
+                if(output) FezugConsole.Print($"Invalid flag: {flagName}!");
                 return false;
             }
 
@@ -175,9 +175,9 @@ namespace FEZUG.Features
                 {
                     if(GameState.SaveData.Maps.Count == 9)
                     {
-                        if (output) FEZUG.Console.Print(
+                        if (output) FezugConsole.Print(
                             "The game doesn't support more than 9 maps at once! Cancelling!",
-                            ConsoleLine.OutputType.Error
+                            FezugConsole.OutputType.Error
                         );
                         return false;
                     }
@@ -197,7 +197,7 @@ namespace FEZUG.Features
                 flagField.SetValue(GameState.SaveData, unlocked);
             }
 
-            if (output) FEZUG.Console.Print($"Flag {flagName} has been {(unlocked ? "unlocked" : "reset")}!");
+            if (output) FezugConsole.Print($"Flag {flagName} has been {(unlocked ? "unlocked" : "reset")}!");
 
             return true;
         }
@@ -226,43 +226,33 @@ namespace FEZUG.Features
         }
 
 
-        public List<string> Autocomplete(string argsFull)
+        public List<string> Autocomplete(string[] args)
         {
-            var args = argsFull.Split(' ');
-
-            var prefix = argsFull.Substring(0, argsFull.Length - args[args.Length - 1].Length);
-
-            List<string> returnList = null;
-
             if (args.Length == 1)
             {
-                returnList = new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0])).ToList();
-                
+                return new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0])).ToList();
             }
             else if (args.Length == 3 || args[0] == "all")
             {
-                returnList = new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1])).ToList();
+                return new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1])).ToList();
             }
             else if (args.Length == 2)
             {
                 if (args[0] == "level")
                 {
-                    returnList = WarpLevel.Instance.Autocomplete(args[1]);
-                    returnList.AddRange(
+                    var list = WarpLevel.Instance.Autocomplete(new string[]{ args[1] });
+                    list.AddRange(
                         new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[1])).ToList()
                     );
+                    return list;
                 }
                 else if (args[0] == "flag")
                 {
-                    returnList = AllowedFlagNames.Where(s => s.StartsWith(args[1])).ToList();
+                    return AllowedFlagNames.Where(s => s.StartsWith(args[1])).ToList();
                 }
             }
 
-            if (returnList != null)
-            {
-                return returnList.Select(s => prefix + s).ToList();
-            }
-            else return null;
+            return null;
         }
     }
 }

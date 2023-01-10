@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    internal class ReloadLevel : IConsoleCommand
+    internal class ReloadLevel : IFezugCommand
     {
         public string Name => "reload";
         public string HelpText => "reload - reloads current map. If \"fresh\" flag is set, resets all collectibles as well.";
 
-        public List<string> Autocomplete(string args) => null;
+        public List<string> Autocomplete(string[] args) => null;
 
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
@@ -26,13 +26,13 @@ namespace FEZUG.Features
         {
             if (args.Length > 0)
             {
-                FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return false;
             }
 
             WarpLevel.Warp(LevelManager.Name);
 
-            FEZUG.Console.Print($"Current level ({LevelManager.Name}) has been reloaded.");
+            FezugConsole.Print($"Current level ({LevelManager.Name}) has been reloaded.");
 
             return true;
         }

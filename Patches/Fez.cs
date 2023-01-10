@@ -9,7 +9,7 @@ namespace FezGame
 {
     public class patch_Fez : Fez
     {
-        public FEZUG.FEZUG SpeedrunTools;
+        public FEZUG.Fezug SpeedrunTools;
 
         protected extern void orig_Initialize();
         protected override void Initialize()
@@ -18,7 +18,7 @@ namespace FezGame
 
             orig_Initialize();
 
-            ServiceHelper.AddComponent(SpeedrunTools = new FEZUG.FEZUG(this));
+            ServiceHelper.AddComponent(SpeedrunTools = new FEZUG.Fezug(this));
             Logger.Log("FEZUG", "FEZUG initialized!");
         }
     }

@@ -36,8 +36,8 @@ namespace FEZUG.Features
             DrawingTools.DrawRect(new Rectangle(2, 2, width, 170), new Color(0, 0, 0, 220));
 
             float padX = 10.0f;
-            DrawText($"FEZUG {FEZUG.Version}", new Vector2(padX, 0.0f));
-            DrawText($"FEZUG {FEZUG.Version}", new Vector2(padX, -1.0f));
+            DrawText($"FEZUG {Fezug.Version}", new Vector2(padX, 0.0f));
+            DrawText($"FEZUG {Fezug.Version}", new Vector2(padX, -1.0f));
             DrawText($"Level: {LevelManager.Name}", new Vector2(padX, 30.0f));
 
             string posX = PlayerManager.Position.X.ToString("0.000", CultureInfo.InvariantCulture);

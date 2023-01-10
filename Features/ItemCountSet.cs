@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    internal class ItemCountSet : IConsoleCommand
+    internal class ItemCountSet : IFezugCommand
     {
         public string Name => "itemcount";
         public string HelpText => "itemcount <goldens/antis/bits/hearts/keys/owls> <count> - sets number of collected items of given type.";
@@ -24,7 +24,7 @@ namespace FEZUG.Features
         {
             if (args.Length != 2)
             {
-                FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return false;
             }
 
@@ -58,26 +58,42 @@ namespace FEZUG.Features
                     GameState.SaveData.CollectedOwls = amount;
                     break;
                 default:
-                    FEZUG.Console.Print($"Incorrect item name: '{args[0]}'", ConsoleLine.OutputType.Warning);
+                    FezugConsole.Print($"Incorrect item name: '{args[0]}'", FezugConsole.OutputType.Warning);
                     return false;
             }
 
-            FEZUG.Console.Print($"Number of {itemName} has been changed to {amount}.");
+            FezugConsole.Print($"Number of {itemName} has been changed to {amount}.");
 
             return true;
         }
 
-        public List<string> Autocomplete(string args)
+        public List<string> Autocomplete(string[] args)
         {
-            if (args.Contains(' ')) return null;
-            return new string[] { 
-                $"goldens {GameState.SaveData.CubeShards}", 
-                $"antis {GameState.SaveData.SecretCubes}", 
-                $"bits {GameState.SaveData.CollectedParts}",
-                $"hearts {GameState.SaveData.PiecesOfHeart}",
-                $"keys {GameState.SaveData.Keys}",
-                $"owls {GameState.SaveData.CollectedOwls}",
-            }.Where(s => s.StartsWith(args)).ToList();
+            if(args.Length == 1)
+            {
+                return new string[]{ "goldens", "antis", "bits", "hearts", "keys", "owls"}.Where(s => s.StartsWith(args[0])).ToList();
+            }
+            else if(args.Length == 2 && args[1].Length == 0)
+            {
+                int value = 0;
+                switch (args[0])
+                {
+                    case "goldens":
+                        value = GameState.SaveData.CubeShards; break;
+                    case "antis":
+                        value = GameState.SaveData.SecretCubes; break;
+                    case "bits":
+                        value = GameState.SaveData.CollectedParts; break;
+                    case "hearts":
+                        value = GameState.SaveData.PiecesOfHeart; break;
+                    case "keys":
+                        value = GameState.SaveData.Keys; break;
+                    case "owls":
+                        value = GameState.SaveData.CollectedOwls; break;
+                }
+                return new List<string>() { value.ToString() };
+            }
+            return null;
         }
     }
 }

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    internal class WarpLevel : IConsoleCommand
+    internal class WarpLevel : IFezugCommand
     {
         public string Name => "warp";
         public string HelpText => "warp <level> - warps you to level with given name";
@@ -65,15 +65,15 @@ namespace FEZUG.Features
         {
 			if (args.Length > 1)
             {
-				FEZUG.Console.Print($"Incorrect number of parameters: '{args.Length}'", ConsoleLine.OutputType.Warning);
+				FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
 				return false;
 			}
 
 			if(args.Length == 0)
             {
 				RefreshLevelList();
-				FEZUG.Console.Print("List of available levels:");
-				FEZUG.Console.Print(String.Join(", ", LevelList));
+				FezugConsole.Print("List of available levels:");
+				FezugConsole.Print(String.Join(", ", LevelList));
 				return true;
 			}
 
@@ -81,13 +81,13 @@ namespace FEZUG.Features
 
 			if (!MemoryContentManager.AssetExists("Levels\\" + levelName.Replace('/', '\\')))
 			{
-				FEZUG.Console.Print($"Couldn't find level with name '{levelName}'", ConsoleLine.OutputType.Warning);
+				FezugConsole.Print($"Couldn't find level with name '{levelName}'", FezugConsole.OutputType.Warning);
 				return false;
 			}
 
 			Warp(levelName);
 
-			FEZUG.Console.Print($"Warping into '{levelName}'...");
+			FezugConsole.Print($"Warping into '{levelName}'...");
 
 			RefreshLevelList();
 
@@ -144,10 +144,10 @@ namespace FEZUG.Features
 			Instance.WarpInternal(levelName, warpType);
         }
 
-        public List<string> Autocomplete(string args)
+        public List<string> Autocomplete(string[] args)
         {
 			RefreshLevelList();
-			return LevelList.Where(s => s.ToLower().StartsWith($"{args}")).ToList();
+			return LevelList.Where(s => s.ToLower().StartsWith($"{args[0]}")).ToList();
 		}
     }
 }

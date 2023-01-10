@@ -78,11 +78,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Features\BlackHoleManip.cs" />
+    <Compile Include="Features\Console\CommandHelp.cs" />
     <Compile Include="Features\Console\ConsoleClear.cs" />
-    <Compile Include="Features\Console\ConsoleLine.cs" />
-    <Compile Include="Features\Console\IConsoleCommand.cs" />
+    <Compile Include="Features\Console\FezugConsole.cs" />
+    <Compile Include="Features\Console\IFezugCommand.cs" />
     <Compile Include="Features\Allow3DRotation.cs" />
     <Compile Include="Features\DrawingTools.cs" />
+    <Compile Include="Features\IFezugFeature.cs" />
     <Compile Include="Features\ItemCountSet.cs" />
     <Compile Include="Features\Quicksave.cs" />
     <Compile Include="Features\ReloadLevel.cs" />
@@ -92,7 +94,7 @@
     <Compile Include="Patches\Fez.cs" />
     <Compile Include="Patches\MonoModRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FEZUG.cs" />
+    <Compile Include="Fezug.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

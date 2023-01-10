@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    internal class Allow3DRotation : IConsoleCommand
+    internal class Allow3DRotation : IFezugCommand
     {
         public string Name => "allow3d";
         public string HelpText => "allow3d - allows the player to use 3d rotation";
 
-        public List<string> Autocomplete(string args) => null;
+        public List<string> Autocomplete(string[] args) => null;
 
         [ServiceDependency]
         public IGameStateManager GameState { private get; set; }
@@ -31,7 +31,7 @@ namespace FEZUG.Features
             LevelManager.Flat = false;
             PlayerManager.CanRotate = true;
 
-            FEZUG.Console.Print("Open your eyes...");
+            FezugConsole.Print("Open your eyes...");
 
             return true;
         }
