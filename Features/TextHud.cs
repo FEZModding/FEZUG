@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
-    public class TextHud
+    public class TextHud : IFezugFeature
     {
 
         [ServiceDependency]
@@ -27,6 +27,11 @@ namespace FEZUG.Features
         private void DrawText(string text, Vector2 pos)
         {
             DrawingTools.DrawText(text, pos, Color.White);
+        }
+
+        public void Update(GameTime gameTime)
+        {
+
         }
 
         public void Draw(GameTime gameTime)

@@ -24,12 +24,20 @@ namespace FEZUG
 
         public static Fezug Instance;
 
+        [ServiceDependency]
+        public IGameStateManager GameState { private get; set; }
+
+        [ServiceDependency]
+        public IGameLevelManager LevelManager { private get; set; }
+
         public Fezug(Game game) : base(game)
         {
+            ServiceHelper.InjectServices(this);
+
             Instance = this;
             Enabled = true;
             Visible = true;
-            DrawOrder = 10000;
+            DrawOrder = 99999;
 
             Initialize();
         }
@@ -80,6 +88,12 @@ namespace FEZUG
                     FezLogo.SinceStarted += delta * 6.0f;
                 });
             });
+
+            // get rid of dot transitions - they're pointless
+            LevelManager.LevelChanged += delegate
+            {
+                GameState.DotLoading = false;
+            };
         }
 
         public override void Update(GameTime gameTime)
@@ -92,6 +106,7 @@ namespace FEZUG
 
         public override void Draw(GameTime gameTime)
         {
+
             DrawingTools.BeginBatch();
 
             foreach(var feature in Features)

@@ -5,6 +5,7 @@ using FezEngine.Services.Scripting;
 using FezEngine.Tools;
 using FezGame;
 using FezGame.Services;
+using FezGame.Structure;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using System;
@@ -127,6 +128,21 @@ namespace FEZUG.Features
 
 			// prevent ChangeLevel from adjusting you to linked doors
 			LevelManager.Name = null;
+
+			// reset player's warping state (yes, smaller gate miraculously works fine, only the big one needs fixing)
+			if (PlayerManager.Action == ActionType.GateWarp)
+            {
+				Type GateWarpType = Assembly.GetAssembly(typeof(Fez)).GetType("FezGame.Components.Actions.GateWarp");
+				var GateWarp = ServiceHelper.Game.Components.First(c => c.GetType() == GateWarpType);
+				if (GateWarp != null)
+				{
+					var PhaseField = GateWarpType.GetField("Phase", BindingFlags.NonPublic | BindingFlags.Instance);
+					PhaseField.SetValue(GateWarp, 0);
+				}
+				PlayerManager.Action = ActionType.Idle;
+			}
+
+			PlayerManager.Hidden = false;
 
 			// level change logic
 			GameState.Loading = true;

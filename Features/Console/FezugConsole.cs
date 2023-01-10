@@ -29,7 +29,7 @@ namespace FEZUG.Features.Console
             public ParsedCommandSequence(string raw)
             {
                 Original = raw;
-                Parse(raw);
+                Parse(raw.ToLower());
             }
 
             private void Parse(string commandString)
@@ -143,7 +143,7 @@ namespace FEZUG.Features.Console
                     SuggestedWords.AddRange(matchingCommands.Select(c => c.Name).ToList());
                 }
                 // more than one words - get a command-specific autocompletion
-                else
+                else if(matchingCommands.Count > 0)
                 {
                     var cmdAutocomplete = matchingCommands.First().Autocomplete(command.Arguments);
                     if(cmdAutocomplete != null)
