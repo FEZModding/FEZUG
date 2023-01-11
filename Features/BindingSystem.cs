@@ -7,15 +7,20 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
+    using BindList = Dictionary<Keys, string>;
+
     internal class BindingSystem : IFezugFeature
     {
-        public Dictionary<Keys, string> Binds { get; private set; }
+        public const string BindConfigFileName = "FezugBinds";
+
+        public BindList Binds { get; private set; }
 
         public static BindingSystem Instance;
 
@@ -25,10 +30,12 @@ namespace FEZUG.Features
         public BindingSystem()
         {
             Instance = this;
-            Binds = new Dictionary<Keys, string>();
+            Binds = new BindList();
         }
 
-        public void Initialize() { }
+        public void Initialize() {
+            LoadBinds();
+        }
 
         public void Update(GameTime gameTime)
         {
@@ -60,7 +67,45 @@ namespace FEZUG.Features
         {
             if (command.Length == 0) Instance.Binds.Remove(key);
             else Instance.Binds.Add(key, command);
+
+
+            string configPath = Path.Combine(Util.LocalConfigFolder, BindConfigFileName);
+            SaveBinds();
         }
+
+        private static string GetBindsFilePath()
+        {
+            return Path.Combine(Util.LocalConfigFolder, BindConfigFileName);
+        }
+
+        private static void SaveBinds()
+        {
+            using (StreamWriter bindFile = new StreamWriter(GetBindsFilePath()))
+            {
+                foreach(var bind in Instance.Binds)
+                {
+                    bindFile.WriteLine($"{bind.Key} {bind.Value}");
+                }
+            }
+        }
+
+        private static void LoadBinds()
+        {
+            var bindFilePath = GetBindsFilePath();
+            if (!File.Exists(bindFilePath)) return;
+            var bindFileLines = File.ReadAllLines(bindFilePath);
+            foreach(var line in bindFileLines)
+            {
+                string[] tokens = line.Split(new char[] { ' ' }, 2);
+                if (tokens.Length < 2) continue;
+
+                if(Enum.TryParse(tokens[0], out Keys key))
+                {
+                    Instance.Binds.Add(key, tokens[1]);
+                }
+            }
+        }
+
 
         internal class BindCommand : IFezugCommand
         {
