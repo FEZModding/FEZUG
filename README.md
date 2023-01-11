@@ -8,7 +8,7 @@ This library is a [MonoMod](https://github.com/MonoMod/MonoMod) mod which adds s
 
 ## Features
 
-- Multiple annoyed cutscenes (intro, dot loading etc.) shortened or removed.
+- Multiple annoying cutscenes (intro, dot loading etc.) shortened or removed.
 - Command like (available through `~` key) for interacting with other features.
 - Binding feature allowing you to have any command bound to any key through `bind` command.
 - `warp` command for moving to different levels instantaneously.
