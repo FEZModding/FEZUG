@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Features\AnnoyanceRemoval.cs" />
+    <Compile Include="Features\BindingSystem.cs" />
     <Compile Include="Features\BlackHoleManip.cs" />
     <Compile Include="Features\Console\CommandHelp.cs" />
     <Compile Include="Features\Console\ConsoleClear.cs" />
