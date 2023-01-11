@@ -19,9 +19,9 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
-        public TextHud()
+        public void Initialize()
         {
-            ServiceHelper.InjectServices(this);
+
         }
 
         private void DrawText(string text, Vector2 pos)
@@ -58,6 +58,5 @@ namespace FEZUG.Features
             DrawText($"State: {PlayerManager.Action}", new Vector2(padX, 120.0f));
 
         }
-
     }
 }

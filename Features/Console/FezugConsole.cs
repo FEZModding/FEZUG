@@ -385,13 +385,16 @@ namespace FEZUG.Features.Console
 
         public FezugConsole()
         {
-            Handler = new CommandHandler();
             Instance = this;
+        }
+
+        public void Initialize()
+        {
+            Handler = new CommandHandler();
 
             outputBuffer = new List<ConsoleOutput>();
             OutputBufferLimit = 24;
         }
-
 
         public static void Clear()
         {

@@ -153,6 +153,7 @@ namespace FEZUG.Features
 			GameState.ScheduleLoadEnd = true;
 
 			PlayerManager.CanControl = true;
+			GameState.ForceTimePaused = false;
 		}
 
 		public static void Warp(string levelName, WarpType warpType = WarpType.InSession)
