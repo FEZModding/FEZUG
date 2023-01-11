@@ -90,6 +90,7 @@
     <Compile Include="Features\Quicksave.cs" />
     <Compile Include="Features\ReloadLevel.cs" />
     <Compile Include="Features\ProgressSet.cs" />
+    <Compile Include="Features\Teleport.cs" />
     <Compile Include="Features\TextHud.cs" />
     <Compile Include="Features\TimeSet.cs" />
     <Compile Include="Features\WarpLevel.cs" />
