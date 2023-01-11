@@ -186,13 +186,16 @@ namespace FEZUG.Features.Console
                 if (CurrentSuggestedWord == "") return original;
                 string lastWord = previousCommandSequence.Last().Last();
 
-                return original.Substring(0, original.Length - lastWord.Length) + CurrentSuggestedWord;
+                return original + CurrentSuggestedWord.Substring(lastWord.Length);
             }
         }
 
         public class CommandHandler
         {
             public List<IFezugCommand> Commands { get; private set; }
+
+            private bool bufferChangedByUser;
+            private List<string> previousBufferInputs;
 
             private string _buffer;
             public string Buffer { get => _buffer; set
@@ -201,9 +204,8 @@ namespace FEZUG.Features.Console
                     OnBufferChanged();
                 }
             }
-
-            private bool bufferChangedByUser;
-            private List<string> previousBufferInputs;
+            public int CursorPosition { get; private set; }
+            public int SelectionLength { get; private set; }
 
             public bool Enabled { get; set; }
 
@@ -255,19 +257,38 @@ namespace FEZUG.Features.Console
                 BufferChanged.Invoke(new ParsedCommandSequence(Buffer));
 
                 bufferChangedByUser = (Buffer.Length != 0);
+
+                if (CursorPosition > Buffer.Length) CursorPosition = Buffer.Length;
+                SelectionLength = 0;
+            }
+
+            public string GetSelectedText()
+            {
+                int startPos = CursorPosition + Math.Min(SelectionLength, 0);
+                int length = Math.Abs(SelectionLength);
+                return Buffer.Substring(startPos, length);
+            }
+
+            private string GetBufferWithRemovedSelection()
+            {
+                int startPos = CursorPosition + Math.Min(SelectionLength, 0);
+                int length = Math.Abs(SelectionLength);
+                return Buffer.Remove(startPos, length);
             }
 
             public void OnTextInput(char c)
             {
                 if (!Enabled) return;
 
-                if (c == 0x08 && Buffer.Length > 0)
+                if (c >= 0x20 && c != '`' && DrawingTools.FontManager.Big.Characters.Contains(c))
                 {
-                    Buffer = Buffer.Substring(0, Buffer.Length - 1);
-                }
-                else if (c >= 0x20 && c != '`' && DrawingTools.FontManager.Big.Characters.Contains(c))
-                {
-                    Buffer += c;
+                    if (SelectionLength < 0)
+                    {
+                        CursorPosition += SelectionLength;
+                        SelectionLength *= -1;
+                    }
+                    Buffer = GetBufferWithRemovedSelection().Insert(CursorPosition, c.ToString());
+                    CursorPosition++;
                 }
             }
 
@@ -297,7 +318,7 @@ namespace FEZUG.Features.Console
 
             public void Update(GameTime gameTime)
             {
-                var Inputs = (FezEngine.Components.InputManager)InputManager;
+                var Inputs = (InputManager)InputManager;
 
                 // enable/disable console
                 if (InputHelper.IsKeyPressed(Keys.OemTilde))
@@ -321,7 +342,32 @@ namespace FEZUG.Features.Console
                     Buffer = "";
                 }
 
-                if (InputHelper.IsKeyPressed(Keys.Up))
+                if (InputHelper.IsKeyTyped(Keys.Back) && Buffer.Length > 0 && CursorPosition > 0)
+                {
+                    if(SelectionLength != 0)
+                    {
+                        Buffer = GetBufferWithRemovedSelection();
+                    }
+                    else
+                    {
+                        CursorPosition--;
+                        Buffer = Buffer.Remove(CursorPosition, 1);
+                    }
+                }
+
+                if (InputHelper.IsKeyTyped(Keys.Delete) && Buffer.Length > 0 && CursorPosition < Buffer.Length)
+                {
+                    if (SelectionLength != 0)
+                    {
+                        Buffer = GetBufferWithRemovedSelection();
+                    }
+                    else
+                    {
+                        Buffer = Buffer.Remove(CursorPosition, 1);
+                    }
+                }
+
+                if (InputHelper.IsKeyTyped(Keys.Up))
                 {
                     if (!bufferChangedByUser && previousBufferInputs.Count > 0)
                     {
@@ -329,6 +375,7 @@ namespace FEZUG.Features.Console
                         index = (index == 0 ? previousBufferInputs.Count : index) - 1;
                         Buffer = previousBufferInputs[index];
                         bufferChangedByUser = false;
+                        CursorPosition = Buffer.Length;
                     }
                     else
                     {
@@ -336,13 +383,14 @@ namespace FEZUG.Features.Console
                     }
                 }
 
-                if (InputHelper.IsKeyPressed(Keys.Down))
+                if (InputHelper.IsKeyTyped(Keys.Down))
                 {
                     if (!bufferChangedByUser && previousBufferInputs.Count > 0)
                     {
                         int index = (previousBufferInputs.IndexOf(Buffer) + 1) % previousBufferInputs.Count;
                         Buffer = previousBufferInputs[index];
                         bufferChangedByUser = false;
+                        CursorPosition = Buffer.Length;
                     }
                     else
                     {
@@ -350,9 +398,45 @@ namespace FEZUG.Features.Console
                     }
                 }
 
+                bool shiftHeld = InputHelper.IsKeyHeld(Keys.LeftShift) || InputHelper.IsKeyHeld(Keys.RightShift);
+                bool ctrlHeld = InputHelper.IsKeyHeld(Keys.LeftControl) || InputHelper.IsKeyHeld(Keys.RightControl);
+
+                if (InputHelper.IsKeyTyped(Keys.Left) && CursorPosition > 0)
+                {
+                    CursorPosition--;
+                    if (shiftHeld)
+                    {
+                        SelectionLength++;
+                    }
+                    else
+                    {
+                        SelectionLength = 0;
+                    }
+                }
+
+                if (InputHelper.IsKeyTyped(Keys.Right) && CursorPosition < Buffer.Length)
+                {
+                    CursorPosition = Math.Min(Buffer.Length, CursorPosition + 1);
+                    if (shiftHeld)
+                    {
+                        SelectionLength--;
+                    }
+                    else
+                    {
+                        SelectionLength = 0;
+                    }
+                }
+
                 if (InputHelper.IsKeyPressed(Keys.Tab))
                 {
                     Buffer = Autocompletion.GetCurrentSuggestion();
+                    CursorPosition = Buffer.Length;
+                }
+
+                if(ctrlHeld && InputHelper.IsKeyPressed(Keys.A))
+                {
+                    CursorPosition = Buffer.Length;
+                    SelectionLength = -CursorPosition;
                 }
             }
         }
@@ -378,6 +462,7 @@ namespace FEZUG.Features.Console
 
         private List<ConsoleOutput> outputBuffer;
         private float blinkingTime;
+        private int previousCursor = 0;
 
         public CommandHandler Handler { get; private set; }
         public int OutputBufferLimit { get; set; }
@@ -409,7 +494,11 @@ namespace FEZUG.Features.Console
             if (!Handler.Enabled) return;
 
             blinkingTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+            if(previousCursor != Handler.CursorPosition)
+            {
+                previousCursor = Handler.CursorPosition;
+                blinkingTime = 0;
+            }
         }
 
         private void Print(ConsoleOutput output)
@@ -459,6 +548,21 @@ namespace FEZUG.Features.Console
 
             DrawingTools.DrawRect(new Rectangle(margin, commandY, commandWidth, lineHeight + padding*2), new Color(10, 10, 10, 220));
 
+            // selection
+            if (Handler.SelectionLength != 0)
+            {
+                int startPos = Handler.CursorPosition + Math.Min(Handler.SelectionLength, 0);
+                int length = Math.Abs(Handler.SelectionLength);
+                var selectionStart = DrawingTools.DefaultFont.MeasureString("> " + Handler.Buffer.Substring(0, startPos)) * DrawingTools.DefaultFontSize;
+                var selectionEnd = DrawingTools.DefaultFont.MeasureString("> " + Handler.Buffer.Substring(0, startPos + length)) * DrawingTools.DefaultFontSize;
+                DrawingTools.DrawRect(new Rectangle(
+                    (int)(margin + padding * 2 + selectionStart.X), commandY + 5,
+                    (int)(selectionEnd.X - selectionStart.X), (int)(selectionStart.Y - 15.0f)),
+                    new Color(128, 128, 128)
+                );
+            }
+
+            // autocomplete gray text
             if (Handler.ShouldAutocomplete)
             {
                 DrawingTools.DrawText(
@@ -468,15 +572,25 @@ namespace FEZUG.Features.Console
                 );
             }
             
-
+            // buffer text on top
             DrawingTools.DrawText(
-                $"> {Handler.Buffer}{(blinkingTime % 1.0f > 0.5f ? "_" : "")}", 
+                $"> {Handler.Buffer}", 
                 new Vector2(margin + padding * 2, commandY - 5),
                 Color.White
             );
 
-            // draw output field
+            // cursor
+            if(blinkingTime % 1.0f < 0.5f)
+            {
+                var cursor = DrawingTools.DefaultFont.MeasureString("> " + Handler.Buffer.Substring(0, Handler.CursorPosition)) * DrawingTools.DefaultFontSize;
+                DrawingTools.DrawRect(new Rectangle(
+                    (int)(margin + padding * 2 + cursor.X), commandY + 5,
+                    (int)(DrawingTools.DefaultFontSize * 2.0f), (int)(cursor.Y - 15.0f)),
+                    Color.White
+                );
+            }
 
+            // draw output field
             int outputWidth = commandWidth;
             int outputInnerWidth = commandWidth - padding * 4;
             int outputHeight = lineHeight * OutputBufferLimit + padding * 2;
