@@ -100,8 +100,8 @@ namespace FEZUG.Features
 			/* pre-warp safety measures */
 
 			// make sure no stuff from previous save remains after switching the save.
-			IWaiter waiter;
-			while ((waiter = ServiceHelper.Get<IWaiter>()) != null)
+			List<IWaiter> waitersToCancel = ServiceHelper.Game.Components.Where(comp => comp is IWaiter).Select(comp => comp as IWaiter).ToList();
+			foreach (IWaiter waiter in waitersToCancel)
 			{
 				waiter.Cancel();
 			}
@@ -113,6 +113,10 @@ namespace FEZUG.Features
 				var SplitUpCubeHost = ServiceHelper.Game.Components.First(c => c.GetType() == SplitUpCubeHostType);
 				if (SplitUpCubeHost != null)
 				{
+					// reset the cube assembly
+					SplitUpCubeHostType.GetField("AssembleScheduled", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(SplitUpCubeHost, false);
+
+					// clear currently collected bits
 					var TrackedCollectsField = SplitUpCubeHostType.GetField("TrackedCollects", BindingFlags.NonPublic | BindingFlags.Instance);
 					var TrackedCollects = TrackedCollectsField.GetValue(SplitUpCubeHost);
 					MethodInfo TrackedCollectsClear = TrackedCollects.GetType().GetMethod("Clear");
