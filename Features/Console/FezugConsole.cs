@@ -4,6 +4,7 @@ using FezEngine.Services;
 using FezEngine.Structure.Input;
 using FezEngine.Tools;
 using FezGame.Services;
+using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -209,19 +210,9 @@ namespace FEZUG.Features.Console
             [ServiceDependency]
             public IInputManager InputManager { get; set; }
 
-            [ServiceDependency(Optional = true)]
-            public IKeyboardStateManager KeyboardState { private get; set; }
-
             public CommandHandler()
             {
                 ServiceHelper.InjectServices(this);
-
-                KeyboardState.RegisterKey(Keys.OemTilde);
-                KeyboardState.RegisterKey(Keys.Enter);
-                KeyboardState.RegisterKey(Keys.Escape);
-                KeyboardState.RegisterKey(Keys.Tab);
-                KeyboardState.RegisterKey(Keys.Up);
-                KeyboardState.RegisterKey(Keys.Down);
 
                 TextInputEXT.TextInput += OnTextInput;
 
@@ -290,37 +281,31 @@ namespace FEZUG.Features.Console
 
             public void Update(GameTime gameTime)
             {
-                var Inputs = (InputManager)InputManager;
+                var Inputs = (FezEngine.Components.InputManager)InputManager;
 
                 // enable/disable console
-                if (KeyboardState.GetKeyState(Keys.OemTilde) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.OemTilde))
                 {
                     Enabled = !Enabled;
                     Inputs.Enabled = !Enabled;
                 }
 
-                // we're manually blocking InputManager - make sure inputs are fetched properly
-                if (!Inputs.Enabled)
-                {
-                    KeyboardState.Update(Keyboard.GetState(), gameTime);
-                }
-
                 if (!Enabled) return;
 
                 // parse console-specific inputs
-                if (KeyboardState.GetKeyState(Keys.Escape) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.Escape))
                 {
                     Buffer = "";
                 }
 
-                if (KeyboardState.GetKeyState(Keys.Enter) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.Enter))
                 {
                     Print($"> {Buffer}", new Color(128,128,128));
                     ExecuteCommand(Buffer);
                     Buffer = "";
                 }
 
-                if (KeyboardState.GetKeyState(Keys.Up) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.Up))
                 {
                     if (!bufferChangedByUser && previousBufferInputs.Count > 0)
                     {
@@ -335,7 +320,7 @@ namespace FEZUG.Features.Console
                     }
                 }
 
-                if (KeyboardState.GetKeyState(Keys.Down) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.Down))
                 {
                     if (!bufferChangedByUser && previousBufferInputs.Count > 0)
                     {
@@ -349,7 +334,7 @@ namespace FEZUG.Features.Console
                     }
                 }
 
-                if (KeyboardState.GetKeyState(Keys.Tab) == FezButtonState.Pressed)
+                if (InputHelper.IsKeyPressed(Keys.Tab))
                 {
                     Buffer = Autocompletion.GetCurrentSuggestion();
                 }

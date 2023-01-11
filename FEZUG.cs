@@ -6,6 +6,7 @@ using FezGame.Components;
 using FezGame.Services;
 using FEZUG.Features;
 using FEZUG.Features.Console;
+using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,8 @@ namespace FEZUG
 
         public override void Update(GameTime gameTime)
         {
+            InputHelper.Update();
+
             foreach (var feature in Features)
             {
                 feature.Update(gameTime);
@@ -68,7 +71,6 @@ namespace FEZUG
 
         public override void Draw(GameTime gameTime)
         {
-
             DrawingTools.BeginBatch();
 
             foreach(var feature in Features)

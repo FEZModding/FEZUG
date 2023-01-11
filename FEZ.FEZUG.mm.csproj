@@ -84,7 +84,7 @@
     <Compile Include="Features\Console\FezugConsole.cs" />
     <Compile Include="Features\Console\IFezugCommand.cs" />
     <Compile Include="Features\Allow3DRotation.cs" />
-    <Compile Include="Features\DrawingTools.cs" />
+    <Compile Include="Helpers\DrawingTools.cs" />
     <Compile Include="Features\IFezugFeature.cs" />
     <Compile Include="Features\ItemCountSet.cs" />
     <Compile Include="Features\Quicksave.cs" />
@@ -94,6 +94,7 @@
     <Compile Include="Features\TextHud.cs" />
     <Compile Include="Features\TimeSet.cs" />
     <Compile Include="Features\WarpLevel.cs" />
+    <Compile Include="Helpers\InputHelper.cs" />
     <Compile Include="Patches\Fez.cs" />
     <Compile Include="Patches\MonoModRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

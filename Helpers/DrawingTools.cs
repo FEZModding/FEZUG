@@ -4,7 +4,7 @@ using FezEngine.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace FEZUG.Features
+namespace FEZUG.Helpers
 {
     internal static class DrawingTools
     {
