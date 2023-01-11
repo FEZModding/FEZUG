@@ -74,8 +74,7 @@ namespace FEZUG.Features.Console
 
                     if (quote)
                     {
-                        secondQuotePos = commandString.IndexOf('"');
-                        string quoteWord = commandString.Substring(0, secondQuotePos);
+                        string quoteWord = commandString.Substring(quotePos+1, secondQuotePos-quotePos-1);
                         currentTokens.Add(quoteWord);
 
                         split = secondQuotePos;
@@ -89,6 +88,12 @@ namespace FEZUG.Features.Console
                     {
                         commandString = commandString.Substring(split + 1);
                     }
+                }
+
+                // make sure remaining tokens get added
+                if(currentTokens.Count > 0)
+                {
+                    this.Add(currentTokens);
                 }
             }
         }
@@ -220,8 +225,19 @@ namespace FEZUG.Features.Console
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t)))
                 {
-                    IFezugCommand command = (IFezugCommand)Activator.CreateInstance(type);
-                    ServiceHelper.InjectServices(command);
+                    IFezugCommand command;
+                    // command object could've been already creates as a feature - look for it first
+                    IFezugFeature feature = Fezug.GetFeature(type);
+                    if(feature != null)
+                    {
+                        command = (IFezugCommand)feature;
+                    }
+                    else
+                    {
+                        command = (IFezugCommand)Activator.CreateInstance(type);
+                        ServiceHelper.InjectServices(command);
+                    }
+                    
                     Commands.Add(command);
                 }
 
@@ -418,6 +434,11 @@ namespace FEZUG.Features.Console
         public static void Print(string text, OutputType type = OutputType.Info)
         {
             Print(text, ConsoleOutputTypeColors[type]);
+        }
+
+        public static void ExecuteCommand(string command)
+        {
+            Instance.Handler.ExecuteCommand(command);
         }
 
         public void Draw(GameTime gameTime)

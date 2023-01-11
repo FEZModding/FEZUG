@@ -53,10 +53,24 @@ namespace FEZUG
                 Features.Add(feature);
             }
 
-            foreach(var feature in Features)
+            foreach (var feature in Features)
             {
                 feature.Initialize();
             }
+        }
+
+        public static IFezugFeature GetFeature<T>()
+        {
+            return GetFeature(typeof(T));
+        }
+
+        public static IFezugFeature GetFeature(Type type)
+        {
+            foreach (var feature in Instance.Features)
+            {
+                if (feature.GetType() == type) return feature;
+            }
+            return null;
         }
 
         public override void Update(GameTime gameTime)
