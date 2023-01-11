@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using FezGame;
+using Common;
 
 namespace FEZUG.Features
 {
@@ -63,7 +64,7 @@ namespace FEZUG.Features
                 string saveFilePath = ValidateSaveFilePathOutOfArgs(args);
                 if (saveFilePath == null) return false;
 
-                var quicksaveDir = $"{((PCSaveDevice)GameState.ActiveSaveDevice).RootDirectory}\\{SaveDirectory}";
+                var quicksaveDir = Path.Combine(Util.LocalConfigFolder, SaveDirectory);
                 if (!Directory.Exists(quicksaveDir))
                 {
                     Directory.CreateDirectory(quicksaveDir);
@@ -148,7 +149,7 @@ namespace FEZUG.Features
             {
                 if (GameState.ActiveSaveDevice == null) return null;
 
-                var quicksaveDir = $"{((PCSaveDevice)GameState.ActiveSaveDevice).RootDirectory}\\{SaveDirectory}";
+                var quicksaveDir = Path.Combine(Util.LocalConfigFolder, SaveDirectory);
 
                 return Directory.GetFiles(quicksaveDir).Select(path => Path.GetFileName(path))
                     .Where(name => name.StartsWith(args[0])).ToList();
