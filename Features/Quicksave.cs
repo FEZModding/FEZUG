@@ -39,7 +39,7 @@ namespace FEZUG.Features
                 return null;
             }
 
-            return $"{SaveDirectory}\\{saveFileName}";
+            return Path.Combine(SaveDirectory, saveFileName);
         }
 
         internal class Quicksave : IFezugCommand
