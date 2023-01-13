@@ -530,7 +530,7 @@ namespace FEZUG.Features.Console
             Instance.Handler.ExecuteCommand(command);
         }
 
-        public void Draw(GameTime gameTime)
+        public void DrawHUD(GameTime gameTime)
         {
             if (!Handler.Enabled) return;
 
@@ -631,5 +631,7 @@ namespace FEZUG.Features.Console
                 if (outputItemPos >= OutputBufferLimit) break;
             }
         }
+
+        public void DrawLevel(GameTime gameTime) { }
     }
 }

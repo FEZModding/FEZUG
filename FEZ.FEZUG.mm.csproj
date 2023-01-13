@@ -85,6 +85,8 @@
     <Compile Include="Features\Console\FezugConsole.cs" />
     <Compile Include="Features\Console\IFezugCommand.cs" />
     <Compile Include="Features\Allow3DRotation.cs" />
+    <Compile Include="Features\GetTrileInfo.cs" />
+    <Compile Include="Features\InvisibleTrilesDraw.cs" />
     <Compile Include="Helpers\DrawingTools.cs" />
     <Compile Include="Features\IFezugFeature.cs" />
     <Compile Include="Features\ItemCountSet.cs" />

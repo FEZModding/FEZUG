@@ -17,19 +17,41 @@ using System.Threading.Tasks;
 
 namespace FEZUG
 {
+    public class FezugInGameRendering : DrawableGameComponent
+    {
+        public FezugInGameRendering() : base(Fezug.Fez)
+        {
+            Enabled = true;
+            Visible = true;
+            DrawOrder = 101;
+
+            Initialize();
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            foreach (var feature in Fezug.Instance.Features)
+            {
+                feature.DrawLevel(gameTime);
+            }
+        }
+    }
+
     public class Fezug : DrawableGameComponent
     {
         public static string Version = "v0.1.1";
 
         public List<IFezugFeature> Features { get; private set; }
+        public FezugInGameRendering Rendering { get; private set; }
 
-        public static Fezug Instance;
-
+        public static Fezug Instance { get; private set; }
+        public static Fez Fez { get; private set; }
 
         public Fezug(Game game) : base(game)
         {
             ServiceHelper.InjectServices(this);
 
+            Fez = (Fez)game;
             Instance = this;
             Enabled = true;
             Visible = true;
@@ -57,6 +79,8 @@ namespace FEZUG
             {
                 feature.Initialize();
             }
+
+            Rendering = new FezugInGameRendering();
         }
 
         public static IFezugFeature GetFeature<T>()
@@ -89,7 +113,7 @@ namespace FEZUG
 
             foreach(var feature in Features)
             {
-                feature.Draw(gameTime);
+                feature.DrawHUD(gameTime);
             }
 
             DrawingTools.EndBatch();

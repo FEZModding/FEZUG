@@ -35,7 +35,9 @@ namespace FEZUG.Features
 
         }
 
-        public void Draw(GameTime gameTime)
+        public void DrawLevel(GameTime gameTime) { }
+
+        public void DrawHUD(GameTime gameTime)
         {
             int width = (int)DrawingTools.DefaultFont.MeasureString("Position: (X:-999.999 Y:-999.999 Z:-999.999)").X * 2;
 
@@ -57,7 +59,6 @@ namespace FEZUG.Features
             DrawText($"Position: (X:{posX} Y:{posY} Z:{posZ})", new Vector2(padX, 60.0f));
             DrawText($"Velocity: (X:{velX} Y:{velY} Z:{velZ})", new Vector2(padX, 90.0f));
             DrawText($"State: {PlayerManager.Action}", new Vector2(padX, 120.0f));
-
         }
     }
 }

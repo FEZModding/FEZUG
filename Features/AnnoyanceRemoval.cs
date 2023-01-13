@@ -86,7 +86,11 @@ namespace FEZUG.Features
             
         }
 
-        public void Draw(GameTime gameTime)
+        public void DrawHUD(GameTime gameTime)
+        {
+        }
+
+        public void DrawLevel(GameTime gameTime)
         {
         }
     }

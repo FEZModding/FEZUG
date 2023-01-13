@@ -50,7 +50,9 @@ namespace FEZUG.Features
             }
         }
 
-        public void Draw(GameTime gameTime) { }
+        public void DrawHUD(GameTime gameTime) { }
+
+        public void DrawLevel(GameTime gameTime) { }
 
         public static bool HasBind(Keys key)
         {
@@ -105,7 +107,6 @@ namespace FEZUG.Features
                 }
             }
         }
-
 
         internal class BindCommand : IFezugCommand
         {

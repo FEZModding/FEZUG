@@ -6,6 +6,7 @@ namespace FEZUG.Features
     {
         void Initialize();
         void Update(GameTime gameTime);
-        void Draw(GameTime gameTime);
+        void DrawHUD(GameTime gameTime);
+        void DrawLevel(GameTime gameTime);
     }
 }
