@@ -87,6 +87,7 @@
     <Compile Include="Features\Allow3DRotation.cs" />
     <Compile Include="Features\GetTrileInfo.cs" />
     <Compile Include="Features\InvisibleTrilesDraw.cs" />
+    <Compile Include="Features\Timescaler.cs" />
     <Compile Include="Helpers\DrawingTools.cs" />
     <Compile Include="Features\IFezugFeature.cs" />
     <Compile Include="Features\ItemCountSet.cs" />
