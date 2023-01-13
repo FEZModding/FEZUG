@@ -19,7 +19,7 @@ namespace FEZUG
 {
     public class Fezug : DrawableGameComponent
     {
-        public static string Version = "v0.1.2";
+        public static string Version = "v0.1.3";
 
         public List<IFezugFeature> Features { get; private set; }
         public FezugInGameRendering Rendering { get; private set; }
