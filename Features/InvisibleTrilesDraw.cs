@@ -164,7 +164,7 @@ namespace FEZUG.Features
                     return false;
                 }
 
-                if(args[0] != "on" && args[1] != "off")
+                if(args[0] != "on" && args[0] != "off")
                 {
                     FezugConsole.Print($"Invalid argument: '{args[0]}'", FezugConsole.OutputType.Warning);
                     return false;
