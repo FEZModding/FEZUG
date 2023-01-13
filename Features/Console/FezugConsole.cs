@@ -141,20 +141,25 @@ namespace FEZUG.Features.Console
 
                 ParsedCommand command = commandSequence.Last();
 
-                var matchingCommands = ConsoleLine.Commands.Where(c => c.Name.StartsWith(command[0], StringComparison.OrdinalIgnoreCase)).ToList();
+                var matchingCommands = ConsoleLine.Commands.Where(c => c.Name.StartsWith(command[0], StringComparison.OrdinalIgnoreCase));
 
                 // only one word in current command - autocomplete from all available commands
-                if (command.Count() == 1)
+                if (command.Count == 1)
                 {
                     SuggestedWords.AddRange(matchingCommands.Select(c => c.Name).ToList());
                 }
                 // more than one words - get a command-specific autocompletion
-                else if(matchingCommands.Count > 0)
+                else if(command.Count > 1)
                 {
-                    var cmdAutocomplete = matchingCommands.First().Autocomplete(command.Arguments);
-                    if(cmdAutocomplete != null)
+                    matchingCommands = matchingCommands.Where(c => c.Name.Equals(command[0], StringComparison.OrdinalIgnoreCase));
+
+                    if(matchingCommands.Count() > 0)
                     {
-                        SuggestedWords.AddRange(cmdAutocomplete);
+                        var cmdAutocomplete = matchingCommands.First().Autocomplete(command.Arguments);
+                        if (cmdAutocomplete != null)
+                        {
+                            SuggestedWords.AddRange(cmdAutocomplete);
+                        }
                     }
                 }
 
