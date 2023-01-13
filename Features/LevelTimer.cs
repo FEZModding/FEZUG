@@ -28,8 +28,6 @@ namespace FEZUG.Features
 
         private string endLevel = "";
 
-        public static List<string> LevelList { get; private set; }
-
         private TimeSpan lastTime = TimeSpan.Zero;
         private List<TimeSpan> timeHistory = new List<TimeSpan>();
 
@@ -58,17 +56,14 @@ namespace FEZUG.Features
             timeHistory.Clear();
         }
 
-        private void RefreshLevelList()
-        {
-            LevelList = MemoryContentManager.AssetNames
-                .Where(s => s.ToLower().StartsWith($"levels\\"))
-                .Select(s => s.Substring("levels\\".Length)).ToList();
-        }
-
         public List<string> Autocomplete(string[] args)
         {
-            RefreshLevelList();
-            return LevelList.Where(s => s.ToLower().StartsWith($"{args[args.Length - 1]}")).ToList();
+            if (args.Length > 2) return null;
+            var autocompleteList = WarpLevel.LevelList
+                .Where(s => s.StartsWith($"{args[args.Length - 1]}", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (args.Length == 1 && "clear".StartsWith(args[0], StringComparison.OrdinalIgnoreCase)) autocompleteList.Add("clear");
+            return autocompleteList;
         }
 
         public bool Execute(string[] args)
@@ -77,6 +72,7 @@ namespace FEZUG.Features
             {
                 FezugConsole.Print("Cleared current timer.");
                 enabled = false;
+                active = false;
                 timeHistory.Clear();
                 return false;
             }
@@ -132,37 +128,44 @@ namespace FEZUG.Features
 
         public void DrawHUD(GameTime gameTime)
         {
-            int textWidth = (int)DrawingTools.DefaultFont.MeasureString("99:99.999").X * 3;
-            int textHeight = 45;
-            int viewportWidth = DrawingTools.GetViewport().Width;
-            int pad = 15;
-            var timerPos = new Vector2(viewportWidth - textWidth - 300, 300 - pad);
+            if (!active && timeHistory.Count == 0) return;
+
+            var defaultTimerString = "00:00.000";
+            var timerString = defaultTimerString;
+            var timerColor = Color.White;
+
+            var textScale = 3.0f;
+            var textWidth = (int)(DrawingTools.DefaultFont.MeasureString(defaultTimerString).X * textScale);
+            var textHeight = 45;
+            var viewportWidth = DrawingTools.GetViewport().Width;
+            var pad = 15;
+            var timerPos = new Vector2(viewportWidth - textWidth - 20, 20 - pad);
+
             if (active)
             {
-                DrawingTools.DrawRect(new Rectangle(viewportWidth - 300 - textWidth - pad, 300 - pad, textWidth + 2 * pad, textHeight + 2 * pad), new Color(0, 0, 0, 128));
                 var timeDiff = (gameTime.TotalGameTime - startTime.TotalGameTime);
-                var timerString = $"{timeDiff.Minutes:D2}:{timeDiff.Seconds:D2}.{timeDiff.Milliseconds:D3}";
+                timerString = $"{timeDiff.Minutes:D2}:{timeDiff.Seconds:D2}.{timeDiff.Milliseconds:D3}";
                 lastTimerString = timerString;
-                DrawingTools.DrawText(timerString, timerPos, 0.0f, 3.0f, Color.White);
             }
             else if (timeHistory.Count > 0)
             {
-                DrawingTools.DrawRect(new Rectangle(viewportWidth - 300 - textWidth - pad, 300 - pad, textWidth + 2 * pad, textHeight + 2 * pad), new Color(0, 0, 0, 128));
+                timerString = lastTimerString;
                 if (timeHistory.Count > 1 && lastTime == timeHistory.Min())
                 {
-                    DrawingTools.DrawText(lastTimerString, timerPos, 0.0f, 3.0f, Color.Yellow);
+                    timerColor = Color.Yellow;
                 }
-                else
-                {
-                    DrawingTools.DrawText(lastTimerString, timerPos, 0.0f, 3.0f, Color.White);
-                }
+            }
+
+            DrawingTools.DrawRect(new Rectangle((int)timerPos.X - pad, (int)timerPos.Y, textWidth + 2 * pad, textHeight + 2 * pad), new Color(0, 0, 0, 128));
+
+            for (var i = 0; i < timerString.Length; i++)
+            {
+                var currentCharOffset = DrawingTools.DefaultFont.MeasureString(defaultTimerString.Substring(0,i)).X * textScale;
+                DrawingTools.DrawText(timerString[i].ToString(), timerPos + Vector2.UnitX * currentCharOffset, 0.0f, textScale, timerColor);
             }
         }
 
-        public void DrawLevel(GameTime gameTime)
-        {
-
-        }
+        public void DrawLevel(GameTime gameTime) { }
     }
 }
 

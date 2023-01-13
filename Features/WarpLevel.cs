@@ -22,14 +22,22 @@ namespace FEZUG.Features
         public string Name => "warp";
         public string HelpText => "warp <level> - warps you to level with given name";
 
-		public static List<string> LevelList { get; private set; }
-
 		public enum WarpType
         {
 			InSession,
 			SaveChange
         }
 
+
+		public static List<string> LevelList
+        {
+            get
+            {
+				return MemoryContentManager.AssetNames
+				.Where(s => s.ToLower().StartsWith($"levels\\"))
+				.Select(s => s.Substring("levels\\".Length)).ToList();
+			}
+		}
 
 		[ServiceDependency]
 		public IPlayerManager PlayerManager { private get; set; }
@@ -51,15 +59,6 @@ namespace FEZUG.Features
 		public WarpLevel()
         {
 			Instance = this;
-
-			RefreshLevelList();
-		}
-
-		private void RefreshLevelList()
-        {
-			LevelList = MemoryContentManager.AssetNames
-				.Where(s => s.ToLower().StartsWith($"levels\\"))
-				.Select(s => s.Substring("levels\\".Length)).ToList();
 		}
 
 		public bool Execute(string[] args)
@@ -72,7 +71,6 @@ namespace FEZUG.Features
 
 			if(args.Length == 0)
             {
-				RefreshLevelList();
 				FezugConsole.Print("List of available levels:");
 				FezugConsole.Print(String.Join(", ", LevelList));
 				return true;
@@ -89,8 +87,6 @@ namespace FEZUG.Features
 			Warp(levelName);
 
 			FezugConsole.Print($"Warping into '{levelName}'...");
-
-			RefreshLevelList();
 
 			return true;
         }
@@ -167,7 +163,6 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-			RefreshLevelList();
 			return LevelList.Where(s => s.ToLower().StartsWith($"{args[0]}")).ToList();
 		}
     }
