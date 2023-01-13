@@ -5,6 +5,7 @@ using FEZUG.Features.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace FEZUG.Features
 {
@@ -19,31 +20,11 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
-        private int lastAssetNamesCount = 0;
-        private List<string> _allowedFlagNames;
-        public List<string> AllowedFlagNames
+        public List<string> AllowedFlagNames = new List<string>
         {
-            get{
-                if (MemoryContentManager.AssetNames.Count() == lastAssetNamesCount) return _allowedFlagNames;
-                lastAssetNamesCount = MemoryContentManager.AssetNames.Count();
-
-                _allowedFlagNames = new List<string>
-                {
-                    "CanNewGamePlus", "IsNewGamePlus", "Finished32", "Finished64", "HasFPView", "HasStereo3D", "HasDoneHeartReboot",
-                    "FezHidden", "HasHadMapHelp", "CanOpenMap", "AchievementCheatCodeDone", "MapCheatCodeDone", "AnyCodeDeciphered",
-                    "Artifact.Tome", "Artifact.TriSkull", "Artifact.LetterCube", "Artifact.NumberCube"
-                };
-
-                foreach (var map in MemoryContentManager.AssetNames
-                .Where(s => s.ToLower().StartsWith("other textures\\maps\\"))
-                .Select(s => "Map." + s.ToUpper().Substring("other textures\\maps\\".Length)))
-                {
-                    AllowedFlagNames.Add(map);
-                }
-
-                return _allowedFlagNames;
-            }
-        }
+            "CanNewGamePlus", "IsNewGamePlus", "Finished32", "Finished64", "HasFPView", "HasStereo3D", "HasDoneHeartReboot",
+            "FezHidden", "HasHadMapHelp", "CanOpenMap", "AchievementCheatCodeDone", "MapCheatCodeDone", "AnyCodeDeciphered",
+        };
 
         public bool Execute(string[] args)
         {
@@ -82,15 +63,31 @@ namespace FEZUG.Features
             bool reset = false;
 
             if (args.Length == 2) {
-                if ((isAll || isLevel) && (args[1] == "reset" || args[1] == "unlock"))
+                if (isAll || isLevel)
                 {
-                    reset = args[1] == "reset";
-                    propertyName = LevelManager.Name;
+                    if(args[1] == "reset" || args[1] == "unlock")
+                    {
+                        reset = args[1] == "reset";
+                        propertyName = LevelManager.Name;
+                    }
+                    else
+                    {
+                        FezugConsole.Print($"Incorrect parameter: {args[1]}.", FezugConsole.OutputType.Warning);
+                        return false;
+                    }
                 }
                 else
                 {
-                    FezugConsole.Print($"Invalid usage of command.", FezugConsole.OutputType.Warning);
-                    return false;
+                    if (!TryGetFlagState(args[1], out bool state))
+                    {
+                        FezugConsole.Print($"Incorrect flag name: {args[1]}.", FezugConsole.OutputType.Warning);
+                        return false;
+                    }
+                    else
+                    {
+                        FezugConsole.Print($"Flag \"{args[1]}\" is {(state ? "unlocked" : "locked")}.", FezugConsole.OutputType.Warning);
+                        return true;
+                    }
                 }
             }
             if(args.Length == 3)
@@ -115,7 +112,17 @@ namespace FEZUG.Features
             }
             else if (isFlag)
             {
-                return SetFlagState(propertyName, !reset);
+                if(!SetFlagState(propertyName, !reset))
+                {
+                    FezugConsole.Print($"Invalid flag: {propertyName}!", FezugConsole.OutputType.Warning);
+                    return false;
+                }
+                else
+                {
+                    FezugConsole.Print($"Flag {propertyName} has been {(reset ? "reset" : "unlocked")}!");
+                    return true;
+                }
+
             }
             else if(isAll)
             {
@@ -160,45 +167,28 @@ namespace FEZUG.Features
             return true;
         }
 
-        private bool SetFlagState(string flagName, bool unlocked, bool output = true)
+        private bool SetFlagState(string flagName, bool unlocked)
         {
-            if (!AllowedFlagNames.Contains(flagName))
+            if (AllowedFlagNames.Where(s=>s.Equals(flagName,StringComparison.OrdinalIgnoreCase)).Count() == 0)
             {
-                if(output) FezugConsole.Print($"Invalid flag: {flagName}!");
                 return false;
             }
 
-            if (flagName.StartsWith("Map."))
-            {
-                var mapName = flagName.Substring("Map.".Length);
-                if (unlocked)
-                {
-                    if(GameState.SaveData.Maps.Count == 9)
-                    {
-                        if (output) FezugConsole.Print(
-                            "The game doesn't support more than 9 maps at once! Cancelling!",
-                            FezugConsole.OutputType.Error
-                        );
-                        return false;
-                    }
-                    GameState.SaveData.Maps.Add(mapName);
-                }
-                else GameState.SaveData.Maps.Remove(mapName);
-            }
-            else if (flagName.StartsWith("Artifact."))
-            {
-                ActorType artifact = (ActorType)Enum.Parse(typeof(ActorType), flagName.Substring("Artifact.".Length));
-                if (unlocked) GameState.SaveData.Artifacts.Add(artifact);
-                else GameState.SaveData.Artifacts.Remove(artifact);
-            }
-            else
-            {
-                var flagField = GameState.SaveData.GetType().GetField(flagName);
-                flagField.SetValue(GameState.SaveData, unlocked);
-            }
+            var flagField = GameState.SaveData.GetType().GetField(flagName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            flagField.SetValue(GameState.SaveData, unlocked);
 
-            if (output) FezugConsole.Print($"Flag {flagName} has been {(unlocked ? "unlocked" : "reset")}!");
+            return true;
+        }
 
+        private bool TryGetFlagState(string flagName, out bool state)
+        {
+            state = false;
+            if (AllowedFlagNames.Where(s => s.Equals(flagName, StringComparison.OrdinalIgnoreCase)).Count() == 0)
+            {
+                return false;
+            }
+            var flagField = GameState.SaveData.GetType().GetField(flagName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            state = (bool)flagField.GetValue(GameState.SaveData);
             return true;
         }
 
