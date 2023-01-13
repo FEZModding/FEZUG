@@ -13,13 +13,14 @@ This library is a [MonoMod](https://github.com/MonoMod/MonoMod) mod which adds s
 - Binding feature allowing you to have any command bound to any key through `bind` command.
 - `warp` command for moving to different levels instantaneously.
 - `reload` command for quick reload of the level you're currently in.
-- `save` and `load` commands for saving and loading named quicksaves.
-- `progress` command for manipulating game and level progress (WIP)
-- `itemcount` command for changing amount of items currently possessed.
+- Quicksave functionality through `save` and `load` commands.
+- Commands for quick inventory manipulation (`itemcount`, `maps` and `artifacts`).
+- `progress` command for manipulating game flags and level progress (WIP)
 - `blackholes` command for manipulating black holes.
-- `time` command for manipulating in-game day and night cycle.
+- Timescale manipulation through `timescale` command.
+- Invisible trile wireframe preview using `hiddentrileswireframe` command.
+- Configurable IL timer (`timer` command).
 - Basic HUD for displaying player's position, velocity and state (WIP)
-- `allow3d` command for allowing 3D perspective shift in a level.
 
 ## Installation
 
