@@ -17,26 +17,6 @@ using System.Threading.Tasks;
 
 namespace FEZUG
 {
-    public class FezugInGameRendering : DrawableGameComponent
-    {
-        public FezugInGameRendering() : base(Fezug.Fez)
-        {
-            Enabled = true;
-            Visible = true;
-            DrawOrder = 101;
-
-            Initialize();
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            foreach (var feature in Fezug.Instance.Features)
-            {
-                feature.DrawLevel(gameTime);
-            }
-        }
-    }
-
     public class Fezug : DrawableGameComponent
     {
         public static string Version = "v0.1.2";
@@ -117,6 +97,26 @@ namespace FEZUG
             }
 
             DrawingTools.EndBatch();
+        }
+    }
+
+    public class FezugInGameRendering : DrawableGameComponent
+    {
+        public FezugInGameRendering() : base(Fezug.Fez)
+        {
+            Enabled = true;
+            Visible = true;
+            DrawOrder = 101;
+
+            Initialize();
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            foreach (var feature in Fezug.Instance.Features)
+            {
+                feature.DrawLevel(gameTime);
+            }
         }
     }
 }
