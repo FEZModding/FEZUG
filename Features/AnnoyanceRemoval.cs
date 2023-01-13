@@ -29,10 +29,14 @@ namespace FEZUG.Features
 
         public void Initialize()
         {
+            // removing dot loading screens
             LevelManager.LevelChanged += delegate
             {
                 GameState.DotLoading = false;
             };
+            var DotLoadLevelsField = typeof(GameLevelManager).GetField("DotLoadLevels", BindingFlags.NonPublic | BindingFlags.Instance);
+            var DotLoadLevels = (List<string>)DotLoadLevelsField.GetValue(LevelManager);
+            DotLoadLevels.Clear();
 
             var screenField = typeof(Intro).GetField("screen", BindingFlags.NonPublic | BindingFlags.Instance);
             var phaseField = typeof(Intro).GetField("phase", BindingFlags.NonPublic | BindingFlags.Instance);
