@@ -159,7 +159,10 @@ namespace FEZUG.Features
                 if (args.Length == 2)
                 {
                     SetBind(key, args[1]);
-                    FezugConsole.Print($"Command has been bound to key {key}.");
+                    if (args[1].Length == 0)
+                        FezugConsole.Print($"Key {key} has been unbound.");
+                    else
+                        FezugConsole.Print($"Command has been bound to key {key}.");
                 }
 
                 return true;
