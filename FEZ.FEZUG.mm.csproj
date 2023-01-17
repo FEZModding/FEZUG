@@ -94,6 +94,7 @@
     <Compile Include="Features\InvisibleTrilesDraw.cs" />
     <Compile Include="Features\LevelTimer.cs" />
     <Compile Include="Features\MapItemSet.cs" />
+    <Compile Include="Features\Kill.cs" />
     <Compile Include="Features\Timescaler.cs" />
     <Compile Include="Helpers\DrawingTools.cs" />
     <Compile Include="Features\IFezugFeature.cs" />
