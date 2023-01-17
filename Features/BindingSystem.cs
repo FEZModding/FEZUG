@@ -67,8 +67,10 @@ namespace FEZUG.Features
 
         public static void SetBind(Keys key, string command)
         {
-            if (command.Length == 0) Instance.Binds.Remove(key);
-            else Instance.Binds.Add(key, command);
+            if (command.Length == 0 || Instance.Binds.ContainsKey(key))
+                Instance.Binds.Remove(key);
+            if (command.Length > 0)
+                Instance.Binds.Add(key, command);
 
 
             string configPath = Path.Combine(Util.LocalConfigFolder, BindConfigFileName);
