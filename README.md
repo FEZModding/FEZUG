@@ -20,14 +20,13 @@ This library is a [MonoMod](https://github.com/MonoMod/MonoMod) mod which adds s
 - Timescale manipulation through `timescale` command.
 - Invisible trile wireframe preview using `hiddentrileswireframe` command.
 - Configurable IL timer (`timer` command).
-- Basic HUD for displaying player's position, velocity and state (WIP)
+- Basic HUD for displaying player's position, velocity and state (WIP).
 
-## Installation
+## Installation (0.1.4+)
 
-1. Download [MonoMod](https://github.com/MonoMod/MonoMod/releases) (for .NET 4.5.2) and unpack it in the game's directory.
-2. Download FEZ.FEZUG.mm.dll and put it in the game's directory.
-3. Run command `MonoMod.exe FEZ.exe` (or drag `FEZ.exe` onto `MonoMod.exe`). This should generate new executable file called `MONOMODDED_FEZ.exe`.
-4. Run `MONOMODDED_FEZ.exe` and enjoy your skin!
+1. Download and install [HAT](https://github.com/Krzyhau/HAT).
+2. Download `FEZUG.zip` and put it in `Mods` directory.
+3. Run `MONOMODDED_FEZ.exe` and enjoy practising!
 
 ## Building
 
