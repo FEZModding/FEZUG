@@ -59,6 +59,10 @@
       <HintPath>Dependencies\MonoMod.exe</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>Dependencies\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>Dependencies\MonoMod.Utils.dll</HintPath>
       <Private>False</Private>
@@ -102,8 +106,6 @@
     <Compile Include="Features\TimeSet.cs" />
     <Compile Include="Features\WarpLevel.cs" />
     <Compile Include="Helpers\InputHelper.cs" />
-    <Compile Include="Patches\Fez.cs" />
-    <Compile Include="Patches\MonoModRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fezug.cs" />
   </ItemGroup>

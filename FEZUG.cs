@@ -22,22 +22,17 @@ namespace FEZUG
         public static string Version = "v0.1.3";
 
         public List<IFezugFeature> Features { get; private set; }
-        public FezugInGameRendering Rendering { get; private set; }
 
         public static Fezug Instance { get; private set; }
         public static Fez Fez { get; private set; }
 
         public Fezug(Game game) : base(game)
         {
-            ServiceHelper.InjectServices(this);
-
             Fez = (Fez)game;
             Instance = this;
             Enabled = true;
             Visible = true;
             DrawOrder = 99999;
-
-            Initialize();
         }
 
         public override void Initialize()
@@ -59,8 +54,6 @@ namespace FEZUG
             {
                 feature.Initialize();
             }
-
-            Rendering = new FezugInGameRendering();
         }
 
         public static IFezugFeature GetFeature<T>()
@@ -102,13 +95,11 @@ namespace FEZUG
 
     public class FezugInGameRendering : DrawableGameComponent
     {
-        public FezugInGameRendering() : base(Fezug.Fez)
+        public FezugInGameRendering(Game game) : base(game)
         {
             Enabled = true;
             Visible = true;
             DrawOrder = 101;
-
-            Initialize();
         }
 
         public override void Draw(GameTime gameTime)
