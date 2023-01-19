@@ -4,7 +4,7 @@
 
 ## Overview 
 
-This library is a [MonoMod](https://github.com/MonoMod/MonoMod) mod which adds some debug functionalities to FEZ - mainly tools for speedrunners, but also for people who want to just mess with the game.
+This is a [HAT](https://github.com/Krzyhau/HAT) mod which adds some debug functionalities to FEZ - mainly tools for speedrunners, but also for people who want to just mess with the game.
 
 ## Features
 
