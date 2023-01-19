@@ -1,0 +1,10 @@
+<Metadata>
+   <Name>FEZUG</Name>
+   <Description>Toolbox for FEZ speedrunners</Description>
+   <Author>Krzyhau</Author>
+   <Version>0.1.4</Version>
+   <LibraryName>FEZ.FEZUG.mm.dll</LibraryName>
+   <Dependencies>
+      <DependencyInfo Name="HAT" MinimumVersion="1.0"/>
+   </Dependencies>
+</Metadata>
