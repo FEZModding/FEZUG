@@ -19,14 +19,17 @@ namespace FEZUG.Helpers
 
         public static void Init()
         {
-            FontManager = ServiceHelper.Get<IFontManager>();
-            GraphicsDevice = ServiceHelper.Get<IGraphicsDeviceService>().GraphicsDevice;
-            Batch = new SpriteBatch(GraphicsDevice);
-            DefaultFont = FontManager.Big;
-            DefaultFontSize = 2.0f;
+            DrawActionScheduler.Schedule(delegate
+            {
+                FontManager = ServiceHelper.Get<IFontManager>();
+                GraphicsDevice = ServiceHelper.Get<IGraphicsDeviceService>().GraphicsDevice;
+                Batch = new SpriteBatch(GraphicsDevice);
+                DefaultFont = FontManager.Big;
+                DefaultFontSize = 2.0f;
 
-            fillTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            fillTexture.SetData(new[] { new Color(255, 255, 255) });
+                fillTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+                fillTexture.SetData(new[] { new Color(255, 255, 255) });
+            });
         }
 
         public static Viewport GetViewport()
