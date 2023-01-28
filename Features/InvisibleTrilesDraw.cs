@@ -47,44 +47,47 @@ namespace FEZUG.Features
 
         public void Initialize()
         {
-            invisibleTriles = new Dictionary<TrileEmplacement, InvisibleType>();
-            LevelManager.LevelChanged += RefreshTrileList;
-
-            TrileBoundingBoxes = new Mesh[3];
-
-            var effect = new DefaultEffect.LitVertexColored
+            DrawActionScheduler.Schedule(delegate
             {
-                Specular = true,
-                Emissive = 1.0f,
-                AlphaIsEmissive = true
-            };
+                invisibleTriles = new Dictionary<TrileEmplacement, InvisibleType>();
+                LevelManager.LevelChanged += RefreshTrileList;
 
-            Color[] trileColors = new Color[]
-            {
+                TrileBoundingBoxes = new Mesh[3];
+
+                var effect = new DefaultEffect.LitVertexColored
+                {
+                    Specular = true,
+                    Emissive = 1.0f,
+                    AlphaIsEmissive = true
+                };
+
+                Color[] trileColors = new Color[]
+                {
                 Color.Gray,
                 Color.White,
                 Color.Magenta
-            };
-
-            for (var i = 0; i < 3; i++)
-            {
-                TrileBoundingBoxes[i] = new Mesh
-                {
-                    DepthWrites = false,
-                    Blending = BlendingMode.Alphablending,
-                    Culling = CullMode.CullClockwiseFace
                 };
 
-                TrileBoundingBoxes[i].Effect = effect;
-
-                Color c = trileColors[i];
-                if (i == 0)
+                for (var i = 0; i < 3; i++)
                 {
-                    oneFaceGroup = TrileBoundingBoxes[i].AddFace(Vector3.One, Vector3.Backward*0.5f, FaceOrientation.Front, new Color(128, 255, 255, 128), true);
+                    TrileBoundingBoxes[i] = new Mesh
+                    {
+                        DepthWrites = false,
+                        Blending = BlendingMode.Alphablending,
+                        Culling = CullMode.CullClockwiseFace
+                    };
+
+                    TrileBoundingBoxes[i].Effect = effect;
+
+                    Color c = trileColors[i];
+                    if (i == 0)
+                    {
+                        oneFaceGroup = TrileBoundingBoxes[i].AddFace(Vector3.One, Vector3.Backward * 0.5f, FaceOrientation.Front, new Color(128, 255, 255, 128), true);
+                    }
+                    TrileBoundingBoxes[i].AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, (i == 0) ? 32 : 255), true);
+                    TrileBoundingBoxes[i].AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
                 }
-                TrileBoundingBoxes[i].AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, (i == 0) ? 32 : 255), true);
-                TrileBoundingBoxes[i].AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
-            }
+            });
         }
 
         public void Update(GameTime gameTime) { }
