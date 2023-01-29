@@ -20,6 +20,9 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
+        [ServiceDependency]
+        public IGameCameraManager CameraManager { private get; set; }
+
         public void Initialize()
         {
 
@@ -41,7 +44,7 @@ namespace FEZUG.Features
         {
             int width = (int)DrawingTools.DefaultFont.MeasureString("Position: (X:-999.999 Y:-999.999 Z:-999.999)").X * 2;
 
-            DrawingTools.DrawRect(new Rectangle(2, 2, width, 170), new Color(0, 0, 0, 220));
+            DrawingTools.DrawRect(new Rectangle(2, 2, width, 200), new Color(0, 0, 0, 220));
 
             float padX = 10.0f;
             DrawText($"FEZUG {Fezug.Version}", new Vector2(padX, 0.0f));
@@ -59,6 +62,27 @@ namespace FEZUG.Features
             DrawText($"Position: (X:{posX} Y:{posY} Z:{posZ})", new Vector2(padX, 60.0f));
             DrawText($"Velocity: (X:{velX} Y:{velY} Z:{velZ})", new Vector2(padX, 90.0f));
             DrawText($"State: {PlayerManager.Action}", new Vector2(padX, 120.0f));
+
+            string Viewpoint = "";
+            switch(CameraManager.Viewpoint)
+            {
+                case FezEngine.Viewpoint.Back:
+                    Viewpoint = "Back";
+                    break;
+                case FezEngine.Viewpoint.Left:
+                    Viewpoint = "Left";
+                    break;
+                case FezEngine.Viewpoint.Right:
+                    Viewpoint = "Right";
+                    break;
+                case FezEngine.Viewpoint.Front:
+                    Viewpoint = "Front";
+                    break;
+                default:
+                    Viewpoint = "Other";
+                    break;
+            }
+            DrawText($"Viewpoint: {Viewpoint}", new Vector2(padX, 150.0f));
         }
     }
 }

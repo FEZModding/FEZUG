@@ -36,7 +36,6 @@ namespace FEZUG.Features
         public BlackHoleManip()
         {
             ServiceHelper.InjectServices(this);
-
             Locked = false;
             LevelManager.LevelChanged += OnLevelChange;
         }
