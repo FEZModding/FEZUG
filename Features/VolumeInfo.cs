@@ -71,9 +71,19 @@ namespace FEZUG.Features
                 FezugConsole.Print("Wrong number of arguments.");
                 return false;
             }
+
+            int volumeId = int.Parse(args[0]);
+
+            if(!LevelManager.VolumeExists(volumeId))
+            {
+                FezugConsole.Print("Volume ID given does not exist in the current level or is a blackhole.");
+                return false;
+            }
+
             var Volume = LevelManager.Volumes[int.Parse(args[0])];
+            PlayerManager.IgnoreFreefall = true;
             PlayerManager.Position = (Volume.From + Volume.To) / 2.0f;
-            return true;
+            return true; 
         }
     }
 }
