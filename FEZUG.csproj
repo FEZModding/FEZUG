@@ -15,10 +15,10 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
-  <Import Project="$(ProjectDir)UserProperties.xml"/>
+  <Import Project="$(ProjectDir)UserProperties.xml" />
 
   <Target Name="VerifyModReferences" BeforeTargets="Build">
-    <Error Text="You forgot to edit UserProperties.xml." Condition="$(UserPropertiesNotSetUp) == True"/>
+    <Error Text="You forgot to edit UserProperties.xml." Condition="$(UserPropertiesNotSetUp) == True" />
   </Target>
 
   <Target Name="PrepareMod" AfterTargets="Build">
@@ -27,14 +27,8 @@
       <ModCompileOutputDir Condition="!Exists($(ModOutputDir))">$(ProjectDir)out\</ModCompileOutputDir>
     </PropertyGroup>
 
-    <Copy
-      SourceFiles="$(TargetDir)$(TargetName).dll;$(TargetDir)$(TargetName).pdb"
-      DestinationFolder="$(ModCompileOutputDir)\" 
-      Retries="0"/>
-    <Copy 
-      SourceFiles="$(ProjectDir)Metadata.xml" 
-      DestinationFolder="$(ModCompileOutputDir)\" 
-      Retries="0"/>
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll;$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModCompileOutputDir)\" Retries="0" />
+    <Copy SourceFiles="$(ProjectDir)Metadata.xml" DestinationFolder="$(ModCompileOutputDir)\" Retries="0" />
   </Target>
 
   <ItemGroup>
