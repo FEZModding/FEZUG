@@ -148,7 +148,7 @@ namespace FEZUG.Features.Console
                 if (command.Count == 1)
                 {
                     SuggestedWords.AddRange(matchingCommands.Select(c => c.Name).ToList());
-                    SuggestedWords.AddRange(matchingVariables.Select(c => c.Name).ToList());
+                    SuggestedWords.AddRange(matchingVariables.Select(c => $"{c.Name} {c.ValueString}").ToList());
                 }
                 // more than one words - get a command-specific or variable-specific autocompletion
                 else if(command.Count > 1)
@@ -546,11 +546,14 @@ namespace FEZUG.Features.Console
 
         public static void Print(string text, Color color)
         {
-            Instance.Print(new ConsoleOutput
+            foreach(var splitText in text.Split(new[] { '\n' }))
             {
-                Text = text,
-                Color = color
-            });
+                Instance.Print(new ConsoleOutput
+                {
+                    Text = splitText,
+                    Color = color
+                });
+            }
         }
 
         public static void Print(string text, OutputType type = OutputType.Info)

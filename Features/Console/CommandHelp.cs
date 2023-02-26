@@ -32,7 +32,9 @@ namespace FEZUG.Features.Console
                 var helpStrings = new List<string>();
                 helpStrings.AddRange(cmdList.Select(cmd => cmd.HelpText));
                 helpStrings.AddRange(varList.Select(var => $"{var.Name} - {var.HelpText}"));
-                helpStrings = helpStrings.OrderBy(str => str).ToList();
+                helpStrings = helpStrings
+                    .SelectMany(str => str.Split(new[] {'\n'}))
+                    .OrderBy(str => str).ToList();
 
                 int pageCount = (int)Math.Ceiling(helpStrings.Count / (float)CommandListPageSize);
                 pageNumber = Math.Min(Math.Max(pageNumber, 1), pageCount);
