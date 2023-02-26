@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    
+    <ImplicitUsings>enable</ImplicitUsings>
+    
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <Import Project="$(ProjectDir)UserProperties.xml"/>
+
+  <Target Name="VerifyModReferences" BeforeTargets="Build">
+    <Error Text="You forgot to edit UserProperties.xml." Condition="$(UserPropertiesNotSetUp) == True"/>
+  </Target>
+
+  <Target Name="PrepareMod" AfterTargets="Build">
+    <PropertyGroup>
+      <ModCompileOutputDir Condition="Exists($(ModOutputDir))">$(ModOutputDir)\</ModCompileOutputDir>
+      <ModCompileOutputDir Condition="!Exists($(ModOutputDir))">$(ProjectDir)out\</ModCompileOutputDir>
+    </PropertyGroup>
+
+    <Copy
+      SourceFiles="$(TargetDir)$(TargetName).dll;$(TargetDir)$(TargetName).pdb"
+      DestinationFolder="$(ModCompileOutputDir)\" 
+      Retries="0"/>
+    <Copy 
+      SourceFiles="$(ProjectDir)Metadata.xml" 
+      DestinationFolder="$(ModCompileOutputDir)\" 
+      Retries="0"/>
+  </Target>
+
+  <ItemGroup>
+    <Compile Remove="out\**" />
+    <EmbeddedResource Remove="out\**" />
+    <None Remove="out\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Common">
+      <HintPath>$(FezDir)\Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ContentSerialization">
+      <HintPath>$(FezDir)\ContentSerialization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="EasyStorage">
+      <HintPath>$(FezDir)\EasyStorage.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FEZ">
+      <HintPath>$(FezDir)\FEZ.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FezEngine">
+      <HintPath>$(FezDir)\FezEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FNA">
+      <HintPath>$(FezDir)\FNA.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="XnaWordWrapCore">
+      <HintPath>$(FezDir)\XnaWordWrapCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+        <Reference Include="MonoMod">
+      <HintPath>$(MonoModDir)\MonoMod.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>$(MonoModDir)\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>$(MonoModDir)\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
