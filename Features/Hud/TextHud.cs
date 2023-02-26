@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FEZUG.Features
+namespace FEZUG.Features.Hud
 {
     public class TextHud : IFezugFeature
     {
@@ -22,6 +22,8 @@ namespace FEZUG.Features
 
         private float lastWidth;
         private TimeSpan lastWidthUpdateTime;
+
+        private HudPositioner Positioner;
 
         [ServiceDependency]
         public IPlayerManager PlayerManager { private get; set; }
@@ -49,6 +51,8 @@ namespace FEZUG.Features
             hud_velocity = CreateHudVariable("hud_velocity", "Gomez's velocity");
             hud_state = CreateHudVariable("hud_state", "Gomez's state");
             hud_viewpoint = CreateHudVariable("hud_viewpoint", "camera viewpoint");
+
+            Positioner = new HudPositioner("text", "global text", 0.0f, 0.0f);
         }
 
         private void DrawText(string text, Vector2 pos)
@@ -124,20 +128,26 @@ namespace FEZUG.Features
             }
 
             float maxWidth = linesToDraw.Select(str => DrawingTools.DefaultFont.MeasureString(str).X * 2).Max();
-            if(maxWidth > lastWidth || (gameTime.TotalGameTime - lastWidthUpdateTime).TotalSeconds > 1.0f)
+            if(maxWidth > lastWidth || (gameTime.TotalGameTime - lastWidthUpdateTime).TotalSeconds > 5.0f)
             {
                 lastWidthUpdateTime = gameTime.TotalGameTime;
                 lastWidth = maxWidth;
             }
 
             float padX = 10.0f;
-            DrawingTools.DrawRect(new Rectangle(2, 2, (int)(lastWidth + padX * 2), linesToDraw.Count * 30 + 20), new Color(0, 0, 0, 220));
+            float width = lastWidth + padX * 2;
+            float height = linesToDraw.Count * 30 + 15;
+            int margin = 5;
+            var position = Positioner.GetPosition(width + 2 * margin, height + 2 * margin);
 
-            for(int i = 0; i < linesToDraw.Count; i++)
+            DrawingTools.DrawRect(new Rectangle((int)(position.X + margin), (int)(position.Y + margin), (int)width, (int)height), new Color(10, 10, 10, 220));
+
+            
+            for (int i = 0; i < linesToDraw.Count; i++)
             {
                 var line = linesToDraw[i];
-                DrawText(line, new Vector2(padX, i * 30.0f));
-                if (i == 0) DrawText(line, new Vector2(padX, (i*30.0f)-1.0f));
+                DrawText(line, position + new Vector2(padX, i * 30.0f));
+                if (i == 0) DrawText(line, position + new Vector2(padX, (i*30.0f)-1.0f));
             }
 
         }
