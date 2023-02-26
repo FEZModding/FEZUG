@@ -31,9 +31,9 @@ namespace FEZUG.Features.Console
             {
                 if (value.Length == 0) return;
                 _valueString = value;
-                if (!float.TryParse(value, out _valueFloat)) _valueFloat = 0.0f;
-                _valueInt = (int)ValueFloat;
-                _valueBool = value == "true" || value == "on" || value == "yes" || ValueFloat != 0.0f;
+                if (!float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _valueFloat)) _valueFloat = 0.0f;
+                _valueInt = (int)_valueFloat;
+                _valueBool = value == "true" || value == "on" || value == "yes" || _valueFloat != 0.0f;
 
                 VariableChanged();
             }
@@ -46,7 +46,7 @@ namespace FEZUG.Features.Console
                 _valueString = value.ToString();
                 _valueFloat = value;
                 _valueInt = (int)value;
-                _valueBool = ValueInt != 0;
+                _valueBool = _valueInt != 0;
 
                 VariableChanged();
             }
