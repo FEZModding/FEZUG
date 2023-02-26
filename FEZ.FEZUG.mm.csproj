@@ -87,6 +87,7 @@
     <Compile Include="Features\BlackHoleManip.cs" />
     <Compile Include="Features\Console\CommandHelp.cs" />
     <Compile Include="Features\Console\ConsoleClear.cs" />
+    <Compile Include="Features\Console\FezugVariable.cs" />
     <Compile Include="Features\Console\FezugConsole.cs" />
     <Compile Include="Features\Console\IFezugCommand.cs" />
     <Compile Include="Features\Allow3DRotation.cs" />

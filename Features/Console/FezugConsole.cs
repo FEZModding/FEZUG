@@ -142,16 +142,19 @@ namespace FEZUG.Features.Console
                 ParsedCommand command = commandSequence.Last();
 
                 var matchingCommands = ConsoleLine.Commands.Where(c => c.Name.StartsWith(command[0], StringComparison.OrdinalIgnoreCase));
+                var matchingVariables = FezugVariable.DefinedList.Where(var => var.Name.StartsWith(command[0], StringComparison.OrdinalIgnoreCase));
 
-                // only one word in current command - autocomplete from all available commands
+                // only one word in current command - autocomplete from all available commands and variables
                 if (command.Count == 1)
                 {
                     SuggestedWords.AddRange(matchingCommands.Select(c => c.Name).ToList());
+                    SuggestedWords.AddRange(matchingVariables.Select(c => c.Name).ToList());
                 }
-                // more than one words - get a command-specific autocompletion
+                // more than one words - get a command-specific or variable-specific autocompletion
                 else if(command.Count > 1)
                 {
                     matchingCommands = matchingCommands.Where(c => c.Name.Equals(command[0], StringComparison.OrdinalIgnoreCase));
+                    matchingVariables = matchingVariables.Where(c => c.Name.Equals(command[0], StringComparison.OrdinalIgnoreCase));
 
                     if(matchingCommands.Count() > 0)
                     {
@@ -159,6 +162,14 @@ namespace FEZUG.Features.Console
                         if (cmdAutocomplete != null)
                         {
                             SuggestedWords.AddRange(cmdAutocomplete);
+                        }
+                    }
+                    else if(matchingVariables.Count() > 0)
+                    {
+                        var variable = matchingVariables.First();
+                        if(command.Arguments.Length == 0 || variable.ValueString.StartsWith(command.Arguments[0], StringComparison.OrdinalIgnoreCase))
+                        {
+                            SuggestedWords.Add(variable.ValueString);
                         }
                     }
                 }
@@ -310,14 +321,31 @@ namespace FEZUG.Features.Console
                     var args = command.Arguments;
 
                     var matchingCommands = Commands.Where(cmd => cmd.Name.Equals(command.Command, StringComparison.OrdinalIgnoreCase));
+                    var matchingVariables = FezugVariable.DefinedList.Where(var => var.Name.Equals(command.Command, StringComparison.OrdinalIgnoreCase));
 
-                    if (matchingCommands.Count() == 0)
+                    if (matchingCommands.Count() == 0 && matchingVariables.Count() == 0)
                     {
                         FezugConsole.Print($"Unknown command: {mainCommand}", OutputType.Error);
                         continue;
                     }
 
-                    bool successful = matchingCommands.First().Execute(args);
+                    if(matchingCommands.Count() > 0)
+                    {
+                        bool successful = matchingCommands.First().Execute(args);
+                    }
+                    else if(matchingVariables.Count() > 0)
+                    {
+                        var variable = matchingVariables.First();
+                        if (args.Length > 0)
+                        {
+                            variable.ValueString = args[0];
+                        }
+                        else
+                        {
+                            FezugConsole.Print($"{variable.Name} = {variable.ValueString}");
+                        }
+                        
+                    }
                 }
             }
 

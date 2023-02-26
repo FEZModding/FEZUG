@@ -24,18 +24,26 @@ namespace FEZUG.Features.Console
         public bool Execute(string[] args)
         {
             var cmdList = FezugConsole.Instance.Handler.Commands;
+            var varList = FezugVariable.DefinedList;
 
-            int pageNumber = 0;
+            int pageNumber = 1;
             if (args.Length == 0 || int.TryParse(args[0], out pageNumber))
             {
-                int pageCount = (int)Math.Ceiling(cmdList.Count / (float)CommandListPageSize);
-                pageNumber = Math.Min(Math.Max(pageNumber, 0), pageCount-1);
+                var helpStrings = new List<string>();
+                helpStrings.AddRange(cmdList.Select(cmd => cmd.HelpText));
+                helpStrings.AddRange(varList.Select(var => $"{var.Name} - {var.HelpText}"));
+                helpStrings = helpStrings.OrderBy(str => str).ToList();
 
-                FezugConsole.Print($"=== Help - page {pageNumber + 1}/{pageCount} ===");
+                int pageCount = (int)Math.Ceiling(helpStrings.Count / (float)CommandListPageSize);
+                pageNumber = Math.Min(Math.Max(pageNumber, 1), pageCount);
 
-                for(var i = pageNumber * CommandListPageSize; i < cmdList.Count; i++)
+                FezugConsole.Print($"=== Help - page {pageNumber}/{pageCount} ===");
+
+                var pageStart = (pageNumber - 1) * CommandListPageSize;
+                var pageEnd = Math.Min(helpStrings.Count, pageNumber * CommandListPageSize);
+                for(var i = pageStart; i < pageEnd; i++)
                 {
-                    FezugConsole.Print(cmdList[i].HelpText);
+                    FezugConsole.Print(helpStrings[i]);
                 }
 
                 return true;
@@ -43,17 +51,25 @@ namespace FEZUG.Features.Console
             else 
             {
                 var validCommands = cmdList.Where(cmd => cmd.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase));
+                var validVariables = varList.Where(var => var.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase));
 
-                if(validCommands.Count() == 0)
+                if (validCommands.Count() == 0 && validVariables.Count() == 0)
                 {
                     FezugConsole.Print($"Command \"{args[0]}\" hasn't been found.", FezugConsole.OutputType.Warning);
                     return false;
                 }
-                else
+                else if(validCommands.Count() > 0)
                 {
                     FezugConsole.Print(validCommands.First().HelpText);
                     return true;
                 }
+                else if(validVariables.Count() > 0)
+                {
+                    FezugConsole.Print($"{validVariables.First().Name} - {validVariables.First().HelpText}");
+                    return true;
+                }
+
+                return false;
             }
 
         }
