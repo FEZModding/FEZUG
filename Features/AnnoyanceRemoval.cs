@@ -3,8 +3,10 @@ using FezEngine.Tools;
 using FezGame;
 using FezGame.Components;
 using FezGame.Services;
+using FezGame.Structure;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
+using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,11 @@ namespace FEZUG.Features
     internal class AnnoyanceRemoval : IFezugFeature
     {
         private Type IntroPanDownType;
+        private List<string> DotLoadLevelsReference;
+        private List<string> OriginalDotLoadLevels;
+        private IDetour LevelManagerChangeLevelDetour;
+
+        private FezugVariable SkipDotLoadingVariable;
 
         [ServiceDependency]
         public IPlayerManager PlayerManager { private get; set; }
@@ -30,13 +37,22 @@ namespace FEZUG.Features
         public void Initialize()
         {
             // removing dot loading screens
-            LevelManager.LevelChanged += delegate
-            {
-                GameState.DotLoading = false;
-            };
+            LevelManagerChangeLevelDetour = new Hook(
+                typeof(GameLevelManager).GetMethod("ChangeLevel"),
+                (Action<Action<GameLevelManager, string>, GameLevelManager, string>)ChangeLevelHooked);
             var DotLoadLevelsField = typeof(GameLevelManager).GetField("DotLoadLevels", BindingFlags.NonPublic | BindingFlags.Instance);
-            var DotLoadLevels = (List<string>)DotLoadLevelsField.GetValue(LevelManager);
-            DotLoadLevels.Clear();
+            DotLoadLevelsReference = (List<string>)DotLoadLevelsField.GetValue(LevelManager);
+            OriginalDotLoadLevels = new List<string>(DotLoadLevelsReference);
+
+            SkipDotLoadingVariable = new FezugVariable("skip_dot_loading", "If set, skip the long Dot loading screens", "true")
+            {
+                SaveOnChange = true,
+                Min = 0,
+                Max = 1
+            };
+            SkipDotLoadingVariable.OnChanged += OnDotLoadingSkipVariableChanged;
+            if (SkipDotLoadingVariable.ValueBool)
+                DotLoadLevelsReference.Clear();
 
             var screenField = typeof(Intro).GetField("screen", BindingFlags.NonPublic | BindingFlags.Instance);
             var phaseField = typeof(Intro).GetField("phase", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -96,6 +112,28 @@ namespace FEZUG.Features
 
         public void DrawLevel(GameTime gameTime)
         {
+        }
+
+        public void ChangeLevelHooked(Action<GameLevelManager, string> original, GameLevelManager self, string levelName)
+        {
+            if (SkipDotLoadingVariable.ValueBool) {
+                if (PlayerManager.Action == ActionType.LesserWarp || PlayerManager.Action == ActionType.GateWarp)
+                    PlayerManager.Action = ActionType.EnteringDoor;
+            }
+            original(self, levelName);
+        }
+
+        public void OnDotLoadingSkipVariableChanged()
+        {
+            if (SkipDotLoadingVariable.ValueBool)
+            {
+                DotLoadLevelsReference.Clear();
+            }
+            else
+            {
+                if (DotLoadLevelsReference.Count() == 0)
+                    DotLoadLevelsReference.AddRange(OriginalDotLoadLevels);
+            }
         }
     }
 }
