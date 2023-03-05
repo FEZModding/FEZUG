@@ -434,30 +434,50 @@ namespace FEZUG.Features.Console
                 bool shiftHeld = InputHelper.IsKeyHeld(Keys.LeftShift) || InputHelper.IsKeyHeld(Keys.RightShift);
                 bool ctrlHeld = InputHelper.IsKeyHeld(Keys.LeftControl) || InputHelper.IsKeyHeld(Keys.RightControl);
 
-                if (InputHelper.IsKeyTyped(Keys.Left) && CursorPosition > 0)
+                Action backOneChar = delegate()
                 {
-                    CursorPosition--;
-                    if (shiftHeld)
+                    if (CursorPosition > 0)
                     {
-                        SelectionLength++;
+                        CursorPosition--;
+                        if (shiftHeld)
+                            SelectionLength++;
                     }
-                    else
-                    {
+                    if (!shiftHeld)
                         SelectionLength = 0;
-                    }
+                };
+
+                if (InputHelper.IsKeyTyped(Keys.Left))
+                    backOneChar();
+
+                if (InputHelper.IsKeyPressed(Keys.Home))
+                {
+                    if (!shiftHeld)
+                        SelectionLength = 0;
+                    while (CursorPosition > 0)
+                        backOneChar();
                 }
 
-                if (InputHelper.IsKeyTyped(Keys.Right) && CursorPosition < Buffer.Length)
+                Action forwardOneChar = delegate()
                 {
-                    CursorPosition = Math.Min(Buffer.Length, CursorPosition + 1);
-                    if (shiftHeld)
+                    if (CursorPosition < Buffer.Length)
                     {
-                        SelectionLength--;
+                        CursorPosition++;
+                        if (shiftHeld)
+                            SelectionLength--;
                     }
-                    else
-                    {
+                    if (!shiftHeld)
                         SelectionLength = 0;
-                    }
+                };
+
+                if (InputHelper.IsKeyTyped(Keys.Right))
+                    forwardOneChar();
+
+                if (InputHelper.IsKeyPressed(Keys.End))
+                {
+                    if (!shiftHeld)
+                        SelectionLength = 0;
+                    while (CursorPosition < Buffer.Length)
+                        forwardOneChar();
                 }
 
                 if (InputHelper.IsKeyPressed(Keys.Tab))
