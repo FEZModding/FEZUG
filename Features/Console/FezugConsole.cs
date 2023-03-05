@@ -375,26 +375,36 @@ namespace FEZUG.Features.Console
                     Buffer = "";
                 }
 
-                if (InputHelper.IsKeyTyped(Keys.Back) && Buffer.Length > 0 && CursorPosition > 0)
+                if (InputHelper.IsKeyTyped(Keys.Back) && Buffer.Length > 0)
                 {
                     if(SelectionLength != 0)
                     {
+                        if (SelectionLength < 0)
+                        {
+                            CursorPosition += SelectionLength;
+                            SelectionLength *= -1;
+                        }
                         Buffer = GetBufferWithRemovedSelection();
                     }
-                    else
+                    else if (CursorPosition > 0)
                     {
                         CursorPosition--;
                         Buffer = Buffer.Remove(CursorPosition, 1);
                     }
                 }
 
-                if (InputHelper.IsKeyTyped(Keys.Delete) && Buffer.Length > 0 && CursorPosition < Buffer.Length)
+                if (InputHelper.IsKeyTyped(Keys.Delete) && Buffer.Length > 0)
                 {
                     if (SelectionLength != 0)
                     {
+                        if (SelectionLength < 0)
+                        {
+                            CursorPosition += SelectionLength;
+                            SelectionLength *= -1;
+                        }
                         Buffer = GetBufferWithRemovedSelection();
                     }
-                    else
+                    else if (CursorPosition < Buffer.Length)
                     {
                         Buffer = Buffer.Remove(CursorPosition, 1);
                     }
