@@ -40,7 +40,7 @@ namespace FEZUG.Features
 
             if (!isLevel && !isFlag && !isAll)
             {
-                FezugConsole.Print($"Invalid first parameter: '{args[1]}'. Should be either 'flag', 'level' or 'all'.", FezugConsole.OutputType.Warning);
+                FezugConsole.Print($"Invalid first parameter: '{args[0]}'. Should be either 'flag', 'level' or 'all'.", FezugConsole.OutputType.Warning);
                 return false;
             }
 
