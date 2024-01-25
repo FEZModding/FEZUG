@@ -25,7 +25,7 @@ namespace FEZUG.Helpers
                 GraphicsDevice = ServiceHelper.Get<IGraphicsDeviceService>().GraphicsDevice;
                 Batch = new SpriteBatch(GraphicsDevice);
                 DefaultFont = FontManager.Big;
-                DefaultFontSize = 2.0f;
+                DefaultFontSize = FontManager.BigFactor;
 
                 fillTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
                 fillTexture.SetData(new[] { new Color(255, 255, 255) });

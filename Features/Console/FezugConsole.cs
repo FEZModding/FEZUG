@@ -621,7 +621,7 @@ namespace FEZUG.Features.Console
                 var cursor = DrawingTools.DefaultFont.MeasureString("> " + Handler.Buffer.Substring(0, Handler.CursorPosition)) * DrawingTools.DefaultFontSize;
                 DrawingTools.DrawRect(new Rectangle(
                     (int)(margin + padding * 2 + cursor.X), commandY + 5,
-                    (int)(DrawingTools.DefaultFontSize * 2.0f), (int)(cursor.Y - 15.0f)),
+                    (int)Math.Ceiling(DrawingTools.DefaultFontSize * 2.0f), (int)(cursor.Y - 15.0f)),
                     Color.White
                 );
             }
