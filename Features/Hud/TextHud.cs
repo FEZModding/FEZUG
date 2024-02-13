@@ -20,6 +20,8 @@ namespace FEZUG.Features.Hud
         private FezugVariable hud_state;
         private FezugVariable hud_viewpoint;
 
+        private FezugVariable hud_hide;
+
         private float lastWidth;
         private TimeSpan lastWidthUpdateTime;
 
@@ -52,6 +54,13 @@ namespace FEZUG.Features.Hud
             hud_state = CreateHudVariable("hud_state", "Gomez's state");
             hud_viewpoint = CreateHudVariable("hud_viewpoint", "camera viewpoint");
 
+            hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
+            {
+                SaveOnChange = true,
+                Min = 0,
+                Max = 1
+            };
+
             Positioner = new HudPositioner("text", "global text", 0.0f, 0.0f);
         }
 
@@ -69,6 +78,13 @@ namespace FEZUG.Features.Hud
 
         public void DrawHUD(GameTime gameTime)
         {
+            if(hud_hide.ValueBool)
+            {
+                var console = Fezug.GetFeature<FezugConsole>();
+                if (!console.Handler.Enabled) return;
+            }
+
+
             var linesToDraw = new List<string>()
             {
                 $"FEZUG {Fezug.Version}"

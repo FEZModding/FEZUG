@@ -56,9 +56,9 @@ namespace FEZUG
             }
         }
 
-        public static IFezugFeature GetFeature<T>()
+        public static T GetFeature<T>()
         {
-            return GetFeature(typeof(T));
+            return (T)GetFeature(typeof(T));
         }
 
         public static IFezugFeature GetFeature(Type type)
