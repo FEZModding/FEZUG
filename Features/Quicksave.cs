@@ -151,6 +151,9 @@ namespace FEZUG.Features
 
                 var quicksaveDir = Path.Combine(Util.LocalConfigFolder, SaveDirectory);
 
+                if (!Directory.Exists(quicksaveDir))
+                    return null;
+
                 return Directory.GetFiles(quicksaveDir).Select(path => Path.GetFileName(path))
                     .Where(name => name.StartsWith(args[0])).ToList();
             }
