@@ -113,6 +113,21 @@ namespace FEZUG.Features
 
             public bool Execute(string[] args)
             {
+                if (args.Length == 0)
+                {
+                    List<string> paths = Autocomplete([""]);
+                    if (paths == null || paths.Count == 0)
+                    {
+                        FezugConsole.Print("No available quicksaves");
+                    }
+                    else
+                    {
+                        FezugConsole.Print("List of available quicksaves:");
+                        FezugConsole.Print(string.Join(" ", paths));
+                    }
+                    return true;
+                }
+
                 if (GameState.ActiveSaveDevice == null)
                 {
                     FezugConsole.Print($"Can't load while the game is loading.", FezugConsole.OutputType.Error);
