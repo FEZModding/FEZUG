@@ -93,34 +93,40 @@ namespace FEZUG.Features
         public void RefreshVolumeList()
         {
             volumes.Clear();
-            foreach (var volID in LevelManager.Volumes.Keys)
+            if (LevelManager.Volumes != null)
             {
-                var volume = LevelManager.Volumes[volID];
-                volumes[volID] = VolumeType.Other;
-                if (volume.ActorSettings.IsBlackHole)
+                foreach (var volID in LevelManager.Volumes.Keys)
                 {
-                    volumes[volID] = VolumeType.BlackHole;
-                }
-                else if (volume.ActorSettings.CodePattern != null && volume.ActorSettings.CodePattern.Length > 0)
-                {
-                    volumes[volID] = VolumeType.CodeZone;
-                }
-                else if (volume.ActorSettings.IsSecretPassage)
-                {
-                    volumes[volID] = VolumeType.Shortcut;
-                }
-                else if (volume.ActorSettings.IsPointOfInterest)
-                {
-                    volumes[volID] = VolumeType.PointOfInterest;
-                }
-                else
-                {
-                    var myvolscripts = LevelManager.Scripts.Values.Where(script => script.Triggers.Any(trigger => trigger.Object.Type.Equals("Volume") && trigger.Object.Identifier == volID));
-                    if (myvolscripts.Count() > 0)
+                    var volume = LevelManager.Volumes[volID];
+                    volumes[volID] = VolumeType.Other;
+                    if (volume.ActorSettings != null)
                     {
-                        if (myvolscripts.Any(script => script.Actions.Any(action => action.Operation.Contains("ChangeLevel"))))
+                        if (volume.ActorSettings.IsBlackHole)
                         {
-                            volumes[volID] = VolumeType.Door;
+                            volumes[volID] = VolumeType.BlackHole;
+                        }
+                        else if (volume.ActorSettings.CodePattern != null && volume.ActorSettings.CodePattern.Length > 0)
+                        {
+                            volumes[volID] = VolumeType.CodeZone;
+                        }
+                        else if (volume.ActorSettings.IsSecretPassage)
+                        {
+                            volumes[volID] = VolumeType.Shortcut;
+                        }
+                        else if (volume.ActorSettings.IsPointOfInterest)
+                        {
+                            volumes[volID] = VolumeType.PointOfInterest;
+                        }
+                    }
+                    else
+                    {
+                        var myvolscripts = LevelManager.Scripts.Values.Where(script => script.Triggers.Any(trigger => trigger.Object.Type.Equals("Volume") && trigger.Object.Identifier == volID));
+                        if (myvolscripts.Count() > 0)
+                        {
+                            if (myvolscripts.Any(script => script.Actions.Any(action => action.Operation.Contains("ChangeLevel"))))
+                            {
+                                volumes[volID] = VolumeType.Door;
+                            }
                         }
                     }
                 }
