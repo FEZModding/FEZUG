@@ -31,7 +31,7 @@ namespace FEZUG.Features
 
         private Dictionary<int, VolumeType> volumes;
 
-        private Mesh[] VolumeBoundingBoxes;
+        private static Mesh[] VolumeBoundingBoxes = null;
 
         public static bool WireframesEnabled;
 
@@ -54,36 +54,42 @@ namespace FEZUG.Features
                 volumes = new Dictionary<int, VolumeType>();
                 LevelManager.LevelChanged += RefreshVolumeList;
 
-                VolumeBoundingBoxes = new Mesh[3];
-
-                var effect = new DefaultEffect.LitVertexColored
+                if (VolumeBoundingBoxes == null)
                 {
-                    Specular = true,
-                    Emissive = 1.0f,
-                    AlphaIsEmissive = true
-                };
-
-                Color[] volColors = new Color[]
-                {
-                Color.Gray,
-                Color.White,
-                Color.Magenta
-                };
-
-                for (var i = 0; i < 3; i++)
-                {
-                    VolumeBoundingBoxes[i] = new Mesh
+                    Color[] volColors = new Color[]
                     {
-                        DepthWrites = false,
-                        Blending = BlendingMode.Alphablending,
-                        Culling = CullMode.CullClockwiseFace
+                        Color.Black,
+                        Color.Gold,
+                        Color.Blue,
+                        Color.Gray,
+                        Color.Lime,
+                        Color.Purple
+                    };
+                    int VolTypeCount = volColors.Length;
+                    VolumeBoundingBoxes = new Mesh[VolTypeCount];
+
+                    var effect = new DefaultEffect.LitVertexColored
+                    {
+                        Specular = true,
+                        Emissive = 1.0f,
+                        AlphaIsEmissive = true
                     };
 
-                    VolumeBoundingBoxes[i].Effect = effect;
+                    for (var i = 0; i < VolTypeCount; i++)
+                    {
+                        VolumeBoundingBoxes[i] = new Mesh
+                        {
+                            DepthWrites = false,
+                            Blending = BlendingMode.Alphablending,
+                            Culling = CullMode.CullClockwiseFace,
+                        };
 
-                    Color c = volColors[i];
-                    VolumeBoundingBoxes[i].AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, (i == 0) ? 32 : 255), true);
-                    VolumeBoundingBoxes[i].AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
+                        VolumeBoundingBoxes[i].Effect = effect;
+
+                        Color c = volColors[i];
+                        VolumeBoundingBoxes[i].AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 255), true);
+                        VolumeBoundingBoxes[i].AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
+                    }
                 }
             });
         }
@@ -123,7 +129,13 @@ namespace FEZUG.Features
                         var myvolscripts = LevelManager.Scripts.Values.Where(script => script.Triggers.Any(trigger => trigger.Object.Type.Equals("Volume") && trigger.Object.Identifier == volID));
                         if (myvolscripts.Count() > 0)
                         {
-                            if (myvolscripts.Any(script => script.Actions.Any(action => action.Operation.Contains("ChangeLevel"))))
+                            if (myvolscripts.Any(script =>
+                                    //Should match AllowPipeChangeLevel, ChangeLevel, ChangeToFarAwayLevel, ChangeLevelToVolume, ExploChangeLevel and maybe ReturnToLastLevel
+                                    script.Actions.Any(action =>
+                                        (action.Operation.Contains("Change") || action.Operation.Contains("Return"))
+                                        && action.Operation.Contains("Level")
+                                    )
+                                ))
                             {
                                 volumes[volID] = VolumeType.Door;
                             }
@@ -144,7 +156,7 @@ namespace FEZUG.Features
             {
 
                 var type = volumes[volID];
-                var volbb = VolumeBoundingBoxes[(int)type%3];
+                var volbb = VolumeBoundingBoxes[(int)type % VolumeBoundingBoxes.Length];
                 if (LevelManager.Volumes.TryGetValue(volID, out var vol))
                 {
                     var volPos = vol.From;
@@ -170,11 +182,11 @@ namespace FEZUG.Features
         {
             public string Name => "volumeswireframe";
 
-            public string HelpText => "volumeswireframe [on/off] - draws wireframe for volumes (Note: not tested)";
+            public string HelpText => "volumeswireframe [on/off/xray] - draws wireframe for volumes";
 
             public List<string> Autocomplete(string[] args)
             {
-                return new string[] { "on", "off" }.Where(s => s.StartsWith(args[0])).ToList();
+                return new string[] { "on", "off", "xray" }.Where(s => s.StartsWith(args[0])).ToList();
             }
 
             public bool Execute(string[] args)
@@ -185,14 +197,18 @@ namespace FEZUG.Features
                     return false;
                 }
 
-                if(args[0] != "on" && args[0] != "off")
+                if(args[0] != "on" && args[0] != "off" && args[0] != "xray")
                 {
                     FezugConsole.Print($"Invalid argument: '{args[0]}'", FezugConsole.OutputType.Warning);
                     return false;
                 }
 
-                WireframesEnabled = args[0] == "on";
-                FezugConsole.Print($"Volume wireframes have been {(WireframesEnabled ? "enabled" : "disabled")}.");
+                bool xray = args[0] == "xray";
+                WireframesEnabled = xray || args[0] == "on";
+                foreach(var vol in VolumeBoundingBoxes) { 
+                    vol.AlwaysOnTop = xray;
+                }
+                FezugConsole.Print($"Volume wireframes have been {(WireframesEnabled ? "enabled" + (xray ? " in xray mode" : "") : "disabled")}.");
                 return true;
             }
         }
