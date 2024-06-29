@@ -148,8 +148,8 @@ namespace FEZUG.Features
                 if (LevelManager.Volumes.TryGetValue(volID, out var vol))
                 {
                     var volPos = vol.From;
-                    volbb.Position = volPos;
                     var volSize = vol.From - vol.To;
+                    volbb.Position = volPos - volSize/2;
                     volbb.Scale = volSize;
                     volbb.Draw();
                 }
