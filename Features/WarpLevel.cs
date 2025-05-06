@@ -129,6 +129,10 @@ namespace FEZUG.Features
 			// prevent ChangeLevel from adjusting you to linked doors
 			LevelManager.Name = null;
 
+			// make sure first-person mode is disabled
+			GameState.InFpsMode = false;
+			PlayerManager.GomezOpacity = 1f;
+
 			// reset player's warping state (yes, smaller gate miraculously works fine, only the big one needs fixing)
 			if (PlayerManager.Action == ActionType.GateWarp)
             {
