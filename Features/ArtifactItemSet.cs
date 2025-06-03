@@ -72,6 +72,12 @@ namespace FEZUG.Features
 
             if (!Enum.TryParse<ActorType>(args[1], true, out var artifact))
             {
+                if (args[0] == "remove" && args[1] == "all")
+                {
+                    GameState.SaveData.Artifacts.Clear();
+                    FezugConsole.Print($"Removed all artifacts from player");
+                    return true;
+                }
                 FezugConsole.Print($"Invalid actor type: {args[1]}.", FezugConsole.OutputType.Warning);
                 return false;
             }

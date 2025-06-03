@@ -74,6 +74,12 @@ namespace FEZUG.Features
 
             if (!mapList.Contains(args[1].ToUpper()))
             {
+                if (args[0] == "remove" && args[1] == "all")
+                {
+                    GameState.SaveData.Maps.Clear();
+                    FezugConsole.Print($"Removed all maps from player");
+                    return true;
+                }
                 FezugConsole.Print($"Map with given name does not exist.", FezugConsole.OutputType.Warning);
                 return false;
             }
