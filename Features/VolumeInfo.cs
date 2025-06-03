@@ -27,9 +27,54 @@ namespace FEZUG.Features
 
 		public List<string> Autocomplete(string[] _args) { return new List<string> { }; }
 
-		public bool Execute(string[] _args)
+		public bool Execute(string[] args)
 		{
 			string result = "";
+            if(args.Length > 0)
+            {
+                if(int.TryParse(args[0], out int volumeId))
+                {
+                    if (LevelManager.Volumes.TryGetValue(volumeId, out var volume))
+                    {
+                        FezugConsole.Print($"From: {volume.From}");
+                        FezugConsole.Print($"To: {volume.To}");
+                        FezugConsole.Print($"Bounding Box: {volume.BoundingBox}");
+                        FezugConsole.Print($"Enabled: {volume.Enabled}");
+                        FezugConsole.Print($"Orientations: {String.Join(", ", volume.Orientations.OrderBy(a=>a).ToArray())}");
+                        if (volume.ActorSettings != null)
+                        {
+                            var actorSettings = volume.ActorSettings;
+                            if (actorSettings.IsPointOfInterest)
+                            {
+                                FezugConsole.Print($"IsPointOfInterest: {actorSettings.IsPointOfInterest}");
+                            }
+                            if (actorSettings.IsSecretPassage)
+                            {
+                                FezugConsole.Print($"IsSecretPassage: {actorSettings.IsSecretPassage}");
+                            }
+                            if (actorSettings.IsBlackHole)
+                            {
+                                FezugConsole.Print($"IsBlackHole: {actorSettings.IsBlackHole}");
+                            }
+                            if (actorSettings.WaterLocked)
+                            {
+                                FezugConsole.Print($"WaterLocked: {actorSettings.WaterLocked}");
+                            }
+                            if (actorSettings.NeedsTrigger)
+                            {
+                                FezugConsole.Print($"NeedsTrigger: {actorSettings.NeedsTrigger}");
+                            }
+                            if(actorSettings.CodePattern != null && actorSettings.CodePattern.Length > 0)
+                            {
+                                FezugConsole.Print($"CodePattern: {String.Join(", ", actorSettings.CodePattern)}");
+                            }
+                        }
+                        return true;
+                    }
+                }
+                FezugConsole.Print($"Unknown volume ID: {args[0]}");
+                return false;
+            }
 			var Volumes = LevelManager.Volumes.Values;
 			foreach (var volume in Volumes)
 			{
