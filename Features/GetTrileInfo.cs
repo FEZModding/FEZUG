@@ -1,4 +1,5 @@
-﻿using FezEngine.Structure;
+﻿using FezEngine.Services;
+using FezEngine.Structure;
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
@@ -20,7 +21,27 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
-        public List<string> Autocomplete(string[] args) => null;
+        [ServiceDependency]
+        public IPlayerManager PlayerManager { private get; set; }
+
+        public List<string> Autocomplete(string[] args)
+        {
+            if (args.Length == 0 || args[args.Length - 1].Length > 0) return null;
+
+            var pos = PlayerManager.Ground.First?.Emplacement;
+            var pos2 = PlayerManager.Position.Round();
+            int value = 0;
+            switch (args.Length)
+            {
+            case 1: value = pos?.X ?? (int)pos2.X; break;
+            case 2: value = pos?.Y ?? (int)pos2.Y; break;
+            case 3: value = pos?.Z ?? (int)pos2.Z; break;
+            default: return null;
+            }
+
+            return new List<string> { value.ToString("0", CultureInfo.InvariantCulture) };
+        }
+
 
         public bool Execute(string[] args)
         {
