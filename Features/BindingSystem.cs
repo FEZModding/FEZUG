@@ -39,10 +39,10 @@ namespace FEZUG.Features
 
         public void Update(GameTime gameTime)
         {
-            if (!((InputManager)InputManager).Enabled) return;
 
             foreach (var bindPair in Binds)
             {
+                if (!bindPair.Value.Trim().ToLower().Equals("toggleconsole") && !((InputManager)InputManager).Enabled) return;
                 if (InputHelper.IsKeyPressed(bindPair.Key))
                 {
                     FezugConsole.ExecuteCommand(bindPair.Value);
