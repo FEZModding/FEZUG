@@ -1,4 +1,5 @@
-﻿using FezEngine.Tools;
+﻿using FezEngine.Services;
+using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
 using FEZUG.Helpers;
@@ -14,11 +15,7 @@ namespace FEZUG.Features.Hud
 {
     public class TextHud : IFezugFeature
     {
-        private FezugVariable hud_level;
-        private FezugVariable hud_position;
-        private FezugVariable hud_velocity;
-        private FezugVariable hud_state;
-        private FezugVariable hud_viewpoint;
+        private List<(FezugVariable var, Func<string> provider)> hudVars = [];
 
         private FezugVariable hud_hide;
 
@@ -36,23 +33,33 @@ namespace FEZUG.Features.Hud
         [ServiceDependency]
         public IGameCameraManager CameraManager { private get; set; }
 
+        [ServiceDependency]
+        public ITimeManager TimeManager { private get; set; }
+
         public void Initialize()
         {
-            Func<string, string, FezugVariable> CreateHudVariable = delegate (string name, string desc)
+            void CreateHudVariable(string name, string desc, Func<string> provider)
             {
-                return new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
+                hudVars.Add((new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
                 {
                     SaveOnChange = true,
                     Min = 0,
                     Max = 1
-                };
-            };
-            
-            hud_level = CreateHudVariable("hud_level", "level");
-            hud_position = CreateHudVariable("hud_position", "Gomez's position");
-            hud_velocity = CreateHudVariable("hud_velocity", "Gomez's velocity");
-            hud_state = CreateHudVariable("hud_state", "Gomez's state");
-            hud_viewpoint = CreateHudVariable("hud_viewpoint", "camera viewpoint");
+                }, provider));
+            }
+            string FormatVector3(Vector3 vector3)
+            {
+                string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
+                string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
+                string posZ = vector3.Z.ToString("0.000", CultureInfo.InvariantCulture);
+                return $"(X:{posX} Y:{posY} Z:{posZ})";
+            }
+
+            CreateHudVariable("hud_level", "level", () => $"Level: {LevelManager.Name}");
+            CreateHudVariable("hud_position", "Gomez's position", () => $"Position: {FormatVector3(PlayerManager.Position)}");
+            CreateHudVariable("hud_velocity", "Gomez's velocity", () => $"Velocity: {FormatVector3(PlayerManager.Velocity)}");
+            CreateHudVariable("hud_state", "Gomez's state", () => $"State: {PlayerManager.Action}");
+            CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
 
             hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
             {
@@ -90,36 +97,14 @@ namespace FEZUG.Features.Hud
                 $"FEZUG {Fezug.Version}"
             };
 
-
-            if (hud_level.ValueBool)
+            foreach (var hudVar in hudVars)
             {
-                linesToDraw.Add($"Level: {LevelManager.Name}");
+                if(hudVar.var.ValueBool)
+                {
+                    linesToDraw.Add(hudVar.provider());
+                }
             }
 
-            if (hud_position.ValueBool)
-            {
-                string posX = PlayerManager.Position.X.ToString("0.000", CultureInfo.InvariantCulture);
-                string posY = PlayerManager.Position.Y.ToString("0.000", CultureInfo.InvariantCulture);
-                string posZ = PlayerManager.Position.Z.ToString("0.000", CultureInfo.InvariantCulture);
-
-                linesToDraw.Add($"Position: (X:{posX} Y:{posY} Z:{posZ})");
-            }
-
-            if (hud_velocity.ValueBool)
-            {
-                string velX = PlayerManager.Velocity.X.ToString("0.000", CultureInfo.InvariantCulture);
-                string velY = PlayerManager.Velocity.Y.ToString("0.000", CultureInfo.InvariantCulture);
-                string velZ = PlayerManager.Velocity.Z.ToString("0.000", CultureInfo.InvariantCulture);
-
-                linesToDraw.Add($"Velocity: (X:{velX} Y:{velY} Z:{velZ})");
-            }
-
-            if (hud_state.ValueBool)
-            {
-                linesToDraw.Add($"State: {PlayerManager.Action}");
-            }
-
-            if (hud_viewpoint.ValueBool)
             {
                 string Viewpoint = "";
                 switch (CameraManager.Viewpoint)
@@ -140,7 +125,6 @@ namespace FEZUG.Features.Hud
                         Viewpoint = "Other";
                         break;
                 }
-                linesToDraw.Add($"Viewpoint: {Viewpoint}");
             }
 
             float maxWidth = linesToDraw.Select(str => DrawingTools.DefaultFont.MeasureString(str).X * 2).Max();
