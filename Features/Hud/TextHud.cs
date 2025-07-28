@@ -60,6 +60,7 @@ namespace FEZUG.Features.Hud
             CreateHudVariable("hud_velocity", "Gomez's velocity", () => $"Velocity: {FormatVector3(PlayerManager.Velocity)}");
             CreateHudVariable("hud_state", "Gomez's state", () => $"State: {PlayerManager.Action}");
             CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
+            CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay.ToString(@"hh':'mm':'ss")}");
 
             hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
             {
