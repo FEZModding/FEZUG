@@ -2,11 +2,6 @@
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -19,28 +14,25 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameStateManager GameState { private get; set; }
 
-        public readonly ActorType[] AllowedActorTypes = new ActorType[]
-        {
+        public readonly ActorType[] AllowedActorTypes =
+        [
             ActorType.Tome,
             ActorType.TriSkull,
             ActorType.LetterCube,
             ActorType.NumberCube
-        };
+        ];
 
         public List<string> Autocomplete(string[] args)
         {
             if (args.Length == 1)
             {
-                return new string[] { "give", "remove", "list" }
-                .Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                return [.. new string[] { "give", "remove", "list" }.Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
             }
             if (args.Length == 2)
             {
-                return AllowedActorTypes
+                return [.. AllowedActorTypes
                     .Select(s => s.ToString().ToLower())
-                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase))];
             }
             return null;
         }
@@ -60,12 +52,12 @@ namespace FEZUG.Features
                 if (args.Length >= 1 && (args[0] == "remove" || args[0] == "list"))
                 {
                     FezugConsole.Print($"List of artifacts in your inventory:");
-                    FezugConsole.Print($"{String.Join(", ", GameState.SaveData.Artifacts.Select(s => s.ToString().ToLower()))}");
+                    FezugConsole.Print($"{string.Join(", ", GameState.SaveData.Artifacts.Select(s => s.ToString().ToLower()))}");
                 }
                 else
                 {
                     FezugConsole.Print($"List of available artifacts:");
-                    FezugConsole.Print($"{String.Join(", ", artifactList.Select(s => s.ToLower()))}");
+                    FezugConsole.Print($"{string.Join(", ", artifactList.Select(s => s.ToLower()))}");
                 }
                 return true;
             }

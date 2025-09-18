@@ -1,9 +1,6 @@
-﻿using FezEngine;
-using FezEngine.Components;
+﻿using FezEngine.Components;
 using FezEngine.Effects;
-using FezEngine.Services;
 using FezEngine.Structure;
-using FezEngine.Structure.Geometry;
 using FezEngine.Tools;
 using FezGame.Components;
 using FezGame.Services;
@@ -11,11 +8,6 @@ using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -65,7 +57,7 @@ namespace FEZUG.Features
                 Color c = trileColor;
                 TrileBoundingBox.AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
                 TrileBoundingBox.AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
-                
+
             });
         }
 
@@ -103,7 +95,7 @@ namespace FEZUG.Features
 
             public List<string> Autocomplete(string[] args)
             {
-                return new string[] { "on", "off" }.Where(s => s.StartsWith(args[0])).ToList();
+                return [.. new string[] { "on", "off" }.Where(s => s.StartsWith(args[0]))];
             }
 
             public bool Execute(string[] args)

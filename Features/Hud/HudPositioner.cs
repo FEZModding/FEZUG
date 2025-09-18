@@ -1,9 +1,6 @@
 ﻿using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FEZUG.Features.Hud
 {
@@ -15,24 +12,24 @@ namespace FEZUG.Features.Hud
         public HudPositioner(string name, string helpText, float defaultX, float defaultY)
         {
             XCoordVariable = new FezugVariable(
-                $"{name}_hud_position_x", 
+                $"{name}_hud_position_x",
                 $"Changes the X position of {helpText} HUD (value between 0 and 1)",
                 defaultX.ToString()
             )
             {
                 SaveOnChange = true,
-                Min = 0, 
+                Min = 0,
                 Max = 1
             };
 
             YCoordVariable = new FezugVariable(
-                $"{name}_hud_position_y", 
+                $"{name}_hud_position_y",
                 $"Changes the Y position of {helpText} HUD (value between 0 and 1)",
                 defaultY.ToString()
             )
             {
                 SaveOnChange = true,
-                Min = 0, 
+                Min = 0,
                 Max = 1
             };
         }

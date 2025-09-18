@@ -2,18 +2,12 @@
 using FezEngine.Effects;
 using FezEngine.Services;
 using FezEngine.Structure;
-using FezEngine.Structure.Geometry;
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -49,7 +43,7 @@ namespace FEZUG.Features
         {
             DrawActionScheduler.Schedule(delegate
             {
-                invisibleTriles = new Dictionary<TrileEmplacement, InvisibleType>();
+                invisibleTriles = [];
                 LevelManager.LevelChanged += RefreshTrileList;
 
                 TrileBoundingBoxes = new Mesh[3];
@@ -61,12 +55,12 @@ namespace FEZUG.Features
                     AlphaIsEmissive = true
                 };
 
-                Color[] trileColors = new Color[]
-                {
+                Color[] trileColors =
+                [
                 Color.Gray,
                 Color.White,
                 Color.Magenta
-                };
+                ];
 
                 for (var i = 0; i < 3; i++)
                 {
@@ -74,10 +68,9 @@ namespace FEZUG.Features
                     {
                         DepthWrites = false,
                         Blending = BlendingMode.Alphablending,
-                        Culling = CullMode.CullClockwiseFace
+                        Culling = CullMode.CullClockwiseFace,
+                        Effect = effect
                     };
-
-                    TrileBoundingBoxes[i].Effect = effect;
 
                     Color c = trileColors[i];
                     if (i == 0)
@@ -156,7 +149,7 @@ namespace FEZUG.Features
 
             public List<string> Autocomplete(string[] args)
             {
-                return new string[] { "on", "off" }.Where(s => s.StartsWith(args[0])).ToList();
+                return [.. new string[] { "on", "off" }.Where(s => s.StartsWith(args[0]))];
             }
 
             public bool Execute(string[] args)

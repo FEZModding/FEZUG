@@ -1,5 +1,4 @@
-﻿using System;
-using FezEngine.Components;
+﻿using FezEngine.Components;
 using FezEngine.Services;
 using FezEngine.Structure;
 using FezEngine.Structure.Input;
@@ -8,8 +7,6 @@ using FezGame.Services;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace FEZUG.Features
 {

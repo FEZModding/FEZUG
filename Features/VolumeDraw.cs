@@ -1,19 +1,12 @@
-﻿using FezEngine;
-using FezEngine.Effects;
+﻿using FezEngine.Effects;
 using FezEngine.Services;
 using FezEngine.Structure;
-using FezEngine.Structure.Geometry;
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -51,20 +44,20 @@ namespace FEZUG.Features
         {
             DrawActionScheduler.Schedule(delegate
             {
-                volumes = new Dictionary<int, VolumeType>();
+                volumes = [];
                 LevelManager.LevelChanged += RefreshVolumeList;
 
                 if (VolumeBoundingBoxes == null)
                 {
-                    Color[] volColors = new Color[]
-                    {
+                    Color[] volColors =
+                    [
                         Color.Black,
                         Color.Gold,
                         Color.Blue,
                         Color.Gray,
                         Color.Lime,
                         Color.Purple
-                    };
+                    ];
                     int VolTypeCount = volColors.Length;
                     VolumeBoundingBoxes = new Mesh[VolTypeCount];
 
@@ -82,9 +75,8 @@ namespace FEZUG.Features
                             DepthWrites = false,
                             Blending = BlendingMode.Alphablending,
                             Culling = CullMode.CullClockwiseFace,
+                            Effect = effect
                         };
-
-                        VolumeBoundingBoxes[i].Effect = effect;
 
                         Color c = volColors[i];
                         VolumeBoundingBoxes[i].AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 255), true);
@@ -186,7 +178,7 @@ namespace FEZUG.Features
 
             public List<string> Autocomplete(string[] args)
             {
-                return new string[] { "on", "off", "xray" }.Where(s => s.StartsWith(args[0])).ToList();
+                return [.. new string[] { "on", "off", "xray" }.Where(s => s.StartsWith(args[0]))];
             }
 
             public bool Execute(string[] args)
@@ -205,7 +197,7 @@ namespace FEZUG.Features
 
                 bool xray = args[0] == "xray";
                 WireframesEnabled = xray || args[0] == "on";
-                foreach(var vol in VolumeBoundingBoxes) { 
+                foreach(var vol in VolumeBoundingBoxes) {
                     vol.AlwaysOnTop = xray;
                 }
                 FezugConsole.Print($"Volume wireframes have been {(WireframesEnabled ? "enabled" + (xray ? " in xray mode" : "") : "disabled")}.");

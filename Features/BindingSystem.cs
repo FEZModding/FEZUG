@@ -5,12 +5,6 @@ using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -30,7 +24,7 @@ namespace FEZUG.Features
         public BindingSystem()
         {
             Instance = this;
-            Binds = new BindList();
+            Binds = [];
         }
 
         public void Initialize() {
@@ -84,12 +78,10 @@ namespace FEZUG.Features
 
         private static void SaveBinds()
         {
-            using (StreamWriter bindFile = new StreamWriter(GetBindsFilePath()))
+            using StreamWriter bindFile = new(GetBindsFilePath());
+            foreach (var bind in Instance.Binds)
             {
-                foreach(var bind in Instance.Binds)
-                {
-                    bindFile.WriteLine($"{bind.Key} {bind.Value}");
-                }
+                bindFile.WriteLine($"{bind.Key} {bind.Value}");
             }
         }
 
@@ -100,7 +92,7 @@ namespace FEZUG.Features
             var bindFileLines = File.ReadAllLines(bindFilePath);
             foreach(var line in bindFileLines)
             {
-                string[] tokens = line.Split(new char[] { ' ' }, 2);
+                string[] tokens = line.Split([' '], 2);
                 if (tokens.Length < 2) continue;
 
                 if(Enum.TryParse(tokens[0], out Keys key))
@@ -119,13 +111,13 @@ namespace FEZUG.Features
             {
                 if (args.Length == 1)
                 {
-                    return Enum.GetNames(typeof(Keys)).Select(s=>s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase)).ToList();
+                    return [.. Enum.GetNames(typeof(Keys)).Select(s=>s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
                 }
 
                 if (args.Length == 2 && Enum.TryParse<Keys>(args[0], true, out var key)
                 && HasBind(key) && GetBind(key).StartsWith(args[1], StringComparison.OrdinalIgnoreCase))
                 {
-                    return new List<string> { GetBind(key) };
+                    return [GetBind(key)];
                 }
                 return null;
             }
@@ -178,7 +170,7 @@ namespace FEZUG.Features
             {
                 if (args.Length == 1)
                 {
-                    return Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase)).ToList();
+                    return [.. Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
                 }
 
                 return null;

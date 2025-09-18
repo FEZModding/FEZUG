@@ -1,14 +1,8 @@
-﻿using System;
-using FezEngine.Services;
-using FezEngine.Structure;
+﻿using FezEngine.Services;
 using FezEngine.Tools;
-using FezGame.Components;
 using FezGame.Services;
 using FEZUG.Features.Console;
 using FEZUG.Helpers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using FEZUG.Features.Hud;
 
@@ -18,7 +12,7 @@ namespace FEZUG.Features
     {
         public string Name => "timer";
 
-        public string HelpText => "timer <start_level> <end_level> - creates a timer between two level entrances." 
+        public string HelpText => "timer <start_level> <end_level> - creates a timer between two level entrances."
             +"\ntimer clear - clear the current timer.";
 
         private bool enabled = false;
@@ -30,15 +24,15 @@ namespace FEZUG.Features
         private string endLevel = "";
 
         private TimeSpan lastTime = TimeSpan.Zero;
-        private List<TimeSpan> timeHistory = new List<TimeSpan>();
+        private readonly List<TimeSpan> timeHistory = [];
 
 
         private string lastTimerString = "THIS IS A TEST";
 
-        private GameTime currentTime = new GameTime();
-        private GameTime startTime = new GameTime();
+        private GameTime currentTime = new();
+        private GameTime startTime = new();
 
-        private HudPositioner Positioner;
+        private readonly HudPositioner Positioner;
 
         [ServiceDependency]
         public ILevelManager LevelManager { private get; set; }

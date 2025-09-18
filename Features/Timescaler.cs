@@ -3,16 +3,9 @@ using FezEngine.Tools;
 using FezGame;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using MonoMod.RuntimeDetour;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -36,7 +29,7 @@ namespace FEZUG.Features
         public List<string> Autocomplete(string[] args)
         {
             string timescaleStr = Timescale.ToString("0.000", CultureInfo.InvariantCulture);
-            if (timescaleStr.StartsWith(args[0])) return new List<string> { timescaleStr };
+            if (timescaleStr.StartsWith(args[0])) return [timescaleStr];
             return null;
         }
 
@@ -68,14 +61,14 @@ namespace FEZUG.Features
 
             mainGameUpdateLoopDetour = new Hook(
                 typeof(Fez).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance),
-                (Action<Action<Fez, GameTime>, Fez, GameTime>)delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
+                delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
                 {
                     UpdateHooked(original, self, gameTime);
                 }
             );
             mainGameDrawLoopDetour = new Hook(
                 typeof(Fez).GetMethod("Draw", BindingFlags.NonPublic | BindingFlags.Instance),
-                (Action<Action<Fez, GameTime>, Fez, GameTime>)delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
+                delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
                 {
                     DrawHooked(original, self, gameTime);
                 }

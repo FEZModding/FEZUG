@@ -13,7 +13,7 @@ namespace FEZUG.Features
 
         [ServiceDependency]
         public IGameStateManager GameState { private get; set; }
-        
+
 
         public StereoscopyToggle()
         {
@@ -22,7 +22,7 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-            return new string[] { "on", "off", "toggle" }.Where(s => s.StartsWith(args[0])).ToList();
+            return [.. new string[] { "on", "off", "toggle" }.Where(s => s.StartsWith(args[0]))];
         }
 
         public bool Execute(string[] args)

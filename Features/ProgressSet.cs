@@ -1,10 +1,6 @@
-﻿using FezEngine.Structure;
-using FezEngine.Tools;
+﻿using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace FEZUG.Features
@@ -20,11 +16,11 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
-        public List<string> AllowedFlagNames = new List<string>
-        {
+        public List<string> AllowedFlagNames =
+        [
             "CanNewGamePlus", "IsNewGamePlus", "Finished32", "Finished64", "HasFPView", "HasStereo3D", "HasDoneHeartReboot",
             "FezHidden", "HasHadMapHelp", "CanOpenMap", "AchievementCheatCodeDone", "MapCheatCodeDone", "AnyCodeDeciphered",
-        };
+        ];
 
         public bool Execute(string[] args)
         {
@@ -49,7 +45,7 @@ namespace FEZUG.Features
                 if (isFlag)
                 {
                     FezugConsole.Print($"List of available flags:");
-                    FezugConsole.Print(String.Join(", ", AllowedFlagNames));
+                    FezugConsole.Print(string.Join(", ", AllowedFlagNames));
                     return true;
                 }
                 else
@@ -220,25 +216,25 @@ namespace FEZUG.Features
         {
             if (args.Length == 1)
             {
-                return new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0])).ToList();
+                return [.. new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0]))];
             }
             else if (args.Length == 3 || args[0] == "all")
             {
-                return new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1])).ToList();
+                return [.. new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1]))];
             }
             else if (args.Length == 2)
             {
                 if (args[0] == "level")
                 {
-                    var list = WarpLevel.Instance.Autocomplete(new string[]{ args[1] });
+                    var list = WarpLevel.Instance.Autocomplete([args[1]]);
                     list.AddRange(
-                        new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[1])).ToList()
+                        [.. new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[1]))]
                     );
                     return list;
                 }
                 else if (args[0] == "flag")
                 {
-                    return AllowedFlagNames.Where(s => s.StartsWith(args[1])).ToList();
+                    return [.. AllowedFlagNames.Where(s => s.StartsWith(args[1]))];
                 }
             }
 
