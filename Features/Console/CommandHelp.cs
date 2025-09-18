@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FEZUG.Features.Console
+﻿namespace FEZUG.Features.Console
 {
     internal class CommandHelp : IFezugCommand
     {
@@ -32,9 +26,9 @@ namespace FEZUG.Features.Console
                 var helpStrings = new List<string>();
                 helpStrings.AddRange(cmdList.Select(cmd => cmd.HelpText));
                 helpStrings.AddRange(varList.Select(var => $"{var.Name} - {var.HelpText}"));
-                helpStrings = helpStrings
-                    .SelectMany(str => str.Split(new[] {'\n'}))
-                    .OrderBy(str => str).ToList();
+                helpStrings = [.. helpStrings
+                    .SelectMany(str => str.Split(['\n']))
+                    .OrderBy(str => str)];
 
                 int pageCount = (int)Math.Ceiling(helpStrings.Count / (float)CommandListPageSize);
                 pageNumber = Math.Min(Math.Max(pageNumber, 1), pageCount);
@@ -50,7 +44,7 @@ namespace FEZUG.Features.Console
 
                 return true;
             }
-            else 
+            else
             {
                 var validCommands = cmdList.Where(cmd => cmd.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase));
                 var validVariables = varList.Where(var => var.Name.Equals(args[0], StringComparison.OrdinalIgnoreCase));

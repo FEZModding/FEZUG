@@ -7,12 +7,7 @@ using FezGame.Structure;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -39,7 +34,7 @@ namespace FEZUG.Features
             // removing dot loading screens
             LevelManagerChangeLevelDetour = new Hook(
                 typeof(GameLevelManager).GetMethod("ChangeLevel"),
-                (Action<Action<GameLevelManager, string>, GameLevelManager, string>)ChangeLevelHooked);
+                ChangeLevelHooked);
             var DotLoadLevelsField = typeof(GameLevelManager).GetField("DotLoadLevels", BindingFlags.NonPublic | BindingFlags.Instance);
             DotLoadLevelsReference = (List<string>)DotLoadLevelsField.GetValue(LevelManager);
             OriginalDotLoadLevels = new List<string>(DotLoadLevelsReference);
@@ -103,7 +98,7 @@ namespace FEZUG.Features
                     SinceStartedField.SetValue(IntroPanDown, Distance);
                 }
             }
-            
+
         }
 
         public void DrawHUD(GameTime gameTime)

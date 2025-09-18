@@ -1,8 +1,4 @@
-﻿using Common;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using FezGame.Services;
 using FezEngine.Tools;
 using FEZUG.Features.Console;
@@ -25,7 +21,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-		public List<string> Autocomplete(string[] _args) { return new List<string> { }; }
+		public List<string> Autocomplete(string[] _args) { return []; }
 
 		public bool Execute(string[] args)
 		{
@@ -89,11 +85,11 @@ namespace FEZUG.Features
                             }
                             if(actorSettings.VibrationPattern != null && actorSettings.VibrationPattern.Length > 0)
                             {
-                                FezugConsole.Print($"VibrationPattern: {String.Join(", ", actorSettings.VibrationPattern)}");
+                                FezugConsole.Print($"VibrationPattern: {string.Join(", ", actorSettings.VibrationPattern)}");
                             }
                             if(actorSettings.CodePattern != null && actorSettings.CodePattern.Length > 0)
                             {
-                                FezugConsole.Print($"CodePattern: {String.Join(", ", actorSettings.CodePattern)}");
+                                FezugConsole.Print($"CodePattern: {string.Join(", ", actorSettings.CodePattern)}");
                             }
                             //if (actorSettings.Segment != null)
                             //{
@@ -117,7 +113,7 @@ namespace FEZUG.Features
                             }
                             if (actorSettings.InvisibleSides != null && actorSettings.InvisibleSides.Count > 0)
                             {
-                                FezugConsole.Print($"InvisibleSides: {String.Join(", ", actorSettings.InvisibleSides)}");
+                                FezugConsole.Print($"InvisibleSides: {string.Join(", ", actorSettings.InvisibleSides)}");
                             }
                             //if (actorSettings.NextNodeAo != null)
                             //{
@@ -142,7 +138,7 @@ namespace FEZUG.Features
                 FezugConsole.Print($"Unknown art object ID: {args[0]}");
                 return false;
             }
-            result += String.Join(", ", LevelManager.ArtObjects.Keys);
+            result += string.Join(", ", LevelManager.ArtObjects.Keys);
 			FezugConsole.Print(result);
 			return true;
 		}
@@ -167,7 +163,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-        public List<string> Autocomplete(string[] _args) { return new List<string> { }; }
+        public List<string> Autocomplete(string[] _args) { return []; }
 
         public bool Execute(string[] args)
         {
@@ -181,7 +177,7 @@ namespace FEZUG.Features
             {
                 PlayerManager.IgnoreFreefall = true;
                 PlayerManager.Position = artObjectInstance.Bounds.GetCenter();
-                return true; 
+                return true;
             }
             FezugConsole.Print("Art Object ID given does not exist in the current level.");
             return false;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FEZUG.Features.Console
+﻿namespace FEZUG.Features.Console
 {
     public interface IFezugCommand
     {

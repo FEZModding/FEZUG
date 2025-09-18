@@ -1,9 +1,4 @@
-﻿using Common;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using FezGame.Services;
+﻿using FezGame.Services;
 using FezEngine.Tools;
 using FEZUG.Features.Console;
 
@@ -25,7 +20,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-		public List<string> Autocomplete(string[] _args) { return new List<string> { }; }
+		public List<string> Autocomplete(string[] _args) { return []; }
 
 		public bool Execute(string[] args)
 		{
@@ -40,7 +35,7 @@ namespace FEZUG.Features
                         FezugConsole.Print($"To: {volume.To}");
                         FezugConsole.Print($"Bounding Box: {volume.BoundingBox}");
                         FezugConsole.Print($"Enabled: {volume.Enabled}");
-                        FezugConsole.Print($"Orientations: {String.Join(", ", volume.Orientations.OrderBy(a=>a).ToArray())}");
+                        FezugConsole.Print($"Orientations: {string.Join(", ", volume.Orientations.OrderBy(a=>a).ToArray())}");
                         if (volume.ActorSettings != null)
                         {
                             var actorSettings = volume.ActorSettings;
@@ -66,7 +61,7 @@ namespace FEZUG.Features
                             }
                             if(actorSettings.CodePattern != null && actorSettings.CodePattern.Length > 0)
                             {
-                                FezugConsole.Print($"CodePattern: {String.Join(", ", actorSettings.CodePattern)}");
+                                FezugConsole.Print($"CodePattern: {string.Join(", ", actorSettings.CodePattern)}");
                             }
                         }
                         return true;
@@ -107,7 +102,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-        public List<string> Autocomplete(string[] _args) { return new List<string> { }; }
+        public List<string> Autocomplete(string[] _args) { return []; }
 
         public bool Execute(string[] args)
         {
@@ -128,7 +123,7 @@ namespace FEZUG.Features
             var Volume = LevelManager.Volumes[int.Parse(args[0])];
             PlayerManager.IgnoreFreefall = true;
             PlayerManager.Position = (Volume.From + Volume.To) / 2.0f;
-            return true; 
+            return true;
         }
     }
 }

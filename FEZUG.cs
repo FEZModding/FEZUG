@@ -1,19 +1,9 @@
-﻿using Common;
-using FezEngine.Components;
-using FezEngine.Tools;
+﻿using FezEngine.Tools;
 using FezGame;
-using FezGame.Components;
-using FezGame.Services;
 using FEZUG.Features;
-using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG
 {
@@ -41,7 +31,7 @@ namespace FEZUG
 
             DrawingTools.Init();
 
-            Features = new List<IFezugFeature>();
+            Features = [];
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t)))
             {

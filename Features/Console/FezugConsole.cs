@@ -1,16 +1,9 @@
-﻿using Common;
-using FezEngine.Components;
-using FezEngine.Services;
-using FezEngine.Structure.Input;
+﻿using FezEngine.Components;
 using FezEngine.Tools;
-using FezGame.Services;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace FEZUG.Features.Console
@@ -20,7 +13,7 @@ namespace FEZUG.Features.Console
         public class ParsedCommand : List<string>
         {
             public string Command => this.Count() == 0 ? "" : this[0];
-            public string[] Arguments => this.Count() <= 1 ? new string[0] : this.Skip(1).ToArray();
+            public string[] Arguments => this.Count() <= 1 ? [] : [.. this.Skip(1)];
         }
 
         public class ParsedCommandSequence : List<ParsedCommand>
@@ -68,8 +61,8 @@ namespace FEZUG.Features.Console
 
                     if (endOfCommand)
                     {
-                        this.Add(currentTokens);
-                        currentTokens = new ParsedCommand();
+                        Add(currentTokens);
+                        currentTokens = [];
                     }
 
                     if (quote)
@@ -93,7 +86,7 @@ namespace FEZUG.Features.Console
                 // make sure remaining tokens get added
                 if(currentTokens.Count > 0)
                 {
-                    this.Add(currentTokens);
+                    Add(currentTokens);
                 }
             }
         }
@@ -101,7 +94,7 @@ namespace FEZUG.Features.Console
         public class AutocompletionManager
         {
             public List<string> SuggestedWords { get; private set; }
-            
+
             public CommandHandler ConsoleLine { get; private set; }
 
             private ParsedCommandSequence previousCommandSequence;
@@ -113,7 +106,7 @@ namespace FEZUG.Features.Console
             {
                 ConsoleLine = consoleLine;
 
-                SuggestedWords = new List<string>() { "" };
+                SuggestedWords = [""];
                 previousCommandSequence = new ParsedCommandSequence("");
             }
 
@@ -147,8 +140,8 @@ namespace FEZUG.Features.Console
                 // only one word in current command - autocomplete from all available commands and variables
                 if (command.Count == 1)
                 {
-                    SuggestedWords.AddRange(matchingCommands.Select(c => c.Name).ToList());
-                    SuggestedWords.AddRange(matchingVariables.Select(c => $"{c.Name} {c.ValueString}").ToList());
+                    SuggestedWords.AddRange([.. matchingCommands.Select(c => c.Name)]);
+                    SuggestedWords.AddRange([.. matchingVariables.Select(c => $"{c.Name} {c.ValueString}")]);
                 }
                 // more than one words - get a command-specific or variable-specific autocompletion
                 else if(command.Count > 1)
@@ -211,7 +204,7 @@ namespace FEZUG.Features.Console
             public List<IFezugCommand> Commands { get; private set; }
 
             private bool bufferChangedByUser;
-            private List<string> previousBufferInputs;
+            private readonly List<string> previousBufferInputs;
 
             private string _buffer;
             public string Buffer { get => _buffer; set
@@ -239,7 +232,7 @@ namespace FEZUG.Features.Console
 
                 TextInputEXT.TextInput += OnTextInput;
 
-                Commands = new List<IFezugCommand>();
+                Commands = [];
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t)))
                 {
@@ -255,14 +248,14 @@ namespace FEZUG.Features.Console
                         command = (IFezugCommand)Activator.CreateInstance(type);
                         ServiceHelper.InjectServices(command);
                     }
-                    
+
                     Commands.Add(command);
                 }
 
                 Enabled = false;
                 Buffer = "";
 
-                previousBufferInputs = new List<string>();
+                previousBufferInputs = [];
 
                 Autocompletion = new AutocompletionManager(this);
                 BufferChanged += Autocompletion.Refresh;
@@ -344,7 +337,7 @@ namespace FEZUG.Features.Console
                         {
                             FezugConsole.Print($"{variable.Name} = {variable.ValueString}");
                         }
-                        
+
                     }
                 }
             }
@@ -520,7 +513,7 @@ namespace FEZUG.Features.Console
             public Color Color;
         }
 
-        private static readonly Dictionary<OutputType, Color> ConsoleOutputTypeColors = new Dictionary<OutputType, Color>()
+        private static readonly Dictionary<OutputType, Color> ConsoleOutputTypeColors = new()
         {
             {OutputType.Info, Color.White},
             {OutputType.Warning, Color.Yellow},
@@ -545,7 +538,7 @@ namespace FEZUG.Features.Console
         {
             Handler = new CommandHandler();
 
-            outputBuffer = new List<ConsoleOutput>();
+            outputBuffer = [];
             OutputBufferLimit = 24;
         }
 
@@ -580,7 +573,7 @@ namespace FEZUG.Features.Console
 
         public static void Print(string text, Color color)
         {
-            foreach(var splitText in text.Split(new[] { '\n' }))
+            foreach(var splitText in text.Split(['\n']))
             {
                 Instance.Print(new ConsoleOutput
                 {
@@ -641,10 +634,10 @@ namespace FEZUG.Features.Console
                     new Color(100, 100, 100)
                 );
             }
-            
+
             // buffer text on top
             DrawingTools.DrawText(
-                $"> {Handler.Buffer}", 
+                $"> {Handler.Buffer}",
                 new Vector2(margin + padding * 2, commandY - 5),
                 Color.White
             );
@@ -671,7 +664,7 @@ namespace FEZUG.Features.Console
             var outputItemPos = 0;
             foreach(var outputLine in outputBuffer)
             {
-                List<string> lines = new List<string>();
+                List<string> lines = [];
                 string lineBuffer = "";
                 foreach(var word in outputLine.Text.Split(' '))
                 {

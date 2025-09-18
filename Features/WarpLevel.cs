@@ -1,19 +1,12 @@
-﻿using Common;
-using FezEngine.Components;
+﻿using FezEngine.Components;
 using FezEngine.Services;
-using FezEngine.Services.Scripting;
 using FezEngine.Tools;
 using FezGame;
 using FezGame.Services;
 using FezGame.Structure;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -33,9 +26,9 @@ namespace FEZUG.Features
         {
             get
             {
-				return MemoryContentManager.AssetNames
+				return [.. MemoryContentManager.AssetNames
 				.Where(s => s.ToLower().StartsWith($"levels\\"))
-				.Select(s => s.Substring("levels\\".Length)).ToList();
+				.Select(s => s.Substring("levels\\".Length))];
 			}
 		}
 
@@ -72,7 +65,7 @@ namespace FEZUG.Features
 			if(args.Length == 0)
             {
 				FezugConsole.Print("List of available levels:");
-				FezugConsole.Print(String.Join(", ", LevelList));
+				FezugConsole.Print(string.Join(", ", LevelList));
 				return true;
 			}
 
@@ -96,7 +89,7 @@ namespace FEZUG.Features
 			/* pre-warp safety measures */
 
 			// make sure no stuff from previous save remains after switching the save.
-			List<IWaiter> waitersToCancel = ServiceHelper.Game.Components.Where(comp => comp is IWaiter).Select(comp => comp as IWaiter).ToList();
+			List<IWaiter> waitersToCancel = [.. ServiceHelper.Game.Components.Where(comp => comp is IWaiter).Select(comp => comp as IWaiter)];
 			foreach (IWaiter waiter in waitersToCancel)
 			{
 				waiter.Cancel();
@@ -116,7 +109,7 @@ namespace FEZUG.Features
 					var TrackedCollectsField = SplitUpCubeHostType.GetField("TrackedCollects", BindingFlags.NonPublic | BindingFlags.Instance);
 					var TrackedCollects = TrackedCollectsField.GetValue(SplitUpCubeHost);
 					MethodInfo TrackedCollectsClear = TrackedCollects.GetType().GetMethod("Clear");
-					TrackedCollectsClear.Invoke(TrackedCollects, new object[] { });
+					TrackedCollectsClear.Invoke(TrackedCollects, []);
 				}
 			}
 
@@ -167,7 +160,7 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-			return LevelList.Where(s => s.ToLower().StartsWith($"{args[0]}")).ToList();
+			return [.. LevelList.Where(s => s.ToLower().StartsWith($"{args[0]}"))];
 		}
     }
 }

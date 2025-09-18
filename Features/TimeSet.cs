@@ -1,12 +1,7 @@
 ﻿using FezEngine.Services;
 using FezEngine.Tools;
 using FEZUG.Features.Console;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -23,21 +18,21 @@ namespace FEZUG.Features
         {
             if(args.Length == 1)
             {
-                return new string[] { "set", "speed" }.Where(s => s.StartsWith(args[0])).ToList();
+                return [.. new string[] { "set", "speed" }.Where(s => s.StartsWith(args[0]))];
             }else if(args.Length == 2)
             {
                 if (args[0].Equals("set"))
                 {
-                    return new string[]
+                    return [.. new string[]
                     {
                         TimeManager.CurrentTime.ToString("HH:mm"),
                         "dawn", "day", "dusk", "night", "real"
-                    }.Where(s => s.StartsWith(args[1])).ToList();
+                    }.Where(s => s.StartsWith(args[1]))];
                 }
                 if (args[0].Equals("speed") && args[1].Length == 0)
                 {
                     float curTime = TimeManager.TimeFactor / TimeManager.DefaultTimeFactor;
-                    return new List<string> { curTime.ToString("0.000", CultureInfo.InvariantCulture) , "real"};
+                    return [curTime.ToString("0.000", CultureInfo.InvariantCulture) , "real"];
                 }
             }
             return null;
@@ -68,7 +63,7 @@ namespace FEZUG.Features
                     }
                 }
                 TimeManager.CurrentTime = dateTime;
-                FezugConsole.Print($"Time has been set to {dateTime.ToString("H:mm")}.");
+                FezugConsole.Print($"Time has been set to {dateTime:H:mm}.");
             }
             else if(args[0] == "speed")
             {

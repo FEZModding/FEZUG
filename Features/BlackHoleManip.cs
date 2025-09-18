@@ -1,19 +1,10 @@
-﻿using Common;
-using FezEngine.Services;
-using FezEngine.Structure;
+﻿using FezEngine.Structure;
 using FezEngine.Tools;
-using FezGame;
 using FezGame.Components;
 using FezGame.Services;
 using FEZUG.Features.Console;
-using Microsoft.Xna.Framework;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -42,7 +33,7 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-            return new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args[0])).ToList();
+            return [.. new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args[0]))];
         }
 
         public bool Execute(string[] args)

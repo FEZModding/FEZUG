@@ -1,11 +1,5 @@
 ﻿using Common;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features.Console
 {
@@ -13,7 +7,7 @@ namespace FEZUG.Features.Console
     {
         public const string VariablesFileName = "FezugVars";
 
-        public static List<FezugVariable> DefinedList { get; private set; } = new List<FezugVariable>();
+        public static List<FezugVariable> DefinedList { get; private set; } = [];
         private static Dictionary<string, string> LoadedVariables { get; set; }
 
         public readonly string Name;
@@ -26,7 +20,7 @@ namespace FEZUG.Features.Console
 
         public string ValueString
         {
-            get => _valueString; 
+            get => _valueString;
             set
             {
                 if (value.Length == 0) return;
@@ -39,8 +33,8 @@ namespace FEZUG.Features.Console
             }
         }
 
-        public float ValueFloat { 
-            get => _valueFloat; 
+        public float ValueFloat {
+            get => _valueFloat;
             set
             {
                 _valueString = value.ToString();
@@ -51,7 +45,7 @@ namespace FEZUG.Features.Console
                 VariableChanged();
             }
         }
-        public int ValueInt { 
+        public int ValueInt {
             get => _valueInt;
             set
             {
@@ -63,7 +57,7 @@ namespace FEZUG.Features.Console
                 VariableChanged();
             }
         }
-        public bool ValueBool { 
+        public bool ValueBool {
             get => _valueBool;
             set
             {
@@ -125,27 +119,25 @@ namespace FEZUG.Features.Console
 
         private static void SaveVariables()
         {
-            using (StreamWriter varsFile = new StreamWriter(GetVariablesFilePath()))
+            using StreamWriter varsFile = new(GetVariablesFilePath());
+            foreach (var command in DefinedList)
             {
-                foreach (var command in DefinedList)
-                {
-                    if (!command.SaveOnChange) continue;
-                    varsFile.WriteLine($"{command.Name} {command.ValueString}");
-                }
+                if (!command.SaveOnChange) continue;
+                varsFile.WriteLine($"{command.Name} {command.ValueString}");
             }
         }
 
         private static void LoadVariables()
         {
             if (LoadedVariables != null) return;
-            LoadedVariables = new Dictionary<string, string>();
+            LoadedVariables = [];
 
             var varsFilePath = GetVariablesFilePath();
             if (!File.Exists(varsFilePath)) return;
             var varsFileLines = File.ReadAllLines(varsFilePath);
             foreach (var line in varsFileLines)
             {
-                string[] tokens = line.Split(new char[] { ' ' }, 2);
+                string[] tokens = line.Split([' '], 2);
                 if (tokens.Length < 2) continue;
 
                 LoadedVariables[tokens[0]] = tokens[1];

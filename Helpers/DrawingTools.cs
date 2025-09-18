@@ -28,7 +28,7 @@ namespace FEZUG.Helpers
                 DefaultFontSize = FontManager.BigFactor;
 
                 fillTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-                fillTexture.SetData(new[] { new Color(255, 255, 255) });
+                fillTexture.SetData([new Color(255, 255, 255)]);
             });
         }
 

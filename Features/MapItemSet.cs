@@ -1,12 +1,7 @@
 ﻿using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features
 {
@@ -21,26 +16,23 @@ namespace FEZUG.Features
 
         public List<string> GetMapList()
         {
-            return MemoryContentManager.AssetNames
+            return [.. MemoryContentManager.AssetNames
                 .Where(s => s.ToLower().StartsWith("other textures\\maps\\"))
                 .Select(s => Regex.Match(s.ToUpper(), @".*\\(.*?)(?:_\d+.*)").Groups[1].Value)
-                .Distinct().ToList();
+                .Distinct()];
         }
 
         public List<string> Autocomplete(string[] args)
         {
             if(args.Length == 1)
             {
-                return new string[] { "give", "remove", "list" }
-                .Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                return [.. new string[] { "give", "remove", "list" }.Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
             }
             if(args.Length == 2)
             {
-                return GetMapList()
+                return [.. GetMapList()
                     .Select(s=>s.ToLower())
-                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase))];
             }
             return null;
         }
@@ -60,16 +52,16 @@ namespace FEZUG.Features
                 if(args.Length >= 1 && (args[0] == "remove" || args[0] == "list"))
                 {
                     FezugConsole.Print($"List of maps in your inventory:");
-                    FezugConsole.Print($"{String.Join(", ", GameState.SaveData.Maps.Select(s=>s.ToLower()))}");
+                    FezugConsole.Print($"{string.Join(", ", GameState.SaveData.Maps.Select(s=>s.ToLower()))}");
                 }
                 else
                 {
                     FezugConsole.Print($"List of available maps:");
-                    FezugConsole.Print($"{String.Join(", ", mapList.Select(s => s.ToLower()))}");
+                    FezugConsole.Print($"{string.Join(", ", mapList.Select(s => s.ToLower()))}");
                 }
                 return true;
             }
-            
+
             var mapName = args[1].ToUpper();
 
             if (!mapList.Contains(args[1].ToUpper()))

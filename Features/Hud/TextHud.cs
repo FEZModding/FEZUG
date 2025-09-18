@@ -4,18 +4,13 @@ using FezGame.Services;
 using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEZUG.Features.Hud
 {
     public class TextHud : IFezugFeature
     {
-        private List<(FezugVariable var, Func<string> provider)> hudVars = [];
+        private readonly List<(FezugVariable var, Func<string> provider)> hudVars = [];
 
         private FezugVariable hud_hide;
 
@@ -60,7 +55,7 @@ namespace FEZUG.Features.Hud
             CreateHudVariable("hud_velocity", "Gomez's velocity", () => $"Velocity: {FormatVector3(PlayerManager.Velocity)}");
             CreateHudVariable("hud_state", "Gomez's state", () => $"State: {PlayerManager.Action}");
             CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
-            CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay.ToString(@"hh':'mm':'ss")}");
+            CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay:hh':'mm':'ss}");
 
             hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
             {
@@ -98,33 +93,11 @@ namespace FEZUG.Features.Hud
                 $"FEZUG {Fezug.Version}"
             };
 
-            foreach (var hudVar in hudVars)
+            foreach (var (var, provider) in hudVars)
             {
-                if(hudVar.var.ValueBool)
+                if(var.ValueBool)
                 {
-                    linesToDraw.Add(hudVar.provider());
-                }
-            }
-
-            {
-                string Viewpoint = "";
-                switch (CameraManager.Viewpoint)
-                {
-                    case FezEngine.Viewpoint.Back:
-                        Viewpoint = "Back";
-                        break;
-                    case FezEngine.Viewpoint.Left:
-                        Viewpoint = "Left";
-                        break;
-                    case FezEngine.Viewpoint.Right:
-                        Viewpoint = "Right";
-                        break;
-                    case FezEngine.Viewpoint.Front:
-                        Viewpoint = "Front";
-                        break;
-                    default:
-                        Viewpoint = "Other";
-                        break;
+                    linesToDraw.Add(provider());
                 }
             }
 
@@ -143,7 +116,7 @@ namespace FEZUG.Features.Hud
 
             DrawingTools.DrawRect(new Rectangle((int)(position.X + margin), (int)(position.Y + margin), (int)width, (int)height), new Color(10, 10, 10, 220));
 
-            
+
             for (int i = 0; i < linesToDraw.Count; i++)
             {
                 var line = linesToDraw[i];
