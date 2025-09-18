@@ -392,6 +392,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/
 
 # Dependencies which shouldn't be included, as they're part of FEZ
 Dependencies/*
