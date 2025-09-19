@@ -241,7 +241,7 @@ namespace FEZUG.Features.Console
 
                 Commands = new List<IFezugCommand>();
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t)))
+                .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t) && !t.IsAbstract))
                 {
                     IFezugCommand command;
                     // command object could've been already creates as a feature - look for it first
