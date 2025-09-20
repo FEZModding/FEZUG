@@ -1,7 +1,7 @@
 ﻿using FezEngine.Services;
 using FezEngine.Tools;
-using FezGame.Services;
 using FEZUG.Features.Console;
+using Microsoft.Xna.Framework.Graphics;
 using System.Globalization;
 
 // Jenna1337 was here
@@ -9,32 +9,33 @@ using System.Globalization;
  * useful settings in Settings:
  * (
  * minus denotes restart required,
- * plus denotes FEZUG command has been added
- * question denotes needs testing
- * slash denotes unused
+ * plus denotes FEZUG command has been added,
+ * question denotes needs testing,
+ * slash denotes unused,
+ * exclamation denotes unsafe
  * )
-public ScreenMode ScreenMode
-public ScaleMode ScaleMode
++ public ScreenMode ScreenMode
++ public ScaleMode ScaleMode
 + public int Width
 + public int Height
 - public bool HighDPI
 + public float SoundVolume
 + public float MusicVolume
-? public bool Vibration
-public bool PauseOnLostFocus
++ public bool Vibration
++ public bool PauseOnLostFocus
 - public bool Singlethreaded
-public float Brightness
-public int DeadZone
-public bool DisableController
++ public float Brightness
++ public int DeadZone
+- public bool DisableController
 / public bool InvertMouse
-public bool InvertLook
-public bool InvertLookX
-public bool InvertLookY
-public bool VSync
-public bool HardwareInstancing
++ public bool InvertLook
++ public bool InvertLookX
++ public bool InvertLookY
++ public bool VSync
+! public bool HardwareInstancing
 - public int MultiSampleCount
 - public bool MultiSampleOption
-public bool Lighting
++ public bool Lighting
 - public bool DisableSteamworks
  */
 namespace FEZUG.Features
@@ -326,10 +327,115 @@ namespace FEZUG.Features
 
         public override bool Value
         {
-            get => SettingsManager.Settings.Vibration;
+            get => SettingsManager.Settings.Vibration; set => SettingsManager.Settings.Vibration = value;
+        }
+    }
+    public class SettingPauseOnLostFocus : FezugVariableBoolean
+    {
+        public override string Name => "setting_pauseonlostfocus";
+        public override string FlavorText => "Pause on lost focus";
+        public override string HelpTextFlavor => "if the game pauses when the window loses focus";
+
+        public override bool Value
+        {
+            get => SettingsManager.Settings.PauseOnLostFocus; set => SettingsManager.Settings.PauseOnLostFocus = value;
+        }
+    }
+    public class SettingInvertLook : FezugVariableBoolean
+    {
+        public override string Name => "setting_invertlook";
+        public override string FlavorText => "First-person look inverted?";
+        public override string HelpTextFlavor => "invert X and Y axes when looking around in first-person mode setting";
+
+        private static bool LastValue = false;
+
+        public override bool Value
+        {
+            get => LastValue; set => LastValue = SettingsManager.Settings.InvertLook = value;
+        }
+    }
+    public class SettingInvertLookX : FezugVariableBoolean
+    {
+        public override string Name => "setting_invertlookx";
+        public override string FlavorText => "First-person look X axis inverted?";
+        public override string HelpTextFlavor => "invert X axis when looking around in first-person mode setting";
+
+        public override bool Value
+        {
+            get => SettingsManager.Settings.InvertLookX; set => SettingsManager.Settings.InvertLookX = value;
+        }
+    }
+    public class SettingInvertLookY : FezugVariableBoolean
+    {
+        public override string Name => "setting_invertlooky";
+        public override string FlavorText => "First-person look Y axis inverted?";
+        public override string HelpTextFlavor => "invert Y axis when looking around in first-person mode setting";
+
+        public override bool Value
+        {
+            get => SettingsManager.Settings.InvertLookY; set => SettingsManager.Settings.InvertLookY = value;
+        }
+    }
+    public class SettingVSync : FezugVariableBoolean
+    {
+        public override string Name => "setting_vsync";
+        public override string FlavorText => "VSync";
+        public override string HelpTextFlavor => "VSync setting";
+
+        public override bool Value
+        {
+            get => SettingsManager.Settings.VSync;
             set
             {
-                SettingsManager.Settings.Vibration = value;
+                SettingsManager.Settings.VSync = value;
+                SettingsManager.Apply();
+            }
+        }
+    }
+    public class SettingLighting : FezugVariableBoolean
+    {
+        public override string Name => "setting_lighting";
+        public override string FlavorText => "Lighting setting";
+        public override string HelpTextFlavor => "lighting setting";
+
+        public override bool Value
+        {
+            get => SettingsManager.Settings.Lighting; set => SettingsManager.Settings.Lighting = value;
+        }
+    }
+    public class SettingBrightness : FezugVariableNumber
+    {
+        public override string Name => "setting_brightness";
+        public override string FlavorText => "Brightness setting";
+        public override string HelpTextFlavor => "brightness setting";
+
+        public override float Value
+        {
+            get => SettingsManager.Settings.Brightness;
+            set
+            {
+                SettingsManager.Settings.Brightness = value;
+                ServiceHelper.Get<GraphicsDevice>().SetGamma(value);
+            }
+        }
+    }
+    public class SettingDeadZone : FezugVariableNumber
+    {
+        public override string Name => "setting_deadzone";
+        public override string FlavorText => "Controller deadzone percentage";
+        public override string HelpTextFlavor => "controller deadzone percentage";
+
+        public SettingDeadZone() : base()
+        {
+            DecimalPlaces = 0;
+        }
+
+        public override float Value
+        {
+            get => SettingsManager.Settings.DeadZone;
+            set
+            {
+                SettingsManager.Settings.DeadZone = (int)value;
             }
         }
     }
