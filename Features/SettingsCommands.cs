@@ -439,4 +439,38 @@ namespace FEZUG.Features
             }
         }
     }
+    public class SettingMaxFps : FezugVariableNumber
+    {
+        public override string Name => "fps_max";
+        public override string FlavorText => "Max frames per second";
+        public override string HelpTextFlavor => "maxinum number of frames per second";
+
+        private static int fpsMax = -1;
+
+        public SettingMaxFps() : base()
+        {
+            DecimalPlaces = 0;
+        }
+
+        public override float Value
+        {
+            get => fpsMax;
+            set
+            {
+                int castedValue = (int)value;
+                if (castedValue > 0)
+                {
+                    //Note: if this is less than 2 frames per second, it becomes impossible to type into the FEZUG console
+                    castedValue = Math.Max(2, castedValue);
+                    Fezug.Fez.IsFixedTimeStep = true;
+                    Fezug.Fez.TargetElapsedTime = TimeSpan.FromSeconds(1f / castedValue);
+                    fpsMax = castedValue;
+                }
+                else{
+                    fpsMax = -1;
+                    Fezug.Fez.IsFixedTimeStep = false;
+                }
+            }
+        }
+    }
 }
