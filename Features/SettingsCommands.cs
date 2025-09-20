@@ -101,33 +101,27 @@ namespace FEZUG.Features
         }
 
     }
-    public abstract class FezugVariableBoolean : IFezugCommand
+    public abstract class FezugVariableMultipleChoice<T> : IFezugCommand
     {
-        readonly Dictionary<string, Func<string>> options;
+        protected Dictionary<string, Func<string>> options;
 
-        public abstract bool Value { get; set; }
+        public abstract T Value { get; set; }
         public abstract string Name { get; }
         public abstract string FlavorText { get; }
         public abstract string HelpTextFlavor { get; }
-        public string HelpText => Name + " <on/off/toggle> - changes the state of " + HelpTextFlavor;
+        public string HelpText => Name + " <" + string.Join("/", options.Keys) + "> - changes the state of " + HelpTextFlavor;
 
         public List<string> Autocomplete(string[] args)
         {
-            return new string[] { "on", "off", "toggle" }.Where(s => s.StartsWith(args[0])).ToList();
+            return options.Keys.Where(s => s.StartsWith(args[0], true, CultureInfo.InvariantCulture)).ToList();
         }
 
-        public FezugVariableBoolean()
+        public FezugVariableMultipleChoice()
         {
             ServiceHelper.InjectServices(this);
-
-            options = new(){
-                {"on", ()=>{ Value = true; return " has been enabled."; }},
-                {"off", ()=>{ Value = false; return " has been disabled."; }},
-                {"toggle", ()=>{ return $" has been toggled to {((Value = !Value) ? "enable" : "disable")}."; }}
-            };
         }
 
-        public bool Execute(string[] args)
+        public virtual bool Execute(string[] args)
         {
             if (args.Length != 1)
             {
@@ -138,6 +132,61 @@ namespace FEZUG.Features
             if (options.TryGetValue(args[0], out var action))
             {
                 FezugConsole.Print(FlavorText + action());
+            }
+            else
+            {
+                FezugConsole.Print($"Unknown parameter: '{args[0]}'", FezugConsole.OutputType.Warning);
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public abstract class FezugVariableBoolean : FezugVariableMultipleChoice<bool>
+    {
+        public FezugVariableBoolean() : base()
+        {
+            options = new(){
+                {"on", ()=>{ Value = true; return " has been enabled."; }},
+                {"off", ()=>{ Value = false; return " has been disabled."; }},
+                {"toggle", ()=>{ return $" has been toggled to {((Value = !Value) ? "enable" : "disable")}."; }}
+            };
+        }
+    }
+    public abstract class FezugVariableEnum<T> : FezugVariableMultipleChoice<T> where T : struct
+    {
+        public FezugVariableEnum() : base()
+        {
+            Type type = typeof(T);
+            if (type.IsEnum == true)
+            {
+                options = Enum.GetNames(type).ToDictionary<string, string, Func<string>>(name => name,
+                    name => {
+                        var value = Enum.Parse(type, name);
+                        return () => {
+                            Value = (T)value;
+                            return " has been set to " + name;
+                        };
+                    });
+            }
+            else
+            {
+                throw new ArgumentException("Type \"" + type.Name + "\" is not an enum");
+            }
+        }
+        public override bool Execute(string[] args)
+        {
+            if (args.Length != 1)
+            {
+                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
+                return false;
+            }
+
+            if (Enum.TryParse<T>(args[0], true, out T value) && Enum.IsDefined(typeof(T), value))
+            {
+                Value = (T)value;
+                FezugConsole.Print(FlavorText + " has been set to " + Enum.GetName(typeof(T), value));
             }
             else
             {
@@ -161,6 +210,36 @@ namespace FEZUG.Features
 
     //    public override bool Value { get => GameState.StereoMode; set => GameState.StereoMode = value; }
     //}
+    public class SettingScreenMode : FezugVariableEnum<ScreenMode>
+    {
+        public override string Name => "setting_screen_mode";
+        public override string FlavorText => "Screen mode";
+        public override string HelpTextFlavor => "the screen mode. like full screen vs windowed, etc.";
+
+        public override ScreenMode Value {
+            get => SettingsManager.Settings.ScreenMode;
+            set
+            {
+                SettingsManager.Settings.ScreenMode = value;
+                SettingsManager.Apply();
+            }
+        }
+    }
+    public class SettingScaleMode : FezugVariableEnum<ScaleMode>
+    {
+        public override string Name => "setting_scale_mode";
+        public override string FlavorText => "Scale mode";
+        public override string HelpTextFlavor => "the scaling mode. like pixel-perfect scaling";
+
+        public override ScaleMode Value {
+            get => SettingsManager.Settings.ScaleMode;
+            set
+            {
+                SettingsManager.Settings.ScaleMode = value;
+                SettingsManager.Apply();
+            }
+        }
+    }
     public class SettingWindowWidth : FezugVariableNumber
     {
         public override string Name => "setting_width";

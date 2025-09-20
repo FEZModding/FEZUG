@@ -1,11 +1,11 @@
 <Project>
     <PropertyGroup>
         <!--remove this property-->
-        <UserPropertiesNotSetUp>True</UserPropertiesNotSetUp>
+        <UserPropertiesNotSetUp>False</UserPropertiesNotSetUp>
         <!--Insert path to FEZ game directory here-->
-        <FezDir></FezDir> 
+        <FezDir>Dependencies</FezDir> 
         <!--Insert path to where MonoMod is here-->
-        <MonoModDir></MonoModDir> 
+        <MonoModDir>Dependencies</MonoModDir> 
         <!--Insert path to where your mod should build to (it will build to "out" directory by default)-->
         <ModOutputDir></ModOutputDir> 
     </PropertyGroup>
