@@ -6,20 +6,12 @@ using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace FEZUG.Features.Hud
 {
     public class FpsGraph : IFezugFeature
     {
-        private Dictionary<string, (FezugVariable var, Color lineColor, List<double> pastVals)> graphVars = [];
+        private readonly Dictionary<string, (FezugVariable fezugVar, Color lineColor, List<double> pastVals)> graphVars = [];
         private FezugVariable hud_graph_hide, graph_maxcount, graph_interval;
 
         private HudPositioner Positioner;
@@ -40,9 +32,9 @@ namespace FEZUG.Features.Hud
 
         public void Initialize()
         {
-            void CreateGraphVariable(string name, string desc, Color lineColor)
+            void CreateGraphVariable(string id, string name, string desc, Color lineColor)
             {
-                graphVars.Add(name, (new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
+                graphVars.Add(id, (new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
                 {
                     SaveOnChange = true,
                     Min = 0,
@@ -50,8 +42,8 @@ namespace FEZUG.Features.Hud
                 }, lineColor, []));
             }
 
-            CreateGraphVariable("graph_ups", "updates per second", Color.Cyan);
-            CreateGraphVariable("graph_fps", "frames per second", Color.Orange);
+            CreateGraphVariable("ups", "graph_ups", "updates per second", Color.Cyan);
+            CreateGraphVariable("fps", "graph_fps", "frames per second", Color.Orange);
 
             graph_maxcount = new FezugVariable("graph_maxcount", $"Sets the maximum number of entries on the FPS graph.", "100")
             {
@@ -65,11 +57,6 @@ namespace FEZUG.Features.Hud
                 Min = 5,
                 Max = 60 * 60 // 1 minute
             };
-            //graph_interval.OnChanged += ()=>
-            //{
-            //    _framesRendered = 0;
-            //    _updatesDone = 0;
-            //};
             hud_graph_hide = new FezugVariable("hud_hide_graph", "If set, hides FPS graph entirely when console is not opened.", "0")
             {
                 SaveOnChange = true,
@@ -78,11 +65,6 @@ namespace FEZUG.Features.Hud
             };
 
             Positioner = new HudPositioner("graph", "fps graph", 1.0f, 0.0f);
-        }
-
-        private void DrawText(string text, Vector2 pos)
-        {
-            DrawingTools.DrawText(text, pos, Color.White);
         }
 
         private ulong _updatesDone = 0, _framesRendered = 0, _ups = 0, _fps = 0;
@@ -112,14 +94,13 @@ namespace FEZUG.Features.Hud
                 static void PushCircular<T>(List<T> arr, T val, int maxSize)
                 {
                     arr.Add(val);
-                    //TODO use arr.Skip instead of this while loop
                     while (arr.Count > maxSize)
                     {
                         arr.RemoveAt(0);
                     }
                 }
-                PushCircular(graphVars["graph_fps"].pastVals, _fps / elapsedSeconds, MaxBufferSize);
-                PushCircular(graphVars["graph_ups"].pastVals, _ups / elapsedSeconds, MaxBufferSize);
+                PushCircular(graphVars["fps"].pastVals, _fps / elapsedSeconds, MaxBufferSize);
+                PushCircular(graphVars["ups"].pastVals, _ups / elapsedSeconds, MaxBufferSize);
                 _lastTime = DateTime.Now;
             }
 
@@ -128,41 +109,65 @@ namespace FEZUG.Features.Hud
                 var console = Fezug.GetFeature<FezugConsole>();
                 if (!console.Handler.Enabled) return;
             }
-            if(graphVars.Values.Select(v=>v.var.ValueBool).All(b=>!b))
+            if (graphVars.Values.Select(v => v.fezugVar.ValueBool).All(b => !b))
             {
                 return;
             }
 
+            var varsForDrawing = graphVars.Where(v => v.Value.fezugVar.ValueBool && v.Value.pastVals.Count > 1);
+            if (!varsForDrawing.Any())
+            {
+                return;
+            }
+
+            int enabledCount = varsForDrawing.Count();
             float padX = 10.0f;
             Viewport viewport = DrawingTools.GraphicsDevice.Viewport;
             float width = viewport.Width * 0.3f + padX * 2;
             float height = viewport.Height * 0.3f + 15;
+            float padding = 5f;
             int margin = 5;
             var position = Positioner.GetPosition(width + 2 * margin, height + 2 * margin);
 
             DrawingTools.DrawRect(new Rectangle((int)(position.X + margin), (int)(position.Y + margin), (int)width, (int)height), new Color(10, 10, 10, 220));
 
-            var xOff = position.X + margin;
-            var yOff = position.Y + margin;
+            var xOff = position.X + margin + padding;
+            var yOff = position.Y + margin + padding;
+            Vector2 boxTopLeft = new(xOff, yOff);
+            width -= padding;
+            height -= padding;
             var lineThickness = 2;// Math.Max(1, (int)Math.Ceiling(Math.Min(viewport.Width, viewport.Height) * 0.003f));
+            var avgLineColorAdjust = 0.5f;
+            float textHeight = DrawingTools.DefaultFont.MeasureString("A").Y * DrawingTools.DefaultFontSize;
 
-            foreach (var (var, lineColor, pastVals) in graphVars.Values)
+            int displayTextIndex = 0;
+            foreach (var pair in varsForDrawing)
             {
-                if (var.ValueBool && pastVals.Count > 1)
+                var (fezugVar, lineColor, pastVals) = pair.Value;
+                if (fezugVar.ValueBool && pastVals.Count > 1)
                 {
+                    var avgLineColor = Color.Multiply(lineColor, avgLineColorAdjust);
+                    avgLineColor.A /= 2;
                     float max = (float)pastVals.Max();
-                    var xScale = width / (pastVals.Count - 1);
-                    var yScale = height / max;
+                    var xScale = (width - padding) / (pastVals.Count - 1);
+                    var yScale = (height - padding) / max;
+                    Vector2 previousPoint = boxTopLeft + new Vector2(0, yScale * (float)pastVals[0]);
                     for (int i=1; i<pastVals.Count; ++i)
                     {
-                        var p = i - 1;
                         //draw line in box
-                        Vector2 point1 = new(xOff + xScale * p, (int)(yOff + yScale * pastVals[p]));
-                        Vector2 point2 = new(xOff + xScale * i, (int)(yOff + yScale * pastVals[i]));
-                        DrawingTools.DrawLineSegment(point1, point2, lineColor, lineThickness);
+                        Vector2 nextPoint = boxTopLeft + new Vector2(xScale * i, (float)(yScale * pastVals[i]));
+                        DrawingTools.DrawLineSegment(previousPoint, nextPoint, lineColor, lineThickness);
                         //draw line joints / nodes
                         //DrawingTools.DrawRect(new Rectangle((int)point1.X + lineThickness, (int)point1.Y, lineThickness, lineThickness), lineColor);
+                        previousPoint = nextPoint;
                     }
+                    float avg = (float)pastVals.Average();
+                    float avgPosY = yOff + avg * yScale;
+                    //draw average
+                    Vector2 avgTextPos = new Vector2(xOff, yOff + textHeight * (enabledCount - 1 - displayTextIndex));
+                    DrawingTools.DrawLineSegment(new(xOff, avgPosY), new(xOff + width, avgPosY), avgLineColor, lineThickness);
+                    DrawingTools.DrawText(pair.Key.ToUpper() + " (avg): " + avg, avgTextPos, avgLineColor);
+                    ++displayTextIndex;
                 }
             }
         }
