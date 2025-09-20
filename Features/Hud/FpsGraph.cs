@@ -51,11 +51,11 @@ namespace FEZUG.Features.Hud
                 Min = 2,
                 Max = 1000
             };
-            graph_interval = new FezugVariable("graph_interval", $"Sets the logging inverval for graph data, in 60ths of a second.", "60")
+            graph_interval = new FezugVariable("graph_interval", $"Sets the logging inverval for graph data, in milliseconds.", "1000")
             {
                 SaveOnChange = true,
-                Min = 5,
-                Max = 60 * 60 // 1 minute
+                Min = 10,
+                Max = 60 * 1000 // 1 minute
             };
             hud_graph_hide = new FezugVariable("hud_hide_graph", "If set, hides FPS graph entirely when console is not opened.", "0")
             {
@@ -78,7 +78,7 @@ namespace FEZUG.Features.Hud
         public void DrawLevel(GameTime gameTime) { }
 
         public int MaxBufferSize => graph_maxcount.ValueInt;
-        public float GraphUpdateIntervalSeconds => graph_interval.ValueFloat / 60f;
+        public float GraphUpdateIntervalSeconds => graph_interval.ValueFloat / 1000;
         public void DrawHUD(GameTime gameTime)
         {
             _framesRendered++;
