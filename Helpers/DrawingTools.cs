@@ -74,5 +74,23 @@ namespace FEZUG.Helpers
             );
         }
 
+        public static void DrawLineSegment(Vector2 point1, Vector2 point2, Color color, int lineWidth)
+        {
+            float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
+            float length = Vector2.Distance(point1, point2);
+
+            Batch.Draw(
+                fillTexture,
+                point1,
+                null,
+                color,
+                angle,
+                Vector2.Zero, // Origin of the texture, usually top-left for a line
+                new Vector2(length, lineWidth), // Scale X by length, Y by desired line thickness
+                SpriteEffects.None,
+                0f
+            );
+        }
+
     }
 }
