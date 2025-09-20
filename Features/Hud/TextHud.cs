@@ -1,4 +1,5 @@
-﻿using FezEngine.Services;
+﻿using FezEngine.Components;
+using FezEngine.Services;
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
@@ -26,6 +27,8 @@ namespace FEZUG.Features.Hud
 
         [ServiceDependency]
         public IPlayerManager PlayerManager { private get; set; }
+        [ServiceDependency]
+        public IInputManager InputManager { private get; set; }
 
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
@@ -47,6 +50,12 @@ namespace FEZUG.Features.Hud
                     Max = 1
                 }, provider));
             }
+            string FormatVector2(Vector2 vector3)
+            {
+                string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
+                string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
+                return $"(X:{posX} Y:{posY})";
+            }
             string FormatVector3(Vector3 vector3)
             {
                 string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
@@ -55,9 +64,13 @@ namespace FEZUG.Features.Hud
                 return $"(X:{posX} Y:{posY} Z:{posZ})";
             }
 
+            CreateHudVariable("hud_fps", "frames per second", () => $"FPS: {_fps}");
+            CreateHudVariable("hud_ups", "updates per second", () => $"UPS: {_ups}");
             CreateHudVariable("hud_level", "level", () => $"Level: {LevelManager.Name}");
             CreateHudVariable("hud_position", "Gomez's position", () => $"Position: {FormatVector3(PlayerManager.Position)}");
             CreateHudVariable("hud_velocity", "Gomez's velocity", () => $"Velocity: {FormatVector3(PlayerManager.Velocity)}");
+            CreateHudVariable("hud_movement", "Input movement vector (left stick)", () => $"Movement: {FormatVector2(InputManager.Movement)}");
+            CreateHudVariable("hud_freelook", "Input freelook vector (right stick)", () => $"Freelook: {FormatVector2(InputManager.FreeLook)}");
             CreateHudVariable("hud_state", "Gomez's state", () => $"State: {PlayerManager.Action}");
             CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
             CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay.ToString(@"hh':'mm':'ss")}");
@@ -77,15 +90,30 @@ namespace FEZUG.Features.Hud
             DrawingTools.DrawText(text, pos, Color.White);
         }
 
+        private ulong _updatesDone = 0, _framesRendered = 0, _ups = 0, _fps = 0;
+        private DateTime _lastTime = DateTime.Now;
+
         public void Update(GameTime gameTime)
         {
-
+            _updatesDone++;
         }
 
         public void DrawLevel(GameTime gameTime) { }
 
         public void DrawHUD(GameTime gameTime)
         {
+            _framesRendered++;
+            if ((DateTime.Now - _lastTime).TotalSeconds >= 1)
+            {
+                // one second has elapsed 
+
+                _fps = _framesRendered;
+                _framesRendered = 0;
+                _ups = _updatesDone;
+                _updatesDone = 0;
+                _lastTime = DateTime.Now;
+            }
+
             if(hud_hide.ValueBool)
             {
                 var console = Fezug.GetFeature<FezugConsole>();
