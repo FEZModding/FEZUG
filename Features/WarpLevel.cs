@@ -1,5 +1,6 @@
 ﻿using FezEngine.Components;
 using FezEngine.Services;
+using FezEngine.Structure;
 using FezEngine.Tools;
 using FezGame;
 using FezGame.Services;
@@ -88,8 +89,34 @@ namespace FEZUG.Features
         {
 			/* pre-warp safety measures */
 
-			// make sure no stuff from previous save remains after switching the save.
-			List<IWaiter> waitersToCancel = [.. ServiceHelper.Game.Components.Where(comp => comp is IWaiter).Select(comp => comp as IWaiter)];
+			// force menu cube closed
+			{
+				GameState.SkipRendering = false;
+				LevelManager.SkipInvalidation = false;
+				GameState.SkyOpacity = 1f;
+				var matches = ServiceHelper.Game.Components.Where(c => c.GetType().Name == "MenuCube");
+				if (matches.Any())
+				{
+					var menuCube = matches.First();
+					IEnumerable<ArtObjectInstance> ArtifactAOs = (IEnumerable<ArtObjectInstance>)
+							typeof(Fez).Assembly.GetType("FezGame.Components.MenuCube")
+							.GetField("ArtifactAOs", BindingFlags.Instance | BindingFlags.NonPublic)
+							.GetValue(menuCube);
+
+					foreach (ArtObjectInstance artifactAO in ArtifactAOs)
+					{
+						artifactAO.SoftDispose();
+						LevelManager.ArtObjects.Remove(artifactAO.Id);
+					}
+					ServiceHelper.Get<FezEngine.Services.Scripting.IGameService>().CloseScroll(null);
+					GameState.InMenuCube = false;
+					GameState.DisallowRotation = false;
+					ServiceHelper.RemoveComponent(menuCube);
+				}
+			}
+
+            // make sure no stuff from previous save remains after switching the save.
+            List<IWaiter> waitersToCancel = [.. ServiceHelper.Game.Components.Where(comp => comp is IWaiter).Select(comp => comp as IWaiter)];
 			foreach (IWaiter waiter in waitersToCancel)
 			{
 				waiter.Cancel();
@@ -143,8 +170,12 @@ namespace FEZUG.Features
 
 			// level change logic
 			GameState.Loading = true;
-			LevelManager.ChangeLevel(levelName);
-			CameraManager.Center = PlayerManager.Position + Vector3.Up * PlayerManager.Size.Y / 2f + Vector3.UnitY;
+            // setting PlayerManager.Action to WakingUp fixes an infinite loop when menu cube is open
+            var lastAction = PlayerManager.Action;
+			PlayerManager.Action = ActionType.WakingUp;
+            LevelManager.ChangeLevel(levelName);
+            PlayerManager.Action = lastAction;
+            CameraManager.Center = PlayerManager.Position + Vector3.Up * PlayerManager.Size.Y / 2f + Vector3.UnitY;
 			CameraManager.SnapInterpolation();
 			LevelMaterializer.CullInstances();
 			GameState.ScheduleLoadEnd = true;
