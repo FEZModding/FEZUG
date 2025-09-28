@@ -1,111 +1,53 @@
-﻿using FezEngine.Effects;
-using FezEngine.Structure;
+﻿using FezEngine.Structure;
 using FezEngine.Tools;
-using FezGame.Services;
-using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace FEZUG.Features
 {
-    internal class GomezHitboxDraw : IFezugFeature
+    internal class GomezHitboxDraw : WireframeDraw
     {
-        private Mesh TrileBoundingBox;
+        private Mesh GomezBoundingBox;
+        public static GomezHitboxDraw Instance;
 
-        public static bool WireframesEnabled;
-
-
-        [ServiceDependency]
-        public IGameLevelManager LevelManager { private get; set; }
-
-        [ServiceDependency]
-        public IGameStateManager GameState { get; set; }
-
-        [ServiceDependency]
-        public IPlayerManager PlayerManager { private get; set; }
-
-        public void Initialize()
+        public GomezHitboxDraw() : base()
         {
-            DrawActionScheduler.Schedule(delegate
-            {
-                var effect = new DefaultEffect.LitVertexColored
-                {
-                    Specular = true,
-                    Emissive = 1.0f,
-                    AlphaIsEmissive = true
-                };
-
-                Color trileColor = Color.Red;
-
-                TrileBoundingBox = new Mesh
-                {
-                    DepthWrites = false,
-                    Blending = BlendingMode.Alphablending,
-                    Culling = CullMode.CullClockwiseFace,
-                    Effect = effect
-                };
-
-                Color c = trileColor;
-                TrileBoundingBox.AddWireframeBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
-                TrileBoundingBox.AddColoredBox(Vector3.One, Vector3.Zero, new Color(c.R, c.G, c.B, 32), true);
-
-            });
+            Instance = this;
         }
 
-        public void Update(GameTime gameTime) { }
+        protected override Mesh[] RefreshBoundingBoxMeshs()
+        {
+            return [GomezBoundingBox = CreateHitboxMesh(Color.Red)];
+        }
 
-        public void DrawLevel(GameTime gameTime)
+        public override void DrawLevel(GameTime gameTime)
         {
             if (!WireframesEnabled || GameState.Loading || LevelManager.Name == null) return;
 
             DrawingTools.GraphicsDevice.PrepareStencilWrite(StencilMask.Gomez);
 
-            var trilebb = TrileBoundingBox;
-            trilebb.Position = PlayerManager.Position;
-            trilebb.Scale = PlayerManager.Size;
-            trilebb.Draw();
+            var gomezbb = GomezBoundingBox;
+            gomezbb.Position = PlayerManager.Position;
+            gomezbb.Scale = PlayerManager.Size;
+            gomezbb.Draw();
 
             DrawingTools.GraphicsDevice.PrepareStencilWrite(StencilMask.None);
         }
 
-        public void DrawHUD(GameTime gameTime)
+        protected override void RefreshLevelList() { }
+
+
+
+
+        class GomezHitboxDrawToggleCommand : WireframesDrawToggleCommand
         {
-
-        }
-
-
-
-
-        class InvisibleTrilesDrawToggleCommand : IFezugCommand
-        {
-            public string Name => "gomezhitbox";
-
-            public string HelpText => "gomezhitbox [on/off] - draws hitbox for Gomez";
-
-            public List<string> Autocomplete(string[] args)
+            protected override string WhatFor => "Gomez";
+            public override bool WireframesEnabled
             {
-                return [.. new string[] { "on", "off" }.Where(s => s.StartsWith(args[0]))];
+                get => Instance.WireframesEnabled;
+                set => Instance.WireframesEnabled = value;
             }
-
-            public bool Execute(string[] args)
-            {
-                if (args.Length != 1)
-                {
-                    FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
-                    return false;
-                }
-
-                if(args[0] != "on" && args[0] != "off")
-                {
-                    FezugConsole.Print($"Invalid argument: '{args[0]}'", FezugConsole.OutputType.Warning);
-                    return false;
-                }
-
-                WireframesEnabled = args[0] == "on";
-                FezugConsole.Print($"Gomez hitbox wireframes have been {(WireframesEnabled ? "enabled" : "disabled")}.");
-                return true;
-            }
+            public override Mesh[] BoundingBoxes => Instance.BoundingBoxes;
         }
     }
 }

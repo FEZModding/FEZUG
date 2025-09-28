@@ -33,7 +33,7 @@ namespace FEZUG
 
             Features = [];
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t)))
+            .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t) && !t.IsAbstract))
             {
                 IFezugFeature feature = (IFezugFeature)Activator.CreateInstance(type);
                 ServiceHelper.InjectServices(feature);
