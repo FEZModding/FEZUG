@@ -11,11 +11,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEZUG.Features
 {
-    internal class InvisibleTrilesWireframeDraw : WireframeDraw
+    internal class InvisibleTrilesDraw : WireframeDraw
     {
-        public static InvisibleTrilesWireframeDraw Instance;
+        public static InvisibleTrilesDraw Instance;
 
-        public InvisibleTrilesWireframeDraw() : base()
+        public InvisibleTrilesDraw() : base()
         {
             Instance = this;
         }
