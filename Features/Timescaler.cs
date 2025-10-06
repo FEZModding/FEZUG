@@ -1,4 +1,5 @@
-﻿using FEZUG.Features.Console;
+﻿using System.Diagnostics;
+using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
 using System.Globalization;
@@ -11,10 +12,13 @@ namespace FEZUG.Features
 {
     internal class Timescaler : IFezugCommand, IFezugFeature
     {
-        private IDetour gameTickILDetour;
+        private IDetour stopwatchTimestampDetour;
         private IDetour setSourcePitchDetour;
         private List<SoundEffectInstance> soundInstancePoolRef;
         private List<DynamicSoundEffectInstance> dynamicSoundInstancePoolRef;
+
+        private static long lastMeasuredRealTimestamp = 0;
+        private static long internalTimestamp = 0;
         
         public static float Timescale { get; private set; } = 1.0f;
 
@@ -58,17 +62,24 @@ namespace FEZUG.Features
 
         public void Initialize()
         {
-            var targetMethod = typeof(Game).GetMethod("Tick", BindingFlags.Public | BindingFlags.Instance);
-            gameTickILDetour = new ILHook(targetMethod, InjectTickMultiplier);
-            
+            InjectStopwatch();
             InitializeAudioHooksAndReferences();
         }
-        
-        void InjectTickMultiplier(ILContext il)
+
+        private void InjectStopwatch()
         {
-            var cursor = new ILCursor(il);
-            cursor.GotoNext(i => i.MatchCall("System.TimeSpan", "FromTicks"));
-            cursor.EmitDelegate<Func<long, long>>(ticks => (long)(ticks * Timescale));
+            // TODO?: This could've been done less invasively by manually handling all cases where Stopwatch is used
+            // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
+            
+            var stopwatchTimestampMethod = typeof(Stopwatch).GetMethod("GetTimestamp", BindingFlags.Public | BindingFlags.Static);
+            stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, (Func<long> original) =>
+            {
+                var originalTimestamp = original();
+                var elapsedSinceMeasure = originalTimestamp - lastMeasuredRealTimestamp;
+                internalTimestamp += (long)(elapsedSinceMeasure * Timescale);
+                lastMeasuredRealTimestamp = originalTimestamp;
+                return internalTimestamp;
+            });
         }
         
         private void InitializeAudioHooksAndReferences()
