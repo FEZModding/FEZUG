@@ -1,9 +1,9 @@
-﻿using FezGame;
-using FEZUG.Features.Console;
+﻿using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Xna.Framework.Audio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
@@ -12,7 +12,10 @@ namespace FEZUG.Features
     internal class Timescaler : IFezugCommand, IFezugFeature
     {
         private IDetour gameTickILDetour;
-
+        private IDetour setSourcePitchDetour;
+        private List<SoundEffectInstance> soundInstancePoolRef;
+        private List<DynamicSoundEffectInstance> dynamicSoundInstancePoolRef;
+        
         public static float Timescale { get; private set; } = 1.0f;
 
         public string Name => "timescale";
@@ -45,14 +48,22 @@ namespace FEZUG.Features
 
             return true;
         }
+        
+        private void SetTimescale(float timescale)
+        {
+            Timescale = Math.Min(Math.Max(timescale, 0.0001f), 100.0f);
+            RefreshSoundPitches();
+        }
 
 
         public void Initialize()
         {
             var targetMethod = typeof(Game).GetMethod("Tick", BindingFlags.Public | BindingFlags.Instance);
             gameTickILDetour = new ILHook(targetMethod, InjectTickMultiplier);
+            
+            InitializeAudioHooksAndReferences();
         }
-
+        
         void InjectTickMultiplier(ILContext il)
         {
             var cursor = new ILCursor(il);
@@ -60,15 +71,48 @@ namespace FEZUG.Features
             cursor.EmitDelegate<Func<long, long>>(ticks => (long)(ticks * Timescale));
         }
         
+        private void InitializeAudioHooksAndReferences()
+        {
+            var openAlDeviceType = typeof(SoundEffect).Assembly.GetType("Microsoft.Xna.Framework.Audio.OpenALDevice");
+            var setSourcePitchMethod = openAlDeviceType.GetMethod("SetSourcePitch", BindingFlags.Public | BindingFlags.Instance);
+            setSourcePitchDetour = new ILHook(setSourcePitchMethod, InjectPitchTweak);
+            
+            var audioDeviceType = Assembly.GetAssembly(typeof(SoundEffectInstance)).GetType("Microsoft.Xna.Framework.Audio.AudioDevice");
+            var soundInstancePoolField = audioDeviceType.GetField("InstancePool", BindingFlags.Public | BindingFlags.Static);
+            soundInstancePoolRef = (List<SoundEffectInstance>)soundInstancePoolField!.GetValue(null);
+            var dynamicSoundInstancePoolField = audioDeviceType.GetField("DynamicInstancePool", BindingFlags.Public | BindingFlags.Static);
+            dynamicSoundInstancePoolRef = (List<DynamicSoundEffectInstance>)dynamicSoundInstancePoolField!.GetValue(null);
+        }
+
+        private void InjectPitchTweak(ILContext il)
+        {
+            var cursor = new ILCursor(il);
+            
+            cursor.Emit(OpCodes.Ldarg_2); // load pitch param
+            cursor.EmitDelegate<Func<float, float>>(pitch => pitch + (float)Math.Log(Timescale, 2.0));
+            cursor.Emit(OpCodes.Starg, 2);
+            
+            cursor.Emit(OpCodes.Ldc_I4_0); // false
+            cursor.Emit(OpCodes.Starg, 3); // store to clamp argument
+        }
+        
+        private void RefreshSoundPitches()
+        {
+            // re-setting pitch to trigger our hook
+            foreach (var audio in soundInstancePoolRef)
+            {
+                audio.Pitch = audio.Pitch;
+            }
+            foreach (var audio in dynamicSoundInstancePoolRef)
+            {
+                audio.Pitch = audio.Pitch;
+            }
+        }
+        
         public void Update(GameTime gameTime){}
 
         public void DrawHUD(GameTime gameTime) { }
         public void DrawLevel(GameTime gameTime) { }
-
-        public static void SetTimescale(float timescale)
-        {
-            Timescale = Math.Min(Math.Max(timescale, 0.0001f), 100.0f);
-        }
         
         public static GameTime GetUnscaledGameTime(GameTime originalGameTime)
         {
