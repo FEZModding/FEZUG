@@ -62,8 +62,6 @@ namespace FEZUG
 
         public override void Update(GameTime gameTime)
         {
-            InputHelper.Update(gameTime);
-
             foreach (var feature in Features)
             {
                 feature.Update(gameTime);

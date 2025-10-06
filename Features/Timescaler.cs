@@ -1,30 +1,22 @@
-﻿using FezEngine.Services;
-using FezEngine.Tools;
-using FezGame;
+﻿using FezGame;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
 using System.Globalization;
 using System.Reflection;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace FEZUG.Features
 {
     internal class Timescaler : IFezugCommand, IFezugFeature
     {
-        private IDetour mainGameUpdateLoopDetour;
-        private IDetour mainGameDrawLoopDetour;
-        private double timescaledGameTime;
-        private double timescaledElapsedTime;
+        private IDetour gameTickILDetour;
 
-        public static float Timescale = 1.0f;
-
-        public bool Enabled => Timescale != 1.0f;
+        public static float Timescale { get; private set; } = 1.0f;
 
         public string Name => "timescale";
         public string HelpText => "timescale <value> - changes game's simulation scale";
-
-        [ServiceDependency]
-        public ISoundManager SoundManager { private get; set; }
 
         public List<string> Autocomplete(string[] args)
         {
@@ -47,7 +39,7 @@ namespace FEZUG.Features
                 return false;
             }
 
-            Timescale = timescale;
+            SetTimescale(timescale);
 
             FezugConsole.Print($"Timescale has been set to {Timescale.ToString("0.000", CultureInfo.InvariantCulture)}");
 
@@ -57,51 +49,33 @@ namespace FEZUG.Features
 
         public void Initialize()
         {
-            timescaledGameTime = 0.0f;
-
-            mainGameUpdateLoopDetour = new Hook(
-                typeof(Fez).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance),
-                delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
-                {
-                    UpdateHooked(original, self, gameTime);
-                }
-            );
-            mainGameDrawLoopDetour = new Hook(
-                typeof(Fez).GetMethod("Draw", BindingFlags.NonPublic | BindingFlags.Instance),
-                delegate (Action<Fez, GameTime> original, Fez self, GameTime gameTime)
-                {
-                    DrawHooked(original, self, gameTime);
-                }
-            );
+            var targetMethod = typeof(Game).GetMethod("Tick", BindingFlags.Public | BindingFlags.Instance);
+            gameTickILDetour = new ILHook(targetMethod, InjectTickMultiplier);
         }
 
-        private void UpdateHooked(Action<Fez, GameTime> original, Fez self, GameTime gameTime)
+        void InjectTickMultiplier(ILContext il)
         {
-            if (gameTime.TotalGameTime.Ticks == 0)
-            {
-                timescaledGameTime = 0.0f;
-            }
-            timescaledElapsedTime = gameTime.ElapsedGameTime.TotalSeconds * Timescaler.Timescale;
-            timescaledGameTime += timescaledElapsedTime;
-
-            original(self, new GameTime(
-                TimeSpan.FromSeconds(timescaledGameTime),
-                TimeSpan.FromSeconds(timescaledElapsedTime)
-            ));
+            var cursor = new ILCursor(il);
+            cursor.GotoNext(i => i.MatchCall("System.TimeSpan", "FromTicks"));
+            cursor.EmitDelegate<Func<long, long>>(ticks => (long)(ticks * Timescale));
         }
-
-        private void DrawHooked(Action<Fez, GameTime> original, Fez self, GameTime gameTime)
-        {
-            original(self, new GameTime(
-                TimeSpan.FromSeconds(timescaledGameTime),
-                TimeSpan.FromSeconds(timescaledElapsedTime)
-            ));
-        }
-
-
+        
         public void Update(GameTime gameTime){}
 
         public void DrawHUD(GameTime gameTime) { }
         public void DrawLevel(GameTime gameTime) { }
+
+        public static void SetTimescale(float timescale)
+        {
+            Timescale = Math.Min(Math.Max(timescale, 0.0001f), 100.0f);
+        }
+        
+        public static GameTime GetUnscaledGameTime(GameTime originalGameTime)
+        {
+            return new GameTime(
+                originalGameTime.TotalGameTime,
+                TimeSpan.FromSeconds(originalGameTime.ElapsedGameTime.TotalSeconds / Timescale)
+            );
+        }
     }
 }

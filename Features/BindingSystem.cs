@@ -14,6 +14,8 @@ namespace FEZUG.Features
     {
         public const string BindConfigFileName = "FezugBinds";
 
+        private InputHelper InputHelper { get; } = new();
+        
         public BindList Binds { get; private set; }
 
         public static BindingSystem Instance;
@@ -33,7 +35,8 @@ namespace FEZUG.Features
 
         public void Update(GameTime gameTime)
         {
-
+            InputHelper.Update(gameTime);
+            
             foreach (var bindPair in Binds)
             {
                 if (!bindPair.Value.Trim().ToLower().Equals("toggleconsole") && !((InputManager)InputManager).Enabled) return;

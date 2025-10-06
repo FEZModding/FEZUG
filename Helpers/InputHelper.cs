@@ -3,18 +3,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FEZUG.Helpers
 {
-    internal static class InputHelper
+    internal class InputHelper
     {
-        private static readonly Dictionary<Keys, double> KeyboardRepeatHeldTimers = [];
-        private static readonly List<Keys> KeyboardRepeatedPresses = [];
+        private readonly Dictionary<Keys, double> KeyboardRepeatHeldTimers = [];
+        private readonly List<Keys> KeyboardRepeatedPresses = [];
 
-        public static KeyboardState CurrentKeyboardState { get; private set; }
-        public static KeyboardState PreviousKeyboardState { get; private set; }
+        public KeyboardState CurrentKeyboardState { get; private set; }
+        public KeyboardState PreviousKeyboardState { get; private set; }
 
-        public static double KeyboardRepeatDelay { get; set; } = 0.4;
-        public static double KeyboardRepeatSpeed { get; set; } = 0.03;
+        public double KeyboardRepeatDelay { get; set; } = 0.4;
+        public double KeyboardRepeatSpeed { get; set; } = 0.03;
 
-        public static void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             PreviousKeyboardState = CurrentKeyboardState;
             CurrentKeyboardState = Keyboard.GetState();
@@ -37,22 +37,22 @@ namespace FEZUG.Helpers
             }
         }
 
-        public static bool IsKeyPressed(Keys key)
+        public  bool IsKeyPressed(Keys key)
         {
             return PreviousKeyboardState.IsKeyUp(key) && CurrentKeyboardState.IsKeyDown(key);
         }
 
-        public static bool IsKeyHeld(Keys key)
+        public bool IsKeyHeld(Keys key)
         {
             return CurrentKeyboardState.IsKeyDown(key);
         }
 
-        public static bool IsKeyReleased(Keys key)
+        public bool IsKeyReleased(Keys key)
         {
             return PreviousKeyboardState.IsKeyDown(key) && CurrentKeyboardState.IsKeyUp(key);
         }
 
-        public static bool IsKeyTyped(Keys key)
+        public bool IsKeyTyped(Keys key)
         {
             return IsKeyPressed(key) || KeyboardRepeatedPresses.Contains(key);
         }

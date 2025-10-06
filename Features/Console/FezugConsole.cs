@@ -218,6 +218,7 @@ namespace FEZUG.Features.Console
 
             public bool Enabled { get; set; }
 
+            private InputHelper InputHelper { get; } = new();
             public AutocompletionManager Autocompletion { get; private set; }
             public bool ShouldAutocomplete => bufferChangedByUser;
 
@@ -344,6 +345,7 @@ namespace FEZUG.Features.Console
 
             public void Update(GameTime gameTime)
             {
+                InputHelper.Update(gameTime);
                 var Inputs = (InputManager)InputManager;
 
                 // enable/disable console
@@ -547,13 +549,20 @@ namespace FEZUG.Features.Console
             Instance.outputBuffer.Clear();
         }
 
+
         public void Update(GameTime gameTime)
         {
-            Handler.Update(gameTime);
+            // we're using update from draw loop to avoid dealing with slow update steps on low timescale.
+        }
+        public void UnfixedUpdate(GameTime gameTime)
+        {
+            var unscaledTime = Timescaler.GetUnscaledGameTime(gameTime);
+            
+            Handler.Update(unscaledTime);
 
             if (!Handler.Enabled) return;
 
-            blinkingTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            blinkingTime += (float)unscaledTime.ElapsedGameTime.TotalSeconds;
             if(previousCursor != Handler.CursorPosition)
             {
                 previousCursor = Handler.CursorPosition;
@@ -595,6 +604,8 @@ namespace FEZUG.Features.Console
 
         public void DrawHUD(GameTime gameTime)
         {
+            UnfixedUpdate(gameTime);
+            
             if (!Handler.Enabled) return;
 
             Viewport viewport = DrawingTools.GetViewport();
