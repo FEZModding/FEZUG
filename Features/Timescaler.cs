@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
 using System.Globalization;
 using System.Reflection;
+using FezEngine.Services;
+using FezEngine.Tools;
 using Microsoft.Xna.Framework.Audio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -22,6 +24,9 @@ namespace FEZUG.Features
         
         public static float Timescale { get; private set; } = 1.0f;
 
+        [ServiceDependency]
+        public ISoundManager SoundManager { private get; set; }
+        
         public string Name => "timescale";
         public string HelpText => "timescale <value> - changes game's simulation scale";
 
@@ -109,15 +114,17 @@ namespace FEZUG.Features
         
         private void RefreshSoundPitches()
         {
-            // re-setting pitch to trigger our hook
-            foreach (var audio in soundInstancePoolRef)
+            foreach (var audio in EnumerateActiveSoundsForPitchUpdate())
             {
                 audio.Pitch = audio.Pitch;
             }
-            foreach (var audio in dynamicSoundInstancePoolRef)
-            {
-                audio.Pitch = audio.Pitch;
-            }
+        }
+
+        private IEnumerable<SoundEffectInstance> EnumerateActiveSoundsForPitchUpdate()
+        {
+            foreach (var sound in soundInstancePoolRef) yield return sound;
+            foreach (var sound in dynamicSoundInstancePoolRef) yield return sound;
+            foreach (var emitter in SoundManager.Emitters) yield return emitter.Cue;
         }
         
         public void Update(GameTime gameTime){}
