@@ -30,14 +30,14 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IDefaultCameraManager CameraManager { protected get; set; }
 
-        private readonly BaseEffect effect = new DefaultEffect.LitVertexColored
-        {
-            Specular = true,
-            Emissive = 1.0f,
-            AlphaIsEmissive = true
-        };
         protected Mesh CreateHitboxMesh(Color c)
         {
+            BaseEffect effect = new DefaultEffect.LitVertexColored
+            {
+                Specular = true,
+                Emissive = 1.0f,
+                AlphaIsEmissive = true
+            };
             Mesh m = new Mesh
             {
                 DepthWrites = false,
