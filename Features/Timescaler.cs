@@ -76,7 +76,7 @@ namespace FEZUG.Features
             // TODO?: This could've been done less invasively by manually handling all cases where Stopwatch is used
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
             
-            var stopwatchTimestampMethod = typeof(Stopwatch).GetMethod("GetTimestamp", BindingFlags.Public | BindingFlags.Static);
+            var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
             stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, (Func<long> original) =>
             {
                 var originalTimestamp = original();
