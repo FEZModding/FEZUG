@@ -56,5 +56,33 @@ namespace FEZUG.Helpers
         {
             return IsKeyPressed(key) || KeyboardRepeatedPresses.Contains(key);
         }
+
+
+        [Flags]
+        public enum KeyModifierState
+        {
+            None = 0,
+            Shift = 1,
+            Alt = 2,
+            Control = 4,
+            Ctrl = 4,
+        }
+        public KeyModifierState GetKeyModifierState()
+        {
+            KeyModifierState state = 0;
+            if (IsKeyHeld(Keys.LeftShift) || IsKeyHeld(Keys.RightShift))
+            {
+                state |= KeyModifierState.Shift;
+            }
+            if (IsKeyHeld(Keys.LeftControl) || IsKeyHeld(Keys.RightControl))
+            {
+                state |= KeyModifierState.Control;
+            }
+            if (IsKeyHeld(Keys.LeftAlt) || IsKeyHeld(Keys.RightAlt))
+            {
+                state |= KeyModifierState.Alt;
+            }
+            return state;
+        }
     }
 }

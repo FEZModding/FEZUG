@@ -349,7 +349,9 @@ namespace FEZUG.Features.Console
                 var Inputs = (InputManager)InputManager;
 
                 // enable/disable console
-                if (InputHelper.IsKeyPressed(Keys.OemTilde))
+                if (InputHelper.IsKeyPressed(Keys.OemTilde) && (
+                    !Enabled || InputHelper.GetKeyModifierState() != InputHelper.KeyModifierState.Shift
+                ))
                 {
                     Enabled = !Enabled;
                     Inputs.Enabled = !Enabled;

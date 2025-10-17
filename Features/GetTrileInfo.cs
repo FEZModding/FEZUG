@@ -2,6 +2,7 @@
 using FezEngine.Tools;
 using FezGame.Services;
 using FEZUG.Features.Console;
+using Microsoft.Xna.Framework;
 using System.Globalization;
 
 namespace FEZUG.Features
@@ -10,7 +11,7 @@ namespace FEZUG.Features
     {
         public string Name => "gettrile";
 
-        public string HelpText => "gettrile [x] [y] [z] - get trile info at given coordinates";
+        public string HelpText => "gettrile <x> <y> <z> - get trile info at given coordinates";
 
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
@@ -24,7 +25,7 @@ namespace FEZUG.Features
 
             var pos = PlayerManager.Ground.First?.Emplacement;
             var pos2 = PlayerManager.Position.Round();
-            int value = 0;
+            int value;
             switch (args.Length)
             {
             case 1: value = pos?.X ?? (int)pos2.X; break;
@@ -39,32 +40,17 @@ namespace FEZUG.Features
 
         public bool Execute(string[] args)
         {
-            if (args.Length != 3)
+            if (!Teleport.TryParseCoords(args, 
+                PlayerManager.Ground.First?.Emplacement.AsVector ?? PlayerManager.Position.Round(),
+                out Vector3 coords))
             {
-                FezugConsole.Print($"Incorrect number of parameters: '{args.Length}'", FezugConsole.OutputType.Warning);
                 return false;
             }
 
-            if (!int.TryParse(args[0], NumberStyles.Number, CultureInfo.InvariantCulture, out int x))
-            {
-                FezugConsole.Print($"Incorrect coordinate: '{args[0]}'", FezugConsole.OutputType.Warning);
-                return false;
-            }
-            if (!int.TryParse(args[1], NumberStyles.Number, CultureInfo.InvariantCulture, out int y))
-            {
-                FezugConsole.Print($"Incorrect coordinate: '{args[1]}'", FezugConsole.OutputType.Warning);
-                return false;
-            }
-            if (!int.TryParse(args[2], NumberStyles.Number, CultureInfo.InvariantCulture, out int z))
-            {
-                FezugConsole.Print($"Incorrect coordinate: '{args[2]}'", FezugConsole.OutputType.Warning);
-                return false;
-            }
-
-            var pos = new TrileEmplacement(x, y, z);
+            var pos = new TrileEmplacement(coords);
             if (!LevelManager.Triles.ContainsKey(pos))
             {
-                FezugConsole.Print($"No trile at coordinates [{x}, {y}, {z}]", FezugConsole.OutputType.Warning);
+                FezugConsole.Print($"No trile at coordinates [{coords.X}, {coords.Y}, {coords.Z}]", FezugConsole.OutputType.Warning);
                 return false;
             }
             var trileInstance = LevelManager.Triles[pos];
