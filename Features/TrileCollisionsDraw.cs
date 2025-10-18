@@ -75,8 +75,14 @@ namespace FEZUG.Features
                 if (pair.Value.TryGetValue(cameraViewpoint, out var collisionType))
                 {
                     var trilebb = CollisionMeshes[collisionType];
-                    trilebb.Position = trilePos.AsVector + Vector3.One * 0.5f;
-                    trilebb.Rotation = FaceOrientationToQuaternion[cameraViewpoint];
+                    if (LevelManager.Triles.TryGetValue(trilePos, out var trilePosActual))
+                    {
+                        trilebb.Position = LevelManager.Triles[trilePos].Position + Vector3.One * 0.5f;
+                    }
+                    else
+                    {
+                        trilebb.Position = trilePos.AsVector + Vector3.One * 0.5f;
+                    }
                     trilebb.Draw();
                 }
                 else
