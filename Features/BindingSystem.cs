@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using FezEngine.Components;
 using FezEngine.Tools;
 using FEZUG.Features.Console;
@@ -39,7 +39,6 @@ namespace FEZUG.Features
             
             foreach (var bindPair in Binds)
             {
-                if (!bindPair.Value.Trim().ToLower().Equals("toggleconsole") && !((InputManager)InputManager).Enabled) return;
                 if (InputHelper.IsKeyPressed(bindPair.Key))
                 {
                     FezugConsole.ExecuteCommand(bindPair.Value);
