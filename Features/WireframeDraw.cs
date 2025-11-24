@@ -88,11 +88,12 @@ namespace FEZUG.Features
                 {
                     if (AllowXray)
                     {
-                        return [onOption, offOption, xrayOption];
+                        return [onOption, offOption, xrayOption, ..AdditionalChoices.Keys];
                     }
-                    return [onOption, offOption];
+                    return [onOption, offOption, ..AdditionalChoices.Keys];
                 }
             }
+            protected virtual Dictionary<string, Func<string[], string>> AdditionalChoices => [];
 
             protected abstract string WhatFor { get; }
             protected virtual string HelpWhatFor => WhatFor;
@@ -121,6 +122,12 @@ namespace FEZUG.Features
                 {
                     FezugConsole.Print($"Invalid argument: '{args[0]}'", FezugConsole.OutputType.Warning);
                     return false;
+                }
+
+                if (AdditionalChoices.TryGetValue(args[0], out var value))
+                {
+                    FezugConsole.Print(value(args));
+                    return true;
                 }
 
                 bool xray = args[0] == xrayOption;
