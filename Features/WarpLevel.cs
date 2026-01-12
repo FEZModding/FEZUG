@@ -175,7 +175,14 @@ namespace FEZUG.Features
 			PlayerManager.Action = ActionType.WakingUp;
             LevelManager.ChangeLevel(levelName);
             PlayerManager.Action = lastAction;
-            CameraManager.Center = PlayerManager.Position + Vector3.Up * PlayerManager.Size.Y / 2f + Vector3.UnitY;
+            if (!LevelManager.Scripts.Any(kv =>
+            {
+                var s = kv.Value;
+                return !s.OneTime && s.Actions.Any(a => a.Object.Type == "Volume" && a.Operation == "FocusCamera");
+            }))
+            {
+                CameraManager.Center = PlayerManager.Position + Vector3.Up * PlayerManager.Size.Y / 2f + Vector3.UnitY;
+            }
 			CameraManager.SnapInterpolation();
 			LevelMaterializer.CullInstances();
 			GameState.ScheduleLoadEnd = true;
