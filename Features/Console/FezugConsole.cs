@@ -502,6 +502,38 @@ namespace FEZUG.Features.Console
                     CursorPosition = Buffer.Length;
                     SelectionLength = -CursorPosition;
                 }
+                if (ctrlHeld && InputHelper.IsKeyPressed(Keys.C))
+                {
+                    SDL2.SDL.SDL_SetClipboardText(GetSelectedText());
+                }
+                if (ctrlHeld && InputHelper.IsKeyPressed(Keys.X))
+                {
+                    SDL2.SDL.SDL_SetClipboardText(GetSelectedText());
+                    if (SelectionLength != 0)
+                    {
+                        if (SelectionLength < 0)
+                        {
+                            CursorPosition += SelectionLength;
+                            SelectionLength *= -1;
+                        }
+                        Buffer = GetBufferWithRemovedSelection();
+                    }
+                    else if (CursorPosition < Buffer.Length)
+                    {
+                        Buffer = Buffer.Remove(CursorPosition, 1);
+                    }
+                }
+                if (ctrlHeld && InputHelper.IsKeyPressed(Keys.V))
+                {
+                    string paste = SDL2.SDL.SDL_GetClipboardText();
+                    if (SelectionLength < 0)
+                    {
+                        CursorPosition += SelectionLength;
+                        SelectionLength *= -1;
+                    }
+                    Buffer = GetBufferWithRemovedSelection().Insert(CursorPosition, paste);
+                    CursorPosition += paste.Length;
+                }
             }
         }
 
