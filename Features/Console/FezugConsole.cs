@@ -235,7 +235,7 @@ namespace FEZUG.Features.Console
 
                 Commands = [];
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t) && !t.IsAbstract))
+                .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t) && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null))
                 {
                     IFezugCommand command;
                     // command object could've been already creates as a feature - look for it first
@@ -583,6 +583,11 @@ namespace FEZUG.Features.Console
             Instance.outputBuffer.Clear();
         }
 
+        //So external mods have an easy way to add new commands
+        public static void AddCommand(string name, string helpText, Func<string[], List<string>> autocompleteProvider, Func<string[], bool> executeCommand)
+        {
+            Instance.Handler.Commands.Add(new GenericFezugCommand(name, helpText, autocompleteProvider, executeCommand));
+        }
 
         public void Update(GameTime gameTime)
         {
