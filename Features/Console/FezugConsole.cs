@@ -4,6 +4,7 @@ using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace FEZUG.Features.Console
@@ -560,7 +561,8 @@ namespace FEZUG.Features.Console
             {OutputType.Error, Color.IndianRed}
         };
 
-        private List<ConsoleOutput> outputBuffer;
+        //Note: this is a ConcurrentQueue for thread safety, just in case another mod wants to use a separate thread to write to the console
+        private ConcurrentQueue<ConsoleOutput> outputBuffer;
         private float blinkingTime;
         private int previousCursor = 0;
 
@@ -584,7 +586,9 @@ namespace FEZUG.Features.Console
 
         public static void Clear()
         {
-            Instance.outputBuffer.Clear();
+            while (Instance.outputBuffer.TryDequeue(out _))
+            {
+            }
         }
 
         //So external mods have an easy way to add new commands
@@ -615,11 +619,11 @@ namespace FEZUG.Features.Console
 
         private void Print(ConsoleOutput output)
         {
-            outputBuffer.Insert(0, output);
+            outputBuffer.Enqueue(output);
 
             while (outputBuffer.Count() > OutputBufferLimit)
             {
-                outputBuffer.RemoveAt(outputBuffer.Count - 1);
+                outputBuffer.TryDequeue(out _);
             }
         }
 
@@ -716,7 +720,7 @@ namespace FEZUG.Features.Console
             DrawingTools.DrawRect(new Rectangle(margin, outputY, outputWidth, outputHeight), new Color(10, 10, 10, 220));
 
             var outputItemPos = 0;
-            foreach(var outputLine in outputBuffer)
+            foreach (var outputLine in outputBuffer.Reverse())
             {
                 List<string> lines = [];
                 string lineBuffer = "";
