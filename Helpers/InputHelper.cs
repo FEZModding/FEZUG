@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿﻿using FEZUG.Features;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace FEZUG.Helpers
@@ -10,6 +11,8 @@ namespace FEZUG.Helpers
 
         public KeyboardState CurrentKeyboardState { get; private set; }
         public KeyboardState PreviousKeyboardState { get; private set; }
+        public GamePadState CurrentGamePadState { get; private set; }
+        public GamePadState PreviousGamePadState { get; private set; }
 
         public double KeyboardRepeatDelay { get; set; } = 0.4;
         public double KeyboardRepeatSpeed { get; set; } = 0.03;
@@ -18,6 +21,8 @@ namespace FEZUG.Helpers
         {
             PreviousKeyboardState = CurrentKeyboardState;
             CurrentKeyboardState = Keyboard.GetState();
+            PreviousGamePadState = CurrentGamePadState;
+            CurrentGamePadState = GamePad.GetState(BindingSystem.Instance.InputManager.ActiveGamepad.PlayerIndex, GamePadDeadZone.IndependentAxes);
 
 
             KeyboardRepeatedPresses.Clear();
@@ -35,6 +40,11 @@ namespace FEZUG.Helpers
                     KeyboardRepeatedPresses.Add(key);
                 }
             }
+        }
+
+        public  bool IsButtonPressed(Buttons button)
+        {
+            return PreviousGamePadState.IsButtonUp(button) && CurrentGamePadState.IsButtonDown(button);
         }
 
         public  bool IsKeyPressed(Keys key)

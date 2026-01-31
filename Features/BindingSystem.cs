@@ -13,6 +13,8 @@ namespace FEZUG.Features
     internal class BindingSystem : IFezugFeature
     {
         public const string BindConfigFileName = "FezugBinds";
+        private const string GamePadPrefix = "Gamepad";
+        private const int GamePadKeysOffset = 0x300000;
 
         private InputHelper InputHelper { get; } = new();
         
@@ -36,10 +38,10 @@ namespace FEZUG.Features
         public void Update(GameTime gameTime)
         {
             InputHelper.Update(gameTime);
-            
+
             foreach (var bindPair in Binds)
             {
-                if (InputHelper.IsKeyPressed(bindPair.Key))
+                if (InputHelper.IsKeyPressed(bindPair.Key) || TryConvertKeysToGamepadButtons(bindPair.Key, out var b ) && InputHelper.IsButtonPressed(b))
                 {
                     FezugConsole.ExecuteCommand(bindPair.Value);
                 }
@@ -104,6 +106,45 @@ namespace FEZUG.Features
             }
         }
 
+        private static string GetButtonText(Keys key)
+        {
+            return TryConvertKeysToGamepadButtons(key, out var b) ? GamePadPrefix + b.ToString() : key.ToString();
+        }
+        private static bool TryConvertKeysToGamepadButtons(Keys key, out Buttons button)
+        {
+            if ((int)key >= GamePadKeysOffset)
+            {
+                button = (Buttons)Math.Pow(2, (int)key - GamePadKeysOffset);
+                return true;
+            }
+            button = 0;
+            return false;
+        }
+        private static List<string> GetAutoCompleteOptions(string arg)
+        {
+            return [..Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Concat(Enum.GetNames(typeof(Buttons)).Select(b => GamePadPrefix + b)).Where(s => s.StartsWith(arg, StringComparison.OrdinalIgnoreCase))] ;
+        }
+        private static bool TryParseBindName(string str, out Keys key)
+        {
+            bool isInt;
+            if (isInt = int.TryParse(str, out int i) && 0 <= i && i <= 9)
+            {
+                key = Keys.D0 + i;
+                return true;
+            }
+            else if (!isInt && str.StartsWith(GamePadPrefix, StringComparison.InvariantCultureIgnoreCase) && Enum.TryParse<Buttons>(str.Substring(GamePadPrefix.Length), true, out var b))
+            {
+                //Buttons is a bitmask
+                key = (Keys)(GamePadKeysOffset + Math.Log((int)b, 2));
+                return true;
+            }
+            else if (Enum.TryParse<Keys>(str, true, out key))
+            {
+                return true;
+            }
+            return false;
+        }
+
         internal class BindCommand : IFezugCommand
         {
             public string Name => "bind";
@@ -113,7 +154,7 @@ namespace FEZUG.Features
             {
                 if (args.Length == 1)
                 {
-                    return [.. Enum.GetNames(typeof(Keys)).Select(s=>s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
+                    return GetAutoCompleteOptions(args[0]);
                 }
 
                 if (args.Length == 2 && Enum.TryParse<Keys>(args[0], true, out var key)
@@ -132,27 +173,22 @@ namespace FEZUG.Features
                     return false;
                 }
 
-                Keys key;
-
-                if (int.TryParse(args[0], out int i) && 0 <= i && i <= 9)
-                {
-                    key = Keys.D0 + i;
-                }
-                else if (!Enum.TryParse<Keys>(args[0], true, out key))
+                if (!TryParseBindName(args[0], out var key))
                 {
                     FezugConsole.Print($"Invalid key: {args[0]}.", FezugConsole.OutputType.Warning);
                     return false;
                 }
 
+                string keyText = GetButtonText(key);
                 if (args.Length == 1)
                 {
                     if (HasBind(key))
                     {
-                        FezugConsole.Print($"Key {key} is bound to command \"{ GetBind(key)}\".");
+                        FezugConsole.Print($"Key {keyText} is bound to command \"{GetBind(key)}\".");
                     }
                     else
                     {
-                        FezugConsole.Print($"No command has been bound to key {key}.");
+                        FezugConsole.Print($"No command has been bound to key {keyText}.");
                     }
                 }
 
@@ -160,9 +196,9 @@ namespace FEZUG.Features
                 {
                     SetBind(key, args[1]);
                     if (args[1].Length == 0)
-                        FezugConsole.Print($"Key {key} has been unbound.");
+                        FezugConsole.Print($"Key {keyText} has been unbound.");
                     else
-                        FezugConsole.Print($"Command has been bound to key {key}.");
+                        FezugConsole.Print($"Command has been bound to key {keyText}.");
                 }
 
                 return true;
@@ -178,7 +214,7 @@ namespace FEZUG.Features
             {
                 if (args.Length == 1)
                 {
-                    return [.. Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
+                    return GetAutoCompleteOptions(args[0]);
                 }
 
                 return null;
@@ -192,7 +228,7 @@ namespace FEZUG.Features
                     return false;
                 }
 
-                if (!Enum.TryParse<Keys>(args[0], true, out var key))
+                if (!TryParseBindName(args[0], out var key))
                 {
                     FezugConsole.Print($"Invalid key: {args[0]}.", FezugConsole.OutputType.Warning);
                     return false;
@@ -201,11 +237,11 @@ namespace FEZUG.Features
                 if (HasBind(key))
                 {
                     SetBind(key, "");
-                    FezugConsole.Print($"Key {key} has been unbound.");
+                    FezugConsole.Print($"Key {GetButtonText(key)} has been unbound.");
                 }
                 else
                 {
-                    FezugConsole.Print($"No command has been bound to key {key}.");
+                    FezugConsole.Print($"No command has been bound to key {GetButtonText(key)}.");
                 }
 
                 return true;
