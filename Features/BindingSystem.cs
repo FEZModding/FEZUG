@@ -85,7 +85,7 @@ namespace FEZUG.Features
             using StreamWriter bindFile = new(GetBindsFilePath());
             foreach (var bind in Instance.Binds)
             {
-                bindFile.WriteLine($"{bind.Key} {bind.Value}");
+                bindFile.WriteLine($"{GetButtonText(bind.Key)} {bind.Value}");
             }
         }
 
@@ -99,7 +99,7 @@ namespace FEZUG.Features
                 string[] tokens = line.Split([' '], 2);
                 if (tokens.Length < 2) continue;
 
-                if(Enum.TryParse(tokens[0], out Keys key))
+                if(TryParseBindName(tokens[0], out Keys key))
                 {
                     Instance.Binds.Add(key, tokens[1]);
                 }
