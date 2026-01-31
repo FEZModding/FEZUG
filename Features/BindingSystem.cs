@@ -132,7 +132,13 @@ namespace FEZUG.Features
                     return false;
                 }
 
-                if (!Enum.TryParse<Keys>(args[0], true, out var key))
+                Keys key;
+
+                if (int.TryParse(args[0], out int i) && 0 <= i && i <= 9)
+                {
+                    key = Keys.D0 + i;
+                }
+                else if (!Enum.TryParse<Keys>(args[0], true, out key))
                 {
                     FezugConsole.Print($"Invalid key: {args[0]}.", FezugConsole.OutputType.Warning);
                     return false;
