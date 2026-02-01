@@ -70,6 +70,7 @@ namespace FEZUG.Features.Hud
             CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
             CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay:hh':'mm':'ss}");
             CreateHudVariable("hud_inputs", "Input viewer", () => $"Inputs: {GetCurrentButtonInputsAsString()}");
+            CreateHudVariable("hud_key_names", "", () => $"Pressed keys: {string.Join(", ", InputHelper.Instance.CurrentKeyboardState.GetPressedKeys().Select(BindingSystem.GetButtonText).Concat(InputHelper.Instance.GetDownButtons().Select(BindingSystem.GetButtonText)))}");
 
             hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
             {

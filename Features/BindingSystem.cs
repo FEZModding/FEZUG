@@ -104,9 +104,13 @@ namespace FEZUG.Features
             }
         }
 
-        private static string GetButtonText(Keys key)
+        internal static string GetButtonText(Keys key)
         {
             return TryConvertKeysToGamepadButtons(key, out var b) ? GamePadPrefix + b.ToString() : key.ToString();
+        }
+        internal static string GetButtonText(Buttons button)
+        {
+            return GamePadPrefix + button.ToString();
         }
         private static bool TryConvertKeysToGamepadButtons(Keys key, out Buttons button)
         {
