@@ -69,6 +69,7 @@ namespace FEZUG.Features.Hud
             CreateHudVariable("hud_state", "Gomez's state", () => $"State: {PlayerManager.Action}");
             CreateHudVariable("hud_viewpoint", "camera viewpoint", () => $"Viewpoint: {CameraManager.Viewpoint}");
             CreateHudVariable("hud_daytime", "Time of day", () => $"Time of day: {TimeManager.CurrentTime.TimeOfDay:hh':'mm':'ss}");
+            CreateHudVariable("hud_inputs", "Input viewer", () => $"Inputs: {GetCurrentButtonInputsAsString()}");
 
             hud_hide = new FezugVariable("hud_hide", "If set, hides FEZUG HUD entirely when console is not opened.", "0")
             {
@@ -78,6 +79,34 @@ namespace FEZUG.Features.Hud
             };
 
             Positioner = new HudPositioner("text", "global text", 0.0f, 0.0f);
+        }
+
+        private string GetCurrentButtonInputsAsString()
+        {
+            string s = "";
+            //Note: ExactUp is used for doors and whatnot
+            s += InputManager.Up != 0 || InputManager.ExactUp != 0 ? "u " : "  ";
+            s += InputManager.Down != 0 ? "d " : "  ";
+            s += InputManager.Left != 0 ? "l " : "  ";
+            s += InputManager.Right != 0 ? "r " : "  ";
+
+            s += InputManager.Jump != 0 ? "a " : "  ";
+            s += InputManager.GrabThrow != 0 ? "x " : "  ";
+            s += InputManager.CancelTalk != 0 ? "b " : "  ";
+            s += InputManager.OpenInventory != 0 ? "y " : "  ";
+
+            s += InputManager.RotateLeft != 0 ? "lt " : "   ";
+            s += InputManager.RotateRight != 0 ? "rt " : "   ";
+
+            s += InputManager.MapZoomIn != 0 ? "rb " : "   ";
+            s += InputManager.MapZoomOut != 0 ? "lb " : "   ";
+
+            s += InputManager.Back != 0 ? "m " : "  ";
+            s += InputManager.Start != 0 ? "s " : "  ";
+            s += InputManager.ClampLook != 0 ? "rs " : "   ";
+            s += InputManager.FpsToggle != 0 ? "ls " : "   ";
+
+            return s;
         }
 
         private void DrawText(string text, Vector2 pos)
