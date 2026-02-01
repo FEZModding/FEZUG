@@ -223,7 +223,7 @@ namespace FEZUG.Features.Console
 
             public bool Enabled { get; set; }
 
-            private InputHelper InputHelper { get; } = new();
+            private InputHelper InputHelper { get; } = InputHelper.Instance;
             public AutocompletionManager Autocompletion { get; private set; }
             public bool ShouldAutocomplete => bufferChangedByUser;
 
@@ -350,7 +350,6 @@ namespace FEZUG.Features.Console
 
             public void Update(GameTime gameTime)
             {
-                InputHelper.Update(gameTime);
                 var Inputs = (InputManager)InputManager;
 
                 // enable/disable console

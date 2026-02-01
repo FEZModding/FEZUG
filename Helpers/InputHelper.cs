@@ -17,6 +17,19 @@ namespace FEZUG.Helpers
         public double KeyboardRepeatDelay { get; set; } = 0.4;
         public double KeyboardRepeatSpeed { get; set; } = 0.03;
 
+        public static InputHelper Instance = new();
+
+        private InputHelper() { }
+
+        /// <summary>
+        /// Updates the input states of this <see cref="InputHelper"/>
+        /// </summary>
+        /// <remarks>
+        /// Important Note: This method should be called only once per game tick.
+        /// It is currently called at the beginning of <see cref="Fezug.Update"/>
+        /// Failure to do so may result in <see cref="IFezugFeature"/>s being unable to properly detect button presses
+        /// </remarks>
+        /// <param name="gameTime"></param>
         public void Update(GameTime gameTime)
         {
             PreviousKeyboardState = CurrentKeyboardState;
@@ -45,6 +58,11 @@ namespace FEZUG.Helpers
         public  bool IsButtonPressed(Buttons button)
         {
             return PreviousGamePadState.IsButtonUp(button) && CurrentGamePadState.IsButtonDown(button);
+        }
+
+        public IEnumerable<Buttons> GetDownButtons()
+        {
+            return Enum.GetValues(typeof(Buttons)).Cast<Buttons>().Where(CurrentGamePadState.IsButtonDown);
         }
 
         public  bool IsKeyPressed(Keys key)

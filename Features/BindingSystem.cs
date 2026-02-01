@@ -16,7 +16,7 @@ namespace FEZUG.Features
         private const string GamePadPrefix = "Gamepad";
         private const int GamePadKeysOffset = 0x300000;
 
-        private InputHelper InputHelper { get; } = new();
+        private InputHelper InputHelper { get; } = InputHelper.Instance;
         
         public BindList Binds { get; private set; }
 
@@ -37,8 +37,6 @@ namespace FEZUG.Features
 
         public void Update(GameTime gameTime)
         {
-            InputHelper.Update(gameTime);
-
             foreach (var bindPair in Binds)
             {
                 if (InputHelper.IsKeyPressed(bindPair.Key) || TryConvertKeysToGamepadButtons(bindPair.Key, out var b ) && InputHelper.IsButtonPressed(b))
