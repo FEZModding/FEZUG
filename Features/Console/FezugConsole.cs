@@ -561,12 +561,12 @@ namespace FEZUG.Features.Console
         };
 
         //Note: this is a ConcurrentQueue for thread safety, just in case another mod wants to use a separate thread to write to the console
-        private ConcurrentQueue<ConsoleOutput> outputBuffer;
+        private ConcurrentQueue<ConsoleOutput> outputBuffer = [];
         private float blinkingTime;
         private int previousCursor = 0;
 
         public CommandHandler Handler { get; private set; }
-        public int OutputBufferLimit { get; set; }
+        public int OutputBufferLimit { get; set; } = 24;
 
         public static FezugConsole Instance { get; private set; }
 
@@ -578,9 +578,6 @@ namespace FEZUG.Features.Console
         public void Initialize()
         {
             Handler = new CommandHandler();
-
-            outputBuffer = [];
-            OutputBufferLimit = 24;
         }
 
         public static void Clear()
