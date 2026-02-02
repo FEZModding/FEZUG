@@ -359,6 +359,11 @@ namespace FEZUG.Features.Console
                 {
                     Enabled = !Enabled;
                     Inputs.Enabled = !Enabled;
+                    if (Enabled)
+                    {
+                        //ensure text input is on
+                        TextInputEXT.StartTextInput();
+                    }
                 }
 
                 if (!Enabled) return;
