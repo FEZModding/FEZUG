@@ -77,14 +77,23 @@ namespace FEZUG.Features
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
             
             var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
-            stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, (Func<long> original) =>
+            var newFunc = (Func<long> original) =>
             {
                 var originalTimestamp = original();
                 var elapsedSinceMeasure = originalTimestamp - lastMeasuredRealTimestamp;
                 internalTimestamp += (long)(elapsedSinceMeasure * Timescale);
                 lastMeasuredRealTimestamp = originalTimestamp;
                 return internalTimestamp;
-            });
+            };
+            try
+            {
+                stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, newFunc);
+            }
+            catch (Exception e)
+            {
+                //TODO the Hook contructor throws an exception if Stopwatch.GetTimestamp is a native extern method
+                //stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, newFunc);
+            }
         }
         
         private void InitializeAudioHooksAndReferences()
