@@ -34,31 +34,32 @@ namespace FEZUG.Features.Hud
         [ServiceDependency]
         public ITimeManager TimeManager { private get; set; }
 
+
+        private void CreateHudVariable(string name, string desc, Func<string> provider)
+        {
+            hudVars.Add((new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
+            {
+                SaveOnChange = true,
+                Min = 0,
+                Max = 1
+            }, provider));
+        }
+        private string FormatVector2(Vector2 vector3)
+        {
+            string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
+            string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
+            return $"(X:{posX} Y:{posY})";
+        }
+        private string FormatVector3(Vector3 vector3)
+        {
+            string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
+            string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
+            string posZ = vector3.Z.ToString("0.000", CultureInfo.InvariantCulture);
+            return $"(X:{posX} Y:{posY} Z:{posZ})";
+        }
+
         public void Initialize()
         {
-            void CreateHudVariable(string name, string desc, Func<string> provider)
-            {
-                hudVars.Add((new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
-                {
-                    SaveOnChange = true,
-                    Min = 0,
-                    Max = 1
-                }, provider));
-            }
-            string FormatVector2(Vector2 vector3)
-            {
-                string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
-                string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
-                return $"(X:{posX} Y:{posY})";
-            }
-            string FormatVector3(Vector3 vector3)
-            {
-                string posX = vector3.X.ToString("0.000", CultureInfo.InvariantCulture);
-                string posY = vector3.Y.ToString("0.000", CultureInfo.InvariantCulture);
-                string posZ = vector3.Z.ToString("0.000", CultureInfo.InvariantCulture);
-                return $"(X:{posX} Y:{posY} Z:{posZ})";
-            }
-
             CreateHudVariable("hud_fps", "frames per second", () => $"FPS: {_fps}");
             CreateHudVariable("hud_ups", "updates per second", () => $"UPS: {_ups}");
             CreateHudVariable("hud_level", "level", () => $"Level: {LevelManager.Name}");
@@ -130,7 +131,7 @@ namespace FEZUG.Features.Hud
             _framesRendered++;
             if ((DateTime.Now - _lastTime).TotalSeconds >= 1)
             {
-                // one second has elapsed 
+                // one second has elapsed
 
                 _fps = _framesRendered;
                 _framesRendered = 0;

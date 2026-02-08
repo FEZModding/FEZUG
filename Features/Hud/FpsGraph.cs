@@ -30,18 +30,27 @@ namespace FEZUG.Features.Hud
         [ServiceDependency]
         public ITimeManager TimeManager { private get; set; }
 
+        private void CreateGraphVariable(string id, string name, string desc, Color lineColor)
+        {
+            graphVars.Add(id, (new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
+            {
+                SaveOnChange = true,
+                Min = 0,
+                Max = 1
+            }, lineColor, []));
+        }
+
+        private void PushCircular<T>(List<T> arr, T val, int maxSize)
+        {
+            arr.Add(val);
+            while (arr.Count > maxSize)
+            {
+                arr.RemoveAt(0);
+            }
+        }
+
         public void Initialize()
         {
-            void CreateGraphVariable(string id, string name, string desc, Color lineColor)
-            {
-                graphVars.Add(id, (new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
-                {
-                    SaveOnChange = true,
-                    Min = 0,
-                    Max = 1
-                }, lineColor, []));
-            }
-
             CreateGraphVariable("ups", "graph_ups", "updates per second", Color.Cyan);
             CreateGraphVariable("fps", "graph_fps", "frames per second", Color.Orange);
 
@@ -86,19 +95,11 @@ namespace FEZUG.Features.Hud
             double elapsedSeconds = (DateTime.Now - _lastTime).TotalSeconds;
             if (elapsedSeconds >= intervalSeconds)
             {
-                // one second has elapsed 
+                // one second has elapsed
                 _fps = _framesRendered;
                 _framesRendered = 0;
                 _ups = _updatesDone;
                 _updatesDone = 0;
-                static void PushCircular<T>(List<T> arr, T val, int maxSize)
-                {
-                    arr.Add(val);
-                    while (arr.Count > maxSize)
-                    {
-                        arr.RemoveAt(0);
-                    }
-                }
                 PushCircular(graphVars["fps"].pastVals, _fps / elapsedSeconds, MaxBufferSize);
                 PushCircular(graphVars["ups"].pastVals, _ups / elapsedSeconds, MaxBufferSize);
                 _lastTime = DateTime.Now;
