@@ -62,7 +62,6 @@ namespace FEZUG
 
         public override void Update(GameTime gameTime)
         {
-            InputHelper.Instance.Update(gameTime);
             foreach (var feature in Features)
             {
                 feature.Update(gameTime);
@@ -71,6 +70,8 @@ namespace FEZUG
 
         public override void Draw(GameTime gameTime)
         {
+            // update InputHelper from draw loop to avoid dealing with timescale jank.
+            InputHelper.Instance.Update(Timescaler.GetUnscaledGameTime(gameTime));
             DrawingTools.BeginBatch();
 
             foreach(var feature in Features)

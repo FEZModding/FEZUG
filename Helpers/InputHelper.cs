@@ -26,7 +26,7 @@ namespace FEZUG.Helpers
         /// </summary>
         /// <remarks>
         /// Important Note: This method should be called only once per game tick.
-        /// It is currently called at the beginning of <see cref="Fezug.Update"/>
+        /// It is currently called at the beginning of <see cref="Fezug.Draw(GameTime)"/>
         /// Failure to do so may result in <see cref="IFezugFeature"/>s being unable to properly detect button presses
         /// </remarks>
         /// <param name="gameTime"></param>
