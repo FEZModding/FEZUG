@@ -364,6 +364,11 @@ namespace FEZUG.Features.Console
                         //ensure text input is on
                         TextInputEXT.StartTextInput();
                     }
+                    else
+                    {
+                        //StartTextInput should be paired with StopTextInput
+                        TextInputEXT.StopTextInput();
+                    }
                 }
 
                 if (!Enabled) return;
