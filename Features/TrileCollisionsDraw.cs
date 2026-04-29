@@ -27,8 +27,8 @@ namespace FEZUG.Features
             {CollisionType.TopNoStraightLedge, Color.Yellow},
         };
 
-        private readonly Dictionary<TrileEmplacement, Dictionary<FaceOrientation, CollisionType>> invisibleTriles = [];
-        private readonly Dictionary<CollisionType, Mesh> CollisionMeshes = [];
+        private readonly Dictionary<TrileEmplacement, Dictionary<FaceOrientation, CollisionType>> invisibleTriles = new();
+        private readonly Dictionary<CollisionType, Mesh> CollisionMeshes = new();
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
@@ -78,7 +78,7 @@ namespace FEZUG.Features
                     }
                 });
             }
-            return [.. CollisionMeshes.Values];
+            return CollisionMeshes.Values.ToArray();
         }
         protected override void RefreshLevelList()
         {

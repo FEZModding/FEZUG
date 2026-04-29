@@ -14,25 +14,25 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameStateManager GameState { private get; set; }
 
-        public readonly ActorType[] AllowedActorTypes =
-        [
+        public readonly ActorType[] AllowedActorTypes = new ActorType[]
+        {
             ActorType.Tome,
             ActorType.TriSkull,
             ActorType.LetterCube,
             ActorType.NumberCube
-        ];
+        };
 
         public List<string> Autocomplete(string[] args)
         {
             if (args.Length == 1)
             {
-                return [.. new string[] { "give", "remove", "list" }.Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase))];
+                return new string[] { "give", "remove", "list" }.Where(s => s.StartsWith(args[0], StringComparison.OrdinalIgnoreCase)).ToList();
             }
             if (args.Length == 2)
             {
-                return [.. AllowedActorTypes
+                return AllowedActorTypes
                     .Select(s => s.ToString().ToLower())
-                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase))];
+                    .Where(s => s.StartsWith(args[1], StringComparison.OrdinalIgnoreCase)).ToList();
             }
             return null;
         }

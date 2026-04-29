@@ -66,7 +66,7 @@ namespace FEZUG.Features
         {
             if(args.Length == 1)
             {
-                return [.. new string[]{ "goldens", "antis", "bits", "hearts", "keys", "owls"}.Where(s => s.StartsWith(args[0]))];
+                return new string[]{ "goldens", "antis", "bits", "hearts", "keys", "owls"}.Where(s => s.StartsWith(args[0])).ToList();
             }
             else if(args.Length == 2 && args[1].Length == 0)
             {
@@ -86,7 +86,7 @@ namespace FEZUG.Features
                     case "owls":
                         value = GameState.SaveData.CollectedOwls; break;
                 }
-                return [value.ToString()];
+                return new() {value.ToString()};
             }
             return null;
         }

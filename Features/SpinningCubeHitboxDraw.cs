@@ -22,7 +22,7 @@ namespace FEZUG.Features
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
-            return [TrileBoundingBox = CreateHitboxMesh(Color.Gold)];
+            return new Mesh[] {TrileBoundingBox = CreateHitboxMesh(Color.Gold)};
         }
         protected override void PreInitialize()
         {

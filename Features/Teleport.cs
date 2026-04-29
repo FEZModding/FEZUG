@@ -33,7 +33,7 @@ namespace FEZUG.Features
                 default: return null;
             }
 
-            return [value.ToString("0.000", CultureInfo.InvariantCulture)];
+            return new() {value.ToString("0.000", CultureInfo.InvariantCulture)};
         }
 
         public bool Execute(string[] args)

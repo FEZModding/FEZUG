@@ -34,7 +34,7 @@ namespace FEZUG.Features
             default: return null;
             }
 
-            return [value.ToString("0", CultureInfo.InvariantCulture)];
+            return new() {value.ToString("0", CultureInfo.InvariantCulture)};
         }
 
 

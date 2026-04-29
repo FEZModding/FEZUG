@@ -23,7 +23,7 @@ namespace FEZUG.Features.Console
         {
             this.Name = name;
             this.HelpText = helpText;
-            AutocompleteProvider = autocompleteProvider ?? (_ => []);
+            AutocompleteProvider = autocompleteProvider ?? (_ => new());
             ExecuteCommand = executeCommand ?? (_ => false);
         }
     }

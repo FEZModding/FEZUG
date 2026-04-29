@@ -11,7 +11,7 @@ namespace FEZUG.Features.Hud
 {
     public class FpsGraph : IFezugFeature
     {
-        private readonly Dictionary<string, (FezugVariable fezugVar, Color lineColor, List<double> pastVals)> graphVars = [];
+        private readonly Dictionary<string, (FezugVariable fezugVar, Color lineColor, List<double> pastVals)> graphVars = new();
         private FezugVariable hud_graph_hide, graph_maxcount, graph_interval;
 
         private HudPositioner Positioner;
@@ -39,7 +39,7 @@ namespace FEZUG.Features.Hud
                     SaveOnChange = true,
                     Min = 0,
                     Max = 1
-                }, lineColor, []));
+                }, lineColor, new()));
             }
 
             CreateGraphVariable("ups", "graph_ups", "updates per second", Color.Cyan);

@@ -11,7 +11,7 @@ namespace FEZUG.Features.Hud
 {
     public class TextHud : IFezugFeature
     {
-        private readonly List<(FezugVariable var, Func<string> provider)> hudVars = [];
+        private readonly List<(FezugVariable var, Func<string> provider)> hudVars = new();
 
         private FezugVariable hud_hide;
 

@@ -31,7 +31,7 @@ namespace FEZUG
 
             DrawingTools.Init();
 
-            Features = [];
+            Features = new();
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t) && !t.IsAbstract))
             {

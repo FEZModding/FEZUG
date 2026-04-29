@@ -16,11 +16,11 @@ namespace FEZUG.Features
         [ServiceDependency]
         public IGameLevelManager LevelManager { private get; set; }
 
-        public List<string> AllowedFlagNames =
-        [
+        public List<string> AllowedFlagNames = new()
+        {
             "CanNewGamePlus", "IsNewGamePlus", "Finished32", "Finished64", "HasFPView", "HasStereo3D", "HasDoneHeartReboot",
             "FezHidden", "HasHadMapHelp", "CanOpenMap", "AchievementCheatCodeDone", "MapCheatCodeDone", "AnyCodeDeciphered",
-        ];
+        };
 
         public bool Execute(string[] args)
         {
@@ -216,25 +216,25 @@ namespace FEZUG.Features
         {
             if (args.Length == 1)
             {
-                return [.. new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0]))];
+                return new string[] { "flag", "level", "all" }.Where(s => s.StartsWith(args[0])).ToList();
             }
             else if (args.Length == 3 || args[0] == "all")
             {
-                return [.. new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1]))];
+                return new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[args.Length-1])).ToList();
             }
             else if (args.Length == 2)
             {
                 if (args[0] == "level")
                 {
-                    var list = WarpLevel.Instance.Autocomplete([args[1]]);
+                    var list = WarpLevel.Instance.Autocomplete(new string[] {args[1]});
                     list.AddRange(
-                        [.. new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[1]))]
+                        new string[] { "unlock", "reset" }.Where(s => s.StartsWith(args[1]))
                     );
                     return list;
                 }
                 else if (args[0] == "flag")
                 {
-                    return [.. AllowedFlagNames.Where(s => s.StartsWith(args[1]))];
+                    return AllowedFlagNames.Where(s => s.StartsWith(args[1])).ToList();
                 }
             }
 

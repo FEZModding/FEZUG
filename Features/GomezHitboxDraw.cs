@@ -17,7 +17,7 @@ namespace FEZUG.Features
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
-            return [GomezBoundingBox = CreateHitboxMesh(Color.Red)];
+            return new Mesh[] {GomezBoundingBox = CreateHitboxMesh(Color.Red)};
         }
 
         public override void DrawLevel(GameTime gameTime)

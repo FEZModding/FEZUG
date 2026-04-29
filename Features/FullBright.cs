@@ -24,7 +24,7 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-            return [.. new[] { "on", "off" }.Where(s => s.StartsWith(args[0]))];
+            return new[] { "on", "off" }.Where(s => s.StartsWith(args[0])).ToList();
         }
 
         public bool Execute(string[] args)

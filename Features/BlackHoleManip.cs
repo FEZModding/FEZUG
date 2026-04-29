@@ -33,7 +33,7 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-            return [.. new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args[0]))];
+            return new string[] { "on", "off", "lock", "unlock" }.Where(s => s.StartsWith(args[0])).ToList();
         }
 
         public bool Execute(string[] args)

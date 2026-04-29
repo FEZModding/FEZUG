@@ -33,7 +33,7 @@ namespace FEZUG.Features
         public List<string> Autocomplete(string[] args)
         {
             string timescaleStr = Timescale.ToString("0.000", CultureInfo.InvariantCulture);
-            if (timescaleStr.StartsWith(args[0])) return [timescaleStr];
+            if (timescaleStr.StartsWith(args[0])) return new() {timescaleStr};
             return null;
         }
 
