@@ -73,7 +73,7 @@ namespace FEZUG.Features
 
         private bool AreBlackHolesEnabled()
         {
-            var blackHole = LevelManager.Volumes.Values.Where((Volume x) => x.ActorSettings != null && x.ActorSettings.IsBlackHole);
+            var blackHole = LevelManager.Volumes.Values.Where(x => x.ActorSettings != null && x.ActorSettings.IsBlackHole);
             if (blackHole.Count() == 0) return false;
             return blackHole.First().Enabled;
         }

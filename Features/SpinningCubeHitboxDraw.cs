@@ -1,13 +1,9 @@
 ﻿using FezEngine.Components;
-using FezEngine.Effects;
 using FezEngine.Structure;
 using FezEngine.Tools;
 using FezGame.Components;
-using FezGame.Services;
-using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace FEZUG.Features
 {
@@ -31,7 +27,7 @@ namespace FEZUG.Features
         protected override void PreInitialize()
         {
             System.Reflection.FieldInfo spinTreasureField = typeof(FezGame.Fez).Assembly.GetType("FezGame.Components.SpinningTreasuresHost").GetField("TrackedTreasures", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            Func<SpinningTreasuresHost> getSpinningTreasuresHost = () => (SpinningTreasuresHost)ServiceHelper.Game.Components.FirstOrDefault(c => typeof(SpinningTreasuresHost).Equals(c.GetType()));
+            static SpinningTreasuresHost getSpinningTreasuresHost() => (SpinningTreasuresHost)ServiceHelper.Game.Components.FirstOrDefault(c => typeof(SpinningTreasuresHost).Equals(c.GetType()));
             Waiters.Wait(() => getSpinningTreasuresHost() != null, () =>
             {
                 SpinningTreasuresHost spinningTreasureHost = getSpinningTreasuresHost();

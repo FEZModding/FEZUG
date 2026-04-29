@@ -1,5 +1,4 @@
-﻿using FezEngine.Effects;
-using FezEngine.Structure;
+﻿using FezEngine.Structure;
 using FezEngine.Tools;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
@@ -25,7 +24,7 @@ namespace FEZUG.Features
             Other
         }
 
-        private Dictionary<int, VolumeType> volumes = [];
+        private readonly Dictionary<int, VolumeType> volumes = [];
 
         private static Mesh[] VolumeBoundingBoxes = null;
 

@@ -571,7 +571,7 @@ namespace FEZUG.Features.Console
         };
 
         //Note: this is a ConcurrentQueue for thread safety, just in case another mod wants to use a separate thread to write to the console
-        private ConcurrentQueue<ConsoleOutput> outputBuffer = [];
+        private readonly ConcurrentQueue<ConsoleOutput> outputBuffer = [];
         private float blinkingTime;
         private int previousCursor = 0;
 
@@ -610,7 +610,7 @@ namespace FEZUG.Features.Console
         public void UnfixedUpdate(GameTime gameTime)
         {
             var unscaledTime = Timescaler.GetUnscaledGameTime(gameTime);
-            
+
             Handler.Update(unscaledTime);
 
             if (!Handler.Enabled) return;
@@ -658,7 +658,7 @@ namespace FEZUG.Features.Console
         public void DrawHUD(GameTime gameTime)
         {
             UnfixedUpdate(gameTime);
-            
+
             if (!Handler.Enabled) return;
 
             Viewport viewport = DrawingTools.GetViewport();

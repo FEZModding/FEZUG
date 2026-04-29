@@ -96,8 +96,6 @@ namespace FEZUG.Features
 
             DrawingTools.GraphicsDevice.PrepareStencilWrite(StencilMask.Level);
 
-            var cameraViewpoint = CameraManager.Viewpoint.VisibleOrientation();
-
             foreach (var trile in LevelManager.Triles)
             {
                 Dictionary<FaceOrientation, CollisionType> faces = trile.Value.Trile.Faces;
@@ -146,7 +144,7 @@ namespace FEZUG.Features
                         Instance.ShowNone = !Instance.ShowNone;
                         return $"Wireframes for the \"None\" CollisionType have been {(Instance.ShowNone ? "enabled" : "disabled")}.";
                     }
-                } 
+                }
             };
         }
     }

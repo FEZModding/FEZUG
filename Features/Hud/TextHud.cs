@@ -130,7 +130,7 @@ namespace FEZUG.Features.Hud
             _framesRendered++;
             if ((DateTime.Now - _lastTime).TotalSeconds >= 1)
             {
-                // one second has elapsed 
+                // one second has elapsed
 
                 _fps = _framesRendered;
                 _framesRendered = 0;

@@ -38,7 +38,7 @@ namespace FEZUG.Features
                 Emissive = 1.0f,
                 AlphaIsEmissive = true
             };
-            Mesh m = new Mesh
+            Mesh m = new()
             {
                 DepthWrites = false,
                 Blending = BlendingMode.Alphablending,

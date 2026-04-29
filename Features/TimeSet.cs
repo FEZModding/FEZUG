@@ -48,8 +48,8 @@ namespace FEZUG.Features
 
             if(args[0] == "set")
             {
-                DateTime dateTime = DateTime.Now;
-                if(!DateTime.TryParseExact(args[1], "H:mm", null, DateTimeStyles.None, out dateTime)){
+                if (!DateTime.TryParseExact(args[1], "H:mm", null, DateTimeStyles.None, out DateTime dateTime))
+                {
                     switch (args[1])
                     {
                         case "real": dateTime = DateTime.Now; break;

@@ -24,7 +24,7 @@ namespace FEZUG.Features
             }
 
             int.TryParse(args[1], out var amount);
-            string itemName = "";
+            string itemName;
 
             switch (args[0])
             {

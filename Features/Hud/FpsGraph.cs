@@ -86,7 +86,7 @@ namespace FEZUG.Features.Hud
             double elapsedSeconds = (DateTime.Now - _lastTime).TotalSeconds;
             if (elapsedSeconds >= intervalSeconds)
             {
-                // one second has elapsed 
+                // one second has elapsed
                 _fps = _framesRendered;
                 _framesRendered = 0;
                 _ups = _updatesDone;
@@ -164,7 +164,7 @@ namespace FEZUG.Features.Hud
                     float avg = (float)pastVals.Average();
                     float avgPosY = yOff + avg * yScale;
                     //draw average
-                    Vector2 avgTextPos = new Vector2(xOff, yOff + textHeight * (enabledCount - 1 - displayTextIndex));
+                    Vector2 avgTextPos = new(xOff, yOff + textHeight * (enabledCount - 1 - displayTextIndex));
                     DrawingTools.DrawLineSegment(new(xOff, avgPosY), new(xOff + width, avgPosY), avgLineColor, lineThickness);
                     DrawingTools.DrawText(pair.Key.ToUpper() + " (avg): " + avg, avgTextPos, avgLineColor);
                     ++displayTextIndex;

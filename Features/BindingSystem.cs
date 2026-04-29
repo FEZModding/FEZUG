@@ -17,7 +17,7 @@ namespace FEZUG.Features
         private const int GamePadKeysOffset = 0x300000;
 
         private InputHelper InputHelper { get; } = InputHelper.Instance;
-        
+
         public BindList Binds { get; private set; }
 
         public static BindingSystem Instance;
@@ -68,8 +68,6 @@ namespace FEZUG.Features
             if (command.Length > 0)
                 Instance.Binds.Add(key, command);
 
-
-            string configPath = Path.Combine(Util.LocalConfigFolder, BindConfigFileName);
             SaveBinds();
         }
 
