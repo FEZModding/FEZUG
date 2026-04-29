@@ -11,7 +11,7 @@ namespace FEZUG.Features.Hud
 {
     public class FpsGraph : IFezugFeature
     {
-        private readonly Dictionary<string, (FezugVariable fezugVar, Color lineColor, List<double> pastVals)> graphVars = new();
+        private readonly Dictionary<string, GraphVar> graphVars = new();
         private FezugVariable hud_graph_hide, graph_maxcount, graph_interval;
 
         private HudPositioner Positioner;
@@ -34,7 +34,7 @@ namespace FEZUG.Features.Hud
         {
             void CreateGraphVariable(string id, string name, string desc, Color lineColor)
             {
-                graphVars.Add(id, (new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
+                graphVars.Add(id, new GraphVar(new FezugVariable(name, $"If set, enables {desc} graph hud.", "0")
                 {
                     SaveOnChange = true,
                     Min = 0,
@@ -143,25 +143,25 @@ namespace FEZUG.Features.Hud
             int displayTextIndex = 0;
             foreach (var pair in varsForDrawing)
             {
-                var (fezugVar, lineColor, pastVals) = pair.Value;
-                if (fezugVar.ValueBool && pastVals.Count > 1)
+                var graphVar = pair.Value;
+                if (graphVar.fezugVar.ValueBool && graphVar.pastVals.Count > 1)
                 {
-                    var avgLineColor = Color.Multiply(lineColor, avgLineColorAdjust);
+                    var avgLineColor = Color.Multiply(graphVar.lineColor, avgLineColorAdjust);
                     avgLineColor.A /= 2;
-                    float max = (float)pastVals.Max();
-                    var xScale = (width - padding) / (pastVals.Count - 1);
+                    float max = (float)graphVar.pastVals.Max();
+                    var xScale = (width - padding) / (graphVar.pastVals.Count - 1);
                     var yScale = (height - padding) / max;
-                    Vector2 previousPoint = boxTopLeft + new Vector2(0, yScale * (float)pastVals[0]);
-                    for (int i=1; i<pastVals.Count; ++i)
+                    Vector2 previousPoint = boxTopLeft + new Vector2(0, yScale * (float)graphVar.pastVals[0]);
+                    for (int i=1; i<graphVar.pastVals.Count; ++i)
                     {
                         //draw line in box
-                        Vector2 nextPoint = boxTopLeft + new Vector2(xScale * i, (float)(yScale * pastVals[i]));
-                        DrawingTools.DrawLineSegment(previousPoint, nextPoint, lineColor, lineThickness);
+                        Vector2 nextPoint = boxTopLeft + new Vector2(xScale * i, (float)(yScale * graphVar.pastVals[i]));
+                        DrawingTools.DrawLineSegment(previousPoint, nextPoint, graphVar.lineColor, lineThickness);
                         //draw line joints / nodes
                         //DrawingTools.DrawRect(new Rectangle((int)point1.X + lineThickness, (int)point1.Y, lineThickness, lineThickness), lineColor);
                         previousPoint = nextPoint;
                     }
-                    float avg = (float)pastVals.Average();
+                    float avg = (float)graphVar.pastVals.Average();
                     float avgPosY = yOff + avg * yScale;
                     //draw average
                     Vector2 avgTextPos = new(xOff, yOff + textHeight * (enabledCount - 1 - displayTextIndex));
@@ -169,6 +169,20 @@ namespace FEZUG.Features.Hud
                     DrawingTools.DrawText(pair.Key.ToUpper() + " (avg): " + avg, avgTextPos, avgLineColor);
                     ++displayTextIndex;
                 }
+            }
+        }
+
+        internal class GraphVar
+        {
+            internal FezugVariable fezugVar;
+            internal Color lineColor;
+            internal List<double> pastVals;
+
+            internal GraphVar(FezugVariable fezugVar, Color lineColor, List<double> pastVals)
+            {
+                this.fezugVar = fezugVar;
+                this.lineColor = lineColor;
+                this.pastVals = pastVals;
             }
         }
     }
