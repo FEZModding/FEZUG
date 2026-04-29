@@ -32,17 +32,26 @@ namespace FEZUG
             DrawingTools.Init();
 
             Features = new();
-            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t) && !t.IsAbstract))
-            {
-                IFezugFeature feature = (IFezugFeature)Activator.CreateInstance(type);
-                ServiceHelper.InjectServices(feature);
-                Features.Add(feature);
-            }
 
-            foreach (var feature in Features)
-            {
-                feature.Initialize();
+            try {
+                Type[] types = Assembly.GetExecutingAssembly().GetTypes();
+                foreach (Type type in types.Where(t => t.IsClass && typeof(IFezugFeature).IsAssignableFrom(t) && !t.IsAbstract))
+                {
+                    IFezugFeature feature = (IFezugFeature)Activator.CreateInstance(type);
+                    ServiceHelper.InjectServices(feature);
+                    Features.Add(feature);
+                }
+
+                foreach (var feature in Features)
+                {
+                    feature.Initialize();
+                }
+            } catch (ReflectionTypeLoadException e) {
+                string message = "Error while attempting to load types in this assembly!!! The classes in the following error messages are the ones with issues:\n";
+                foreach (Exception ex in e.LoaderExceptions) {
+                    message += "\n" + ex.Message;
+                }
+                throw new Exception(message);
             }
         }
 
