@@ -21,6 +21,8 @@ namespace FEZUG.Features
 
         private static long lastMeasuredRealTimestamp = 0;
         private static long internalTimestamp = 0;
+        delegate long GetTimestampDelegate();
+        private static GetTimestampDelegate orig_GetTimestamp;
 
         public static float Timescale { get; private set; } = 1.0f;
 
@@ -77,23 +79,17 @@ namespace FEZUG.Features
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
 
             var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
-            var newFunc = (Func<long> original) =>
-            {
-                var originalTimestamp = original();
-                var elapsedSinceMeasure = originalTimestamp - lastMeasuredRealTimestamp;
-                internalTimestamp += (long)(elapsedSinceMeasure * Timescale);
-                lastMeasuredRealTimestamp = originalTimestamp;
-                return internalTimestamp;
-            };
-            try
-            {
-                stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, newFunc);
-            }
-            catch
-            {
-                //TODO the Hook contructor throws an exception if Stopwatch.GetTimestamp is a native extern method
-                //stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, newFunc);
-            }
+            stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, GetTimestampHook);
+            orig_GetTimestamp = stopwatchTimestampDetour.GenerateTrampoline<GetTimestampDelegate>();
+        }
+        
+        private static long GetTimestampHook()
+        {
+            var originalTimestamp = orig_GetTimestamp();
+            var elapsedSinceMeasure = originalTimestamp - lastMeasuredRealTimestamp;
+            internalTimestamp += (long)(elapsedSinceMeasure * Timescale);
+            lastMeasuredRealTimestamp = originalTimestamp;
+            return internalTimestamp;
         }
 
         private void InitializeAudioHooksAndReferences()
