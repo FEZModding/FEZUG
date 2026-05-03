@@ -7,13 +7,13 @@ namespace FEZUG.Features.Console
 
         public string HelpText { get; }
 
-        private Func<string[], List<string>> AutocompleteProvider;
+        private readonly Func<string[], List<string>> AutocompleteProvider;
         public List<string> Autocomplete(string[] args)
         {
             return AutocompleteProvider(args);
         }
 
-        private Func<string[], bool> ExecuteCommand;
+        private readonly Func<string[], bool> ExecuteCommand;
         public bool Execute(string[] args)
         {
             return ExecuteCommand(args);
@@ -23,7 +23,7 @@ namespace FEZUG.Features.Console
         {
             this.Name = name;
             this.HelpText = helpText;
-            AutocompleteProvider = autocompleteProvider ?? (_ => []);
+            AutocompleteProvider = autocompleteProvider ?? (_ => new());
             ExecuteCommand = executeCommand ?? (_ => false);
         }
     }

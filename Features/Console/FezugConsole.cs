@@ -14,7 +14,7 @@ namespace FEZUG.Features.Console
         public class ParsedCommand : List<string>
         {
             public string Command => this.Count() == 0 ? "" : this[0];
-            public string[] Arguments => this.Count() <= 1 ? [] : [.. this.Skip(1)];
+            public string[] Arguments => this.Count() <= 1 ? new string[0] : this.Skip(1).ToArray();
         }
 
         public class ParsedCommandSequence : List<ParsedCommand>
@@ -63,7 +63,7 @@ namespace FEZUG.Features.Console
                     if (endOfCommand)
                     {
                         Add(currentTokens);
-                        currentTokens = [];
+                        currentTokens = new();
                     }
 
                     if (quote)
@@ -107,7 +107,7 @@ namespace FEZUG.Features.Console
             {
                 ConsoleLine = consoleLine;
 
-                SuggestedWords = [""];
+                SuggestedWords = new() {""};
                 previousCommandSequence = new ParsedCommandSequence("");
             }
 
@@ -141,8 +141,8 @@ namespace FEZUG.Features.Console
                 // only one word in current command - autocomplete from all available commands and variables
                 if (command.Count == 1)
                 {
-                    SuggestedWords.AddRange([.. matchingCommands.Select(c => c.Name)]);
-                    SuggestedWords.AddRange([.. matchingVariables.Select(c => $"{c.Name} {c.ValueString}")]);
+                    SuggestedWords.AddRange(matchingCommands.Select(c => c.Name));
+                    SuggestedWords.AddRange(matchingVariables.Select(c => $"{c.Name} {c.ValueString}"));
                 }
                 // more than one words - get a command-specific or variable-specific autocompletion
                 else if(command.Count > 1)
@@ -238,7 +238,7 @@ namespace FEZUG.Features.Console
 
                 TextInputEXT.TextInput += OnTextInput;
 
-                Commands = [];
+                Commands = new();
                 foreach (Type type in Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => t.IsClass && typeof(IFezugCommand).IsAssignableFrom(t) && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null))
                 {
@@ -261,7 +261,7 @@ namespace FEZUG.Features.Console
                 Enabled = false;
                 Buffer = "";
 
-                previousBufferInputs = [];
+                previousBufferInputs = new();
 
                 Autocompletion = new AutocompletionManager(this);
                 BufferChanged += Autocompletion.Refresh;
@@ -571,7 +571,7 @@ namespace FEZUG.Features.Console
         };
 
         //Note: this is a ConcurrentQueue for thread safety, just in case another mod wants to use a separate thread to write to the console
-        private ConcurrentQueue<ConsoleOutput> outputBuffer = [];
+        private readonly ConcurrentQueue<ConsoleOutput> outputBuffer = new();
         private float blinkingTime;
         private int previousCursor = 0;
 
@@ -610,7 +610,7 @@ namespace FEZUG.Features.Console
         public void UnfixedUpdate(GameTime gameTime)
         {
             var unscaledTime = Timescaler.GetUnscaledGameTime(gameTime);
-            
+
             Handler.Update(unscaledTime);
 
             if (!Handler.Enabled) return;
@@ -635,7 +635,7 @@ namespace FEZUG.Features.Console
 
         public static void Print(string text, Color color)
         {
-            foreach(var splitText in text.Split(['\n']))
+            foreach(var splitText in text.Split(new[] {'\n'}))
             {
                 Instance.Print(new ConsoleOutput
                 {
@@ -658,7 +658,7 @@ namespace FEZUG.Features.Console
         public void DrawHUD(GameTime gameTime)
         {
             UnfixedUpdate(gameTime);
-            
+
             if (!Handler.Enabled) return;
 
             Viewport viewport = DrawingTools.GetViewport();
@@ -728,7 +728,7 @@ namespace FEZUG.Features.Console
             var outputItemPos = 0;
             foreach (var outputLine in outputBuffer.Reverse())
             {
-                List<string> lines = [];
+                List<string> lines = new();
                 string lineBuffer = "";
                 foreach(var word in outputLine.Text.Split(' '))
                 {

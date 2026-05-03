@@ -34,13 +34,13 @@ namespace FEZUG.Features
             default: return null;
             }
 
-            return [value.ToString("0", CultureInfo.InvariantCulture)];
+            return new() {value.ToString("0", CultureInfo.InvariantCulture)};
         }
 
 
         public bool Execute(string[] args)
         {
-            if (!Teleport.TryParseCoords(args, 
+            if (!Teleport.TryParseCoords(args,
                 PlayerManager.Ground.First?.Emplacement.AsVector ?? PlayerManager.Position.Round(),
                 out Vector3 coords))
             {

@@ -1,13 +1,8 @@
 ﻿using FezEngine;
-using FezEngine.Effects;
-using FezEngine.Services;
 using FezEngine.Structure;
 using FezEngine.Tools;
-using FezGame.Services;
-using FEZUG.Features.Console;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace FEZUG.Features
 {
@@ -28,18 +23,18 @@ namespace FEZUG.Features
         }
 
         private Group oneFaceGroup;
-        private Dictionary<TrileEmplacement, InvisibleType> invisibleTriles = [];
+        private readonly Dictionary<TrileEmplacement, InvisibleType> invisibleTriles = new();
 
         private Mesh[] TrileBoundingBoxes;
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
-            Color[] trileColors =
-            [
+            Color[] trileColors = new Color[]
+            {
                 Color.Gray,
                 Color.White,
                 Color.Magenta
-            ];
+            };
             int colorCount = trileColors.Length;
             TrileBoundingBoxes = new Mesh[3];
             for (var i = 0; i < colorCount; i++)

@@ -74,7 +74,6 @@ namespace FEZUG.Features
 
         public List<string> Autocomplete(string[] args)
         {
-            
             string valStr = Value.ToString(numFormatString, CultureInfo.InvariantCulture);
             if (valStr.StartsWith(args[0])) return new List<string> { valStr };
             return null;

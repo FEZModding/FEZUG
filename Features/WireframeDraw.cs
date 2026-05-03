@@ -38,7 +38,7 @@ namespace FEZUG.Features
                 Emissive = 1.0f,
                 AlphaIsEmissive = true
             };
-            Mesh m = new Mesh
+            Mesh m = new()
             {
                 DepthWrites = false,
                 Blending = BlendingMode.Alphablending,
@@ -82,18 +82,18 @@ namespace FEZUG.Features
             private const string xrayOption = "xray";
 
             protected bool AllowXray = false;
-            private string[] Options
+            private List<string> Options
             {
                 get
                 {
+                    List<string> options = new() {onOption, offOption};
                     if (AllowXray)
-                    {
-                        return [onOption, offOption, xrayOption, ..AdditionalChoices.Keys];
-                    }
-                    return [onOption, offOption, ..AdditionalChoices.Keys];
+                        options.Add(xrayOption);
+                    options.AddRange(AdditionalChoices.Keys);
+                    return options;
                 }
             }
-            protected virtual Dictionary<string, Func<string[], string>> AdditionalChoices => [];
+            protected virtual Dictionary<string, Func<string[], string>> AdditionalChoices => new();
 
             protected abstract string WhatFor { get; }
             protected virtual string HelpWhatFor => WhatFor;
@@ -107,7 +107,7 @@ namespace FEZUG.Features
 
             public List<string> Autocomplete(string[] args)
             {
-                return [.. Options.Where(s => s.StartsWith(args[0]))];
+                return Options.Where(s => s.StartsWith(args[0])).ToList();
             }
 
             public bool Execute(string[] args)

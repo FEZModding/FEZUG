@@ -7,7 +7,7 @@ namespace FEZUG.Features.Console
     {
         public const string VariablesFileName = "FezugVars";
 
-        public static List<FezugVariable> DefinedList { get; private set; } = [];
+        public static List<FezugVariable> DefinedList { get; private set; } = new();
         private static Dictionary<string, string> LoadedVariables { get; set; }
 
         public readonly string Name;
@@ -130,14 +130,14 @@ namespace FEZUG.Features.Console
         private static void LoadVariables()
         {
             if (LoadedVariables != null) return;
-            LoadedVariables = [];
+            LoadedVariables = new();
 
             var varsFilePath = GetVariablesFilePath();
             if (!File.Exists(varsFilePath)) return;
             var varsFileLines = File.ReadAllLines(varsFilePath);
             foreach (var line in varsFileLines)
             {
-                string[] tokens = line.Split([' '], 2);
+                string[] tokens = line.Split(new char[] {' '}, 2);
                 if (tokens.Length < 2) continue;
 
                 LoadedVariables[tokens[0]] = tokens[1];

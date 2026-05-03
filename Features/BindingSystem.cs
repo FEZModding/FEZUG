@@ -17,7 +17,7 @@ namespace FEZUG.Features
         private const int GamePadKeysOffset = 0x300000;
 
         private InputHelper InputHelper { get; } = InputHelper.Instance;
-        
+
         public BindList Binds { get; private set; }
 
         public static BindingSystem Instance;
@@ -28,7 +28,7 @@ namespace FEZUG.Features
         public BindingSystem()
         {
             Instance = this;
-            Binds = [];
+            Binds = new();
         }
 
         public void Initialize() {
@@ -68,8 +68,6 @@ namespace FEZUG.Features
             if (command.Length > 0)
                 Instance.Binds.Add(key, command);
 
-
-            string configPath = Path.Combine(Util.LocalConfigFolder, BindConfigFileName);
             SaveBinds();
         }
 
@@ -94,7 +92,7 @@ namespace FEZUG.Features
             var bindFileLines = File.ReadAllLines(bindFilePath);
             foreach(var line in bindFileLines)
             {
-                string[] tokens = line.Split([' '], 2);
+                string[] tokens = line.Split(new char[] {' '}, 2);
                 if (tokens.Length < 2) continue;
 
                 if(TryParseBindName(tokens[0], out Keys key))
@@ -124,7 +122,7 @@ namespace FEZUG.Features
         }
         private static List<string> GetAutoCompleteOptions(string arg)
         {
-            return [..Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Concat(Enum.GetNames(typeof(Buttons)).Select(b => GamePadPrefix + b)).Where(s => s.StartsWith(arg, StringComparison.OrdinalIgnoreCase))] ;
+            return Enum.GetNames(typeof(Keys)).Select(s => s.ToLower()).Concat(Enum.GetNames(typeof(Buttons)).Select(b => GamePadPrefix + b)).Where(s => s.StartsWith(arg, StringComparison.OrdinalIgnoreCase)).ToList();
         }
         private static bool TryParseBindName(string str, out Keys key)
         {
@@ -162,7 +160,7 @@ namespace FEZUG.Features
                 if (args.Length == 2 && Enum.TryParse<Keys>(args[0], true, out var key)
                 && HasBind(key) && GetBind(key).StartsWith(args[1], StringComparison.OrdinalIgnoreCase))
                 {
-                    return [GetBind(key)];
+                    return new() {GetBind(key)};
                 }
                 return null;
             }

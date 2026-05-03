@@ -51,7 +51,7 @@ namespace FEZUG.Features
         {
             if (args.Length == 0 || args[args.Length - 1].Length > 0) return null;
 
-            return [CameraManager.PixelsPerTrixel.ToString("0.000", CultureInfo.InvariantCulture)];
+            return new() {CameraManager.PixelsPerTrixel.ToString("0.000", CultureInfo.InvariantCulture)};
 		}
     }
 }

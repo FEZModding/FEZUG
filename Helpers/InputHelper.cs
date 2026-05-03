@@ -6,8 +6,8 @@ namespace FEZUG.Helpers
 {
     internal class InputHelper
     {
-        private readonly Dictionary<Keys, double> KeyboardRepeatHeldTimers = [];
-        private readonly List<Keys> KeyboardRepeatedPresses = [];
+        private readonly Dictionary<Keys, double> KeyboardRepeatHeldTimers = new();
+        private readonly List<Keys> KeyboardRepeatedPresses = new();
 
         public KeyboardState CurrentKeyboardState { get; private set; }
         public KeyboardState PreviousKeyboardState { get; private set; }

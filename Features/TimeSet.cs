@@ -18,21 +18,21 @@ namespace FEZUG.Features
         {
             if(args.Length == 1)
             {
-                return [.. new string[] { "set", "speed" }.Where(s => s.StartsWith(args[0]))];
+                return new string[] { "set", "speed" }.Where(s => s.StartsWith(args[0])).ToList();
             }else if(args.Length == 2)
             {
                 if (args[0].Equals("set"))
                 {
-                    return [.. new string[]
+                    return new string[]
                     {
                         TimeManager.CurrentTime.ToString("HH:mm"),
                         "dawn", "day", "dusk", "night", "real"
-                    }.Where(s => s.StartsWith(args[1]))];
+                    }.Where(s => s.StartsWith(args[1])).ToList();
                 }
                 if (args[0].Equals("speed") && args[1].Length == 0)
                 {
                     float curTime = TimeManager.TimeFactor / TimeManager.DefaultTimeFactor;
-                    return [curTime.ToString("0.000", CultureInfo.InvariantCulture) , "real"];
+                    return new() {curTime.ToString("0.000", CultureInfo.InvariantCulture) , "real"};
                 }
             }
             return null;
@@ -48,8 +48,8 @@ namespace FEZUG.Features
 
             if(args[0] == "set")
             {
-                DateTime dateTime = DateTime.Now;
-                if(!DateTime.TryParseExact(args[1], "H:mm", null, DateTimeStyles.None, out dateTime)){
+                if (!DateTime.TryParseExact(args[1], "H:mm", null, DateTimeStyles.None, out DateTime dateTime))
+                {
                     switch (args[1])
                     {
                         case "real": dateTime = DateTime.Now; break;

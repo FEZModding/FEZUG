@@ -1,5 +1,4 @@
-﻿using FezEngine.Effects;
-using FezEngine.Structure;
+﻿using FezEngine.Structure;
 using FezEngine.Tools;
 using FEZUG.Helpers;
 using Microsoft.Xna.Framework;
@@ -25,21 +24,21 @@ namespace FEZUG.Features
             Other
         }
 
-        private Dictionary<int, VolumeType> volumes = [];
+        private readonly Dictionary<int, VolumeType> volumes = new();
 
         private static Mesh[] VolumeBoundingBoxes = null;
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
-            Color[] volColors =
-            [
+            Color[] volColors = new Color[]
+            {
                 Color.Black,
                 Color.Gold,
                 Color.Blue,
                 Color.Gray,
                 Color.Lime,
                 Color.Purple
-            ];
+            };
             int VolTypeCount = volColors.Length;
             VolumeBoundingBoxes = new Mesh[VolTypeCount];
 

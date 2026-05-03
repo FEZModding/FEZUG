@@ -11,7 +11,7 @@ namespace FEZUG.Features.Hud
 {
     public class TextHud : IFezugFeature
     {
-        private readonly List<(FezugVariable var, Func<string> provider)> hudVars = [];
+        private readonly List<HudVariable> hudVars = new();
 
         private FezugVariable hud_hide;
 
@@ -38,7 +38,7 @@ namespace FEZUG.Features.Hud
         {
             void CreateHudVariable(string name, string desc, Func<string> provider)
             {
-                hudVars.Add((new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
+                hudVars.Add(new HudVariable(new FezugVariable(name, $"If set, enables {desc} text hud.", "0")
                 {
                     SaveOnChange = true,
                     Min = 0,
@@ -130,7 +130,7 @@ namespace FEZUG.Features.Hud
             _framesRendered++;
             if ((DateTime.Now - _lastTime).TotalSeconds >= 1)
             {
-                // one second has elapsed 
+                // one second has elapsed
 
                 _fps = _framesRendered;
                 _framesRendered = 0;
@@ -151,11 +151,11 @@ namespace FEZUG.Features.Hud
                 $"FEZUG {Fezug.Version}"
             };
 
-            foreach (var (var, provider) in hudVars)
+            foreach (var hudVar in hudVars)
             {
-                if(var.ValueBool)
+                if(hudVar.var.ValueBool)
                 {
-                    linesToDraw.Add(provider());
+                    linesToDraw.Add(hudVar.provider());
                 }
             }
 
@@ -182,6 +182,18 @@ namespace FEZUG.Features.Hud
                 if (i == 0) DrawText(line, position + new Vector2(padX, (i*30.0f)-1.0f));
             }
 
+        }
+
+        internal class HudVariable
+        {
+            internal FezugVariable var;
+            internal Func<string> provider;
+
+            internal HudVariable(FezugVariable var, Func<string> provider)
+            {
+                this.var = var;
+                this.provider = provider;
+            }
         }
     }
 }

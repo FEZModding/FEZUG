@@ -21,19 +21,19 @@ namespace FEZUG.Features
 
         private static long lastMeasuredRealTimestamp = 0;
         private static long internalTimestamp = 0;
-        
+
         public static float Timescale { get; private set; } = 1.0f;
 
         [ServiceDependency]
         public ISoundManager SoundManager { private get; set; }
-        
+
         public string Name => "timescale";
         public string HelpText => "timescale <value> - changes game's simulation scale";
 
         public List<string> Autocomplete(string[] args)
         {
             string timescaleStr = Timescale.ToString("0.000", CultureInfo.InvariantCulture);
-            if (timescaleStr.StartsWith(args[0])) return [timescaleStr];
+            if (timescaleStr.StartsWith(args[0])) return new() {timescaleStr};
             return null;
         }
 
@@ -57,7 +57,7 @@ namespace FEZUG.Features
 
             return true;
         }
-        
+
         private void SetTimescale(float timescale)
         {
             Timescale = Math.Min(Math.Max(timescale, 0.0001f), 100.0f);
@@ -75,7 +75,7 @@ namespace FEZUG.Features
         {
             // TODO?: This could've been done less invasively by manually handling all cases where Stopwatch is used
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
-            
+
             var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
             var newFunc = (Func<long> original) =>
             {
@@ -89,19 +89,19 @@ namespace FEZUG.Features
             {
                 stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, newFunc);
             }
-            catch (Exception e)
+            catch
             {
                 //TODO the Hook contructor throws an exception if Stopwatch.GetTimestamp is a native extern method
                 //stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, newFunc);
             }
         }
-        
+
         private void InitializeAudioHooksAndReferences()
         {
             var openAlDeviceType = typeof(SoundEffect).Assembly.GetType("Microsoft.Xna.Framework.Audio.OpenALDevice");
             var setSourcePitchMethod = openAlDeviceType.GetMethod("SetSourcePitch", BindingFlags.Public | BindingFlags.Instance);
             setSourcePitchDetour = new ILHook(setSourcePitchMethod, InjectPitchTweak);
-            
+
             var audioDeviceType = Assembly.GetAssembly(typeof(SoundEffectInstance)).GetType("Microsoft.Xna.Framework.Audio.AudioDevice");
             var soundInstancePoolField = audioDeviceType.GetField("InstancePool", BindingFlags.Public | BindingFlags.Static);
             soundInstancePoolRef = (List<SoundEffectInstance>)soundInstancePoolField!.GetValue(null);
@@ -112,15 +112,15 @@ namespace FEZUG.Features
         private void InjectPitchTweak(ILContext il)
         {
             var cursor = new ILCursor(il);
-            
+
             cursor.Emit(OpCodes.Ldarg_2); // load pitch param
             cursor.EmitDelegate<Func<float, float>>(pitch => pitch + (float)Math.Log(Timescale, 2.0));
             cursor.Emit(OpCodes.Starg, 2);
-            
+
             cursor.Emit(OpCodes.Ldc_I4_0); // false
             cursor.Emit(OpCodes.Starg, 3); // store to clamp argument
         }
-        
+
         private void RefreshSoundPitches()
         {
             foreach (var audio in EnumerateActiveSoundsForPitchUpdate())
@@ -135,12 +135,12 @@ namespace FEZUG.Features
             foreach (var sound in dynamicSoundInstancePoolRef) yield return sound;
             foreach (var emitter in SoundManager.Emitters) yield return emitter.Cue;
         }
-        
+
         public void Update(GameTime gameTime){}
 
         public void DrawHUD(GameTime gameTime) { }
         public void DrawLevel(GameTime gameTime) { }
-        
+
         public static GameTime GetUnscaledGameTime(GameTime originalGameTime)
         {
             return new GameTime(

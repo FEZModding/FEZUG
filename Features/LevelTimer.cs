@@ -24,7 +24,7 @@ namespace FEZUG.Features
         private string endLevel = "";
 
         private TimeSpan lastTime = TimeSpan.Zero;
-        private readonly List<TimeSpan> timeHistory = [];
+        private readonly List<TimeSpan> timeHistory = new();
 
 
         private string lastTimerString = "THIS IS A TEST";

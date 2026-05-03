@@ -103,7 +103,7 @@ namespace FEZUG.Features
             {
                 if (args.Length == 0)
                 {
-                    List<string> paths = Autocomplete([""]);
+                    List<string> paths = Autocomplete(new string[] {""});
                     if (paths == null || paths.Count == 0)
                     {
                         FezugConsole.Print("No available quicksaves");
@@ -157,7 +157,7 @@ namespace FEZUG.Features
                 if (!Directory.Exists(quicksaveDir))
                     return null;
 
-                return [.. Directory.GetFiles(quicksaveDir).Select(path => Path.GetFileName(path)).Where(name => name.StartsWith(args[0]))];
+                return Directory.GetFiles(quicksaveDir).Select(path => Path.GetFileName(path)).Where(name => name.StartsWith(args[0])).ToList();
             }
         }
     }

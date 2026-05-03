@@ -2,7 +2,7 @@
 
 ![thumbnail](Docs/thumbnail.png)
 
-## Overview 
+## Overview
 
 This is a [HAT](https://github.com/Krzyhau/HAT) mod which adds some debug functionalities to FEZ - mainly tools for speedrunners, but also for people who want to just mess with the game.
 

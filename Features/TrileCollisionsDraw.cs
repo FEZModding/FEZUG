@@ -27,8 +27,8 @@ namespace FEZUG.Features
             {CollisionType.TopNoStraightLedge, Color.Yellow},
         };
 
-        private readonly Dictionary<TrileEmplacement, Dictionary<FaceOrientation, CollisionType>> invisibleTriles = [];
-        private readonly Dictionary<CollisionType, Mesh> CollisionMeshes = [];
+        private readonly Dictionary<TrileEmplacement, Dictionary<FaceOrientation, CollisionType>> invisibleTriles = new();
+        private readonly Dictionary<CollisionType, Mesh> CollisionMeshes = new();
 
         protected override Mesh[] RefreshBoundingBoxMeshs()
         {
@@ -78,7 +78,7 @@ namespace FEZUG.Features
                     }
                 });
             }
-            return [.. CollisionMeshes.Values];
+            return CollisionMeshes.Values.ToArray();
         }
         protected override void RefreshLevelList()
         {
@@ -95,8 +95,6 @@ namespace FEZUG.Features
             if (!WireframesEnabled || GameState.Loading || LevelManager.Name == null) return;
 
             DrawingTools.GraphicsDevice.PrepareStencilWrite(StencilMask.Level);
-
-            var cameraViewpoint = CameraManager.Viewpoint.VisibleOrientation();
 
             foreach (var trile in LevelManager.Triles)
             {
@@ -146,7 +144,7 @@ namespace FEZUG.Features
                         Instance.ShowNone = !Instance.ShowNone;
                         return $"Wireframes for the \"None\" CollisionType have been {(Instance.ShowNone ? "enabled" : "disabled")}.";
                     }
-                } 
+                }
             };
         }
     }

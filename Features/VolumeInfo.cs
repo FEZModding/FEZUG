@@ -20,7 +20,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-		public List<string> Autocomplete(string[] _args) { return []; }
+		public List<string> Autocomplete(string[] _args) { return new(); }
 
 		public bool Execute(string[] args)
 		{
@@ -102,7 +102,7 @@ namespace FEZUG.Features
 
         public void Initialize() { }
 
-        public List<string> Autocomplete(string[] _args) { return []; }
+        public List<string> Autocomplete(string[] _args) { return new(); }
 
         public bool Execute(string[] args)
         {
