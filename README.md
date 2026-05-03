@@ -26,7 +26,7 @@ This is a [HAT](https://github.com/Krzyhau/HAT) mod which adds some debug functi
 
 1. Download and install [HAT](https://github.com/Krzyhau/HAT).
 2. Download `FEZUG.zip` and put it in `Mods` directory.
-3. Run `MONOMODDED_FEZ.exe` and enjoy practising!
+3. Run `HAT.exe` and enjoy practising!
 
 ## Building
 
