@@ -27,12 +27,26 @@ namespace FEZUG.Features
         protected override void PreInitialize()
         {
             System.Reflection.FieldInfo spinTreasureField = typeof(FezGame.Fez).Assembly.GetType("FezGame.Components.SpinningTreasuresHost").GetField("TrackedTreasures", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            static SpinningTreasuresHost getSpinningTreasuresHost() => (SpinningTreasuresHost)ServiceHelper.Game.Components.FirstOrDefault(c => typeof(SpinningTreasuresHost).Equals(c.GetType()));
-            Waiters.Wait(() => getSpinningTreasuresHost() != null, () =>
+            
+            Waiters.Wait(() => GetSpinningTreasureHostComponent() != null, () =>
             {
-                SpinningTreasuresHost spinningTreasureHost = getSpinningTreasuresHost();
+                SpinningTreasuresHost spinningTreasureHost = GetSpinningTreasureHostComponent();
                 GetSpinningTreasures = () => (List<TrileInstance>)spinTreasureField.GetValue(spinningTreasureHost);
             });
+        }
+
+        private static SpinningTreasuresHost GetSpinningTreasureHostComponent()
+        {
+            try
+            {
+                return (SpinningTreasuresHost)ServiceHelper.Game.Components.FirstOrDefault(c =>
+                    typeof(SpinningTreasuresHost).Equals(c.GetType()));
+            }
+            catch (InvalidOperationException)
+            {
+                // in rare cases where we run into race condition due to components being modified, just leave.
+                return null;
+            }
         }
 
         public override void DrawLevel(GameTime gameTime)

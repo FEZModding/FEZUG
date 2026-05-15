@@ -79,8 +79,10 @@ namespace FEZUG.Features
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
 
             var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
-            stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, GetTimestampHook);
+            stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, GetTimestampHook, 
+                new NativeDetourConfig(){ ManualApply = true });
             orig_GetTimestamp = stopwatchTimestampDetour.GenerateTrampoline<GetTimestampDelegate>();
+            stopwatchTimestampDetour.Apply();
         }
         
         private static long GetTimestampHook()
