@@ -9,6 +9,7 @@ using FezEngine.Tools;
 using Microsoft.Xna.Framework.Audio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using System.Runtime.InteropServices;
 
 namespace FEZUG.Features
 {
@@ -21,8 +22,12 @@ namespace FEZUG.Features
 
         private static long lastMeasuredRealTimestamp = 0;
         private static long internalTimestamp = 0;
+        private static readonly object timerLock = new object();
         delegate long GetTimestampDelegate();
         private static GetTimestampDelegate orig_GetTimestamp;
+        // Store the delegate and a raw pointer handle to pin it in unmanaged RAM
+        private static GetTimestampDelegate pinnedNativeHook;
+        private static GCHandle pinnedHandle, pinnedHandle2, pinnedHandle3, pinnedHandle4;
 
         public static float Timescale { get; private set; } = 1.0f;
 
@@ -79,15 +84,51 @@ namespace FEZUG.Features
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
 
             var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
-            stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, GetTimestampHook, 
-                new NativeDetourConfig(){ ManualApply = true });
-            orig_GetTimestamp = stopwatchTimestampDetour.GenerateTrampoline<GetTimestampDelegate>();
-            stopwatchTimestampDetour.Apply();
+
+            try
+            {
+                // try the managed hook first because Windows doesn't like it when applications directly modify the system code
+                // (i.e., other Windows applications use timestamps as well, and a native detour will break those, causing an AccessViolationException)
+                stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, GetTimestampHookManaged);
+            }
+            catch
+            {
+                // native/unmanaged code is fragile
+                pinnedNativeHook = new GetTimestampDelegate(GetTimestampHookUnmanaged);
+                stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, pinnedNativeHook,
+                    new NativeDetourConfig() { ManualApply = true });
+                pinnedHandle3 = GCHandle.Alloc(stopwatchTimestampDetour, GCHandleType.Pinned);
+                orig_GetTimestamp = stopwatchTimestampDetour.GenerateTrampoline<GetTimestampDelegate>();
+                pinnedHandle4 = GCHandle.Alloc(orig_GetTimestamp, GCHandleType.Pinned);
+                stopwatchTimestampDetour.Apply();
+            }
         }
-        
-        private static long GetTimestampHook()
+
+        private static long GetTimestampHookManaged(Func<long> original)
         {
-            var originalTimestamp = orig_GetTimestamp();
+            // lock to prevent multiple threads from simultaneously updating lastMeasuredRealTimestamp and internalTimestamp
+            // also to prevent any other threads from getting the timestamp before we update it
+            lock (timerLock)
+            {
+                return DoAdjustTimestamp(original());
+            }
+        }
+        private static long GetTimestampHookUnmanaged()
+        {
+            // lock to prevent multiple threads from simultaneously updating lastMeasuredRealTimestamp and internalTimestamp
+            // also to prevent any other threads from getting the timestamp before we update it
+            lock (timerLock)
+            {
+                // Absolute fallback safety guard for Wine Mono environments
+                long rawTime = (orig_GetTimestamp != null) ? orig_GetTimestamp() : DateTime.UtcNow.Ticks;
+                return DoAdjustTimestamp(rawTime);
+            }
+        }
+        // Please ensure lock timerLock is locked before calling this method otherwise page faults can occur
+        private static long DoAdjustTimestamp(long originalTimestamp)
+        {
+            // Note: the reason the lock is not here is because otherwise the other threads could get a timestamp
+            //         from the original GetTimestamp method which might mess up the results of this method
             var elapsedSinceMeasure = originalTimestamp - lastMeasuredRealTimestamp;
             internalTimestamp += (long)(elapsedSinceMeasure * Timescale);
             lastMeasuredRealTimestamp = originalTimestamp;
