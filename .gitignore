@@ -398,5 +398,6 @@ FodyWeavers.xsd
 Dependencies/*
 !Dependencies/*.md
 
-# Custom output directory for HAT mod
+# Custom properties and output directory for HAT mod
+UserProperties.xml
 [Oo]ut/
