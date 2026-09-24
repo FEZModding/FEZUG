@@ -35,7 +35,7 @@ namespace FEZUG.Features
                         FezugConsole.Print($"To: {volume.To}");
                         FezugConsole.Print($"Bounding Box: {volume.BoundingBox}");
                         FezugConsole.Print($"Enabled: {volume.Enabled}");
-                        FezugConsole.Print($"Orientations: {string.Join(", ", volume.Orientations.OrderBy(a=>a).ToArray())}");
+                        FezugConsole.Print($"Orientations: {string.Join(", ", ((System.Collections.IEnumerable)volume.GetType().GetProperty("Orientations")!.GetValue(volume)!).Cast<object>().OrderBy(a => a).ToArray())}");
                         if (volume.ActorSettings != null)
                         {
                             var actorSettings = volume.ActorSettings;
@@ -127,4 +127,3 @@ namespace FEZUG.Features
         }
     }
 }
-

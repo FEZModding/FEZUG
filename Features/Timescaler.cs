@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FEZUG.Features.Console;
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour;
@@ -9,7 +9,6 @@ using FezEngine.Tools;
 using Microsoft.Xna.Framework.Audio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using System.Runtime.InteropServices;
 
 namespace FEZUG.Features
 {
@@ -24,10 +23,7 @@ namespace FEZUG.Features
         private static long internalTimestamp = 0;
         private static readonly object timerLock = new object();
         delegate long GetTimestampDelegate();
-        private static GetTimestampDelegate orig_GetTimestamp;
-        // Store the delegate and a raw pointer handle to pin it in unmanaged RAM
-        private static GetTimestampDelegate pinnedNativeHook;
-        private static GCHandle pinnedHandle, pinnedHandle2, pinnedHandle3, pinnedHandle4;
+        delegate long GetTimestampHookDelegate(GetTimestampDelegate original);
 
         public static float Timescale { get; private set; } = 1.0f;
 
@@ -83,24 +79,20 @@ namespace FEZUG.Features
             // TODO?: This could've been done less invasively by manually handling all cases where Stopwatch is used
             // for timing in the game, but they are quite annoying (like in ActiveTrackedSong).
 
-            var stopwatchTimestampMethod = Stopwatch.GetTimestamp;
+            var stopwatchTimestampMethod = typeof(Stopwatch).GetMethod(nameof(Stopwatch.GetTimestamp))!;
 
             try
             {
                 // try the managed hook first because Windows doesn't like it when applications directly modify the system code
                 // (i.e., other Windows applications use timestamps as well, and a native detour will break those, causing an AccessViolationException)
-                stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, GetTimestampHookManaged);
+                stopwatchTimestampDetour = new Hook(stopwatchTimestampMethod, typeof(Timescaler).GetMethod(nameof(GetTimestampHookManaged), BindingFlags.NonPublic | BindingFlags.Static)! );
             }
             catch
             {
                 // native/unmanaged code is fragile
-                pinnedNativeHook = new GetTimestampDelegate(GetTimestampHookUnmanaged);
-                stopwatchTimestampDetour = new NativeDetour(stopwatchTimestampMethod, pinnedNativeHook,
-                    new NativeDetourConfig() { ManualApply = true });
-                pinnedHandle3 = GCHandle.Alloc(stopwatchTimestampDetour, GCHandleType.Pinned);
-                orig_GetTimestamp = stopwatchTimestampDetour.GenerateTrampoline<GetTimestampDelegate>();
-                pinnedHandle4 = GCHandle.Alloc(orig_GetTimestamp, GCHandleType.Pinned);
-                stopwatchTimestampDetour.Apply();
+                var timestampPointer = stopwatchTimestampMethod.MethodHandle.GetFunctionPointer();
+                stopwatchTimestampDetour = new NativeHook(timestampPointer,
+                    (GetTimestampHookDelegate)GetTimestampHookUnmanaged);
             }
         }
 
@@ -113,15 +105,13 @@ namespace FEZUG.Features
                 return DoAdjustTimestamp(original());
             }
         }
-        private static long GetTimestampHookUnmanaged()
+        private static long GetTimestampHookUnmanaged(GetTimestampDelegate original)
         {
             // lock to prevent multiple threads from simultaneously updating lastMeasuredRealTimestamp and internalTimestamp
             // also to prevent any other threads from getting the timestamp before we update it
             lock (timerLock)
             {
-                // Absolute fallback safety guard for Wine Mono environments
-                long rawTime = (orig_GetTimestamp != null) ? orig_GetTimestamp() : DateTime.UtcNow.Ticks;
-                return DoAdjustTimestamp(rawTime);
+                return DoAdjustTimestamp(original());
             }
         }
         // Please ensure lock timerLock is locked before calling this method otherwise page faults can occur

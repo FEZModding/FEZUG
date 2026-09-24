@@ -1,18 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>11.0</LangVersion>
-
     <ImplicitUsings>enable</ImplicitUsings>
-
     <DebugType>full</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <PathMap>$(MSBuildProjectDirectory)=FEZUG/</PathMap>
   </PropertyGroup>
 
   <Import Project="$(ProjectDir)UserProperties.xml" />
@@ -51,7 +47,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="FEZ">
-      <HintPath>$(FezDir)\FEZ.exe</HintPath>
+      <HintPath>$(FezDir)\HAT.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="FezEngine">
@@ -64,10 +60,6 @@
     </Reference>
     <Reference Include="XnaWordWrapCore">
       <HintPath>$(FezDir)\XnaWordWrapCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-        <Reference Include="MonoMod">
-      <HintPath>$(MonoModDir)\MonoMod.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
