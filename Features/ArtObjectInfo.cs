@@ -111,10 +111,9 @@ namespace FEZUG.Features
                             {
                                 FezugConsole.Print($"TimeswitchWindBackSpeed: {actorSettings.TimeswitchWindBackSpeed}");
                             }
-                            var invisibleSides = (System.Collections.IEnumerable)actorSettings.GetType().GetProperty("InvisibleSides")?.GetValue(actorSettings);
-                            if (invisibleSides != null && invisibleSides.Cast<object>().Any())
+                            if (actorSettings.InvisibleSides is { Count: > 0 })
                             {
-                                FezugConsole.Print($"InvisibleSides: {string.Join(", ", invisibleSides.Cast<object>())}");
+                                FezugConsole.Print($"InvisibleSides: {string.Join(", ", actorSettings.InvisibleSides)}");
                             }
                             //if (actorSettings.NextNodeAo != null)
                             //{
