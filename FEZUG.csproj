@@ -12,10 +12,10 @@
     <PathMap>$(MSBuildProjectDirectory)=FEZUG/</PathMap>
   </PropertyGroup>
 
-  <Import Project="$(ProjectDir)UserProperties.xml" />
+  <Import Project="$(MSBuildThisFileDirectory)UserProperties.xml" Condition="Exists('$(MSBuildThisFileDirectory)UserProperties.xml')" />
 
   <Target Name="VerifyModReferences" BeforeTargets="Build">
-    <Error Text="You forgot to edit UserProperties.xml." Condition="$(UserPropertiesNotSetUp) == True" />
+    <Error Text="You forgot to configure UserProperties.xml." Condition="!Exists('$(MSBuildThisFileDirectory)UserProperties.xml')" />
   </Target>
 
   <Target Name="PrepareMod" AfterTargets="Build">
