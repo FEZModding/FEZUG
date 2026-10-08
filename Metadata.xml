@@ -2,9 +2,9 @@
    <Name>FEZUG</Name>
    <Description>Toolbox for FEZ speedrunners</Description>
    <Author>Krzyhau</Author>
-   <Version>0.1.7</Version>
+   <Version>0.2.0</Version>
    <LibraryName>FEZUG.dll</LibraryName>
    <Dependencies>
-      <DependencyInfo Name="HAT" MinimumVersion="1.0"/>
+      <DependencyInfo Name="HAT" MinimumVersion="3.0"/>
    </Dependencies>
 </Metadata>

@@ -9,7 +9,7 @@ namespace FEZUG
 {
     public class Fezug : DrawableGameComponent
     {
-        public static string Version = "v0.1.7";
+        public const string Version = "v0.2.0";
 
         public List<IFezugFeature> Features { get; private set; }
 
